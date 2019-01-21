@@ -1,0 +1,26 @@
+POST /webapi/VideoStation/vtestreaming.cgi
+api=SYNO.VideoStation.Streaming&method=close&version=1&id=96d5ce0bc7d3e5fa5a82b1aa547c14df_5Q0J50Lj&format=raw
+
+POST /webapi/VideoStation/folder.cgi
+api=SYNO.VideoStation.Folder&method=list&version=2&library_id=0&offset=0&limit=100&sort_by=title&sort_direction=asc&id=/volume1/video/TV_Show/The.Grand.Tour&type=tvshow&additional=["watched_ratio","backdrop_mtime","poster_mtime"]&preview_video=4
+
+POST /webapi/VideoStation/folder.cgi
+api=SYNO.VideoStation.Folder&method=list&version=2&library_id=0&offset=0&limit=100&sort_by=title&sort_direction=asc&id=/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE&type=tvshow&additional=["watched_ratio","backdrop_mtime","poster_mtime"]&preview_video=4
+
+POST /webapi/VideoStation/tvshow_episode.cgi
+api=SYNO.VideoStation.TVShowEpisode&method=list&version=2&offset=0&limit=1000&sort_by=title&sort_direction=asc&library_id=0&tvshow_id=2&additional=["watched_ratio","file","backdrop_mtime","poster_mtime"]
+
+POST /webapi/VideoStation/audiotrack.cgi
+api=SYNO.VideoStation.AudioTrack&method=list&version=1&id=22
+
+POST /webapi/VideoStation/subtitle.cgi
+api=SYNO.VideoStation.Subtitle&method=list&version=2&id=22
+
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.Streaming&method=open&version=1&raw={}&file={"id":22,"path":""}
+
+POST /webapi/VideoStation/watchstatus.cgi
+api=SYNO.VideoStation.WatchStatus&method=getinfo&version=1&id=22
+
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1

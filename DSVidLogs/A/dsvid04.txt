@@ -1,0 +1,8 @@
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+
+POST /webapi/VideoStation/tvshow.cgi
+api=SYNO.VideoStation.TVShow&method=list&version=2&sort_by=added&sort_direction=desc&library_id=0&actor=[]&director=[]&writer=[]&genre=[]&year=[]&date=[]&channel_name=[]&title=[]&resolution=[]&watchedstatus=[]&filecount=[]&container=[]&duration=[]&certificate=[]&rating=[]&offset=0&limit=100&additional=["watched_ratio","backdrop_mtime","poster_mtime"]
+
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.TVShowEpisode&method=getinfo&version=1&id=[12]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]

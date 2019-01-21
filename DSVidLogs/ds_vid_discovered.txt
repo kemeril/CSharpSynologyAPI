@@ -1,0 +1,113 @@
+
+/webapi/VideoController/device.cgi?api=SYNO.VideoController.Device&method=list&version=1
+/webapi/entry.cgi?api=SYNO.VideoStation2.TVShowEpisode&method=getinfo&version=1&id=[12]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]
+
+figyelem! id =12 => ebbõl 22 lesz!
+
+/webapi/VideoStation/audiotrack.cgi?SYNO.VideoStation.AudioTrack&method=list&version=1&id=22
+/webapi/VideoStation/subtitle.cgi?SYNO.VideoStation.Subtitle&method=list&version=2&id=22
+/webapi/entry.cgi?api=SYNO.VideoStation2.Streaming&method=open&version=1&raw={}&file={"id":22,"path":""}
+/webapi/VideoStation/watchstatus.cgi?api=SYNO.VideoStation.WatchStatus&method=getinfo&version=1&id=22
+/webapi/VideoStation/vtestreaming.cgi?api=SYNO.VideoStation.Streaming&method=close&version=1&id=96d5ce0bc7d3e5fa5a82b1aa547c14df_5Q0J50Lj&format=raw
+/webapi/VideoStation/folder.cgi?api=SYNO.VideoStation.Folder&method=list&version=2&library_id=0&offset=0&limit=100&sort_by=title&sort_direction=asc&id=/volume1/video/TV_Show/The.Grand.Tour&type=tvshow&additional=["watched_ratio","backdrop_mtime","poster_mtime"]&preview_video=4
+/webapi/VideoStation/folder.cgi?api=SYNO.VideoStation.Folder&method=list&version=2&library_id=0&offset=0&limit=100&sort_by=title&sort_direction=asc&id=/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE&type=tvshow&additional=["watched_ratio","backdrop_mtime","poster_mtime"]&preview_video=4
+/webapi/VideoStation/tvshow_episode.cgi?api=SYNO.VideoStation.TVShowEpisode&method=list&version=2&offset=0&limit=1000&sort_by=title&sort_direction=asc&library_id=0&tvshow_id=2&additional=["watched_ratio","file","backdrop_mtime","poster_mtime"]
+
+
+
+method=open
+http://192.168.200.2:5000/webapi/entry.cgi?api=SYNO.VideoStation2.Streaming&method=open&version=1&raw={}&file={"id":22,"path":""}&_sid=KkSJm1EL7g6o.1790QDN236400
+
+method=stream
+http://192.168.200.2:5000/webapi/VideoStation/vtestreaming.cgi?api=SYNO.VideoStation.Streaming&version=3&method=stream&id=cdea6f5ec4b8427a0004d3c534fe7fbe_FPgaVjNe&format=raw&_sid=YcgeaOxlGboWk1790QDN236400
+http://192.168.200.2:5000/webapi/VideoStation/vtestreaming.cgi?api=SYNO.VideoStation.Streaming&version=3&method=stream&id=96d5ce0bc7d3e5fa5a82b1aa547c14df_Q42OAdqE&format=raw&_sid=fK256KdnhABD61790QDN236400
+http://192.168.200.2:5000/webapi/VideoStation/vtestreaming.cgi?api=SYNO.VideoStation.Streaming&version=3&method=stream&id=96d5ce0bc7d3e5fa5a82b1aa547c14df_hhzrY2F8&format=raw&_sid=KkSJm1EL7g6o.1790QDN236400
+http://192.168.200.2:5000/webapi/VideoStation/vtestreaming.cgi?api=SYNO.VideoStation.Streaming&version=3&method=stream&id=96d5ce0bc7d3e5fa5a82b1aa547c14df_mRd3Yajn&format=raw&_sid=KkSJm1EL7g6o.1790QDN236400
+
+method=close
+http://192.168.200.2:5000/webapi/VideoStation/vtestreaming.cgi?api=SYNO.VideoStation.Streaming&method=close&version=1&id=96d5ce0bc7d3e5fa5a82b1aa547c14df_hhzrY2F8&format=raw&_sid=KkSJm1EL7g6o.1790QDN236400
+
+
+// *** proba ***
+http://192.168.200.2:5000/webapi/entry.cgi?api=SYNO.VideoStation2.TVShowEpisode&method=getinfo&version=1&id=[12]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]&_sid=fK256KdnhABD61790QDN236400
+ és erre a válasz ez:
+ez fordítja a 12-õt 22-re, azaz az episode id-t file id-ra
+{
+  "data": {
+    "episode": [
+      {
+        "additional": {
+          "actor": [
+            "Jeremy Clarkson",
+            "Richard Hammond",
+            "James May",
+            "Abbie Eaton",
+            "Mike Skinner"
+          ],
+          "director": [
+            "Phil Churchward"
+          ],
+          "extra": "{\"com.synology.TheTVDB\":{\"poster\":[\"https://www.thetvdb.com/banners/episodes/314087/5751144.jpg\"],\"rating\":{\"thetvdb\":8.4},\"reference\":{\"imdb\":\"tt5715192\",\"thetvdb\":\"5751144\"}}}\n",
+          "file": [
+            {
+              "audio_bitrate": 640000,
+              "audio_codec": "eac3",
+              "channel": 6,
+              "container_type": "matroska,webm",
+              "conversion_produced": false,
+              "display_x": 1280,
+              "display_y": 720,
+              "duration": "1:11:05",
+              "ff_video_profile": 100,
+              "filesize": 4908079893,
+              "frame_bitrate": 9205986,
+              "frame_rate_den": 1001,
+              "frame_rate_num": 24000,
+              "frequency": 48000,
+              "id": 22,
+              "path": "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.mkv",
+              "position": 13,
+              "resolutionx": 1280,
+              "resolutiony": 720,
+              "rotation": 0,
+              "sharepath": "/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.mkv",
+              "video_bitrate": 0,
+              "video_codec": "h264",
+              "video_level": 41,
+              "video_profile": 3,
+              "watched_ratio": 0
+            }
+          ],
+          "genre": [
+            "Documentary",
+            "Special Interest",
+            "Sport"
+          ],
+          "is_parental_controlled": false,
+          "poster_mtime": "2018-04-11 20:50:44.74334",
+          "summary": "Jeremy Clarkson, Richard Hammond and James May start their brand new car show with hundreds of cars, thousands of people, a fire spitting metal scorpion and a squadron of jets in the California desert, plus three amazing hybrid hypercars and a brilliant BMW.",
+          "tvshow_summary": "",
+          "watched_ratio": 0
+        },
+        "certificate": "TV-14",
+        "create_time": 0,
+        "episode": 1,
+        "id": 12,
+        "last_watched": 1533329414,
+        "library_id": 0,
+        "mapper_id": 67,
+        "original_available": "2016-11-18",
+        "rating": 84,
+        "season": 1,
+        "sort_title": "Grand Tour",
+        "tagline": "The Holy Trinity",
+        "title": "The Grand Tour",
+        "tvshow_backdrop_mtime": "2018-04-11 20:53:38.977039",
+        "tvshow_id": 2,
+        "tvshow_mapper_id": 46,
+        "tvshow_original_available": "2016-11-18"
+      }
+    ]
+  },
+  "success": true
+}

@@ -1,0 +1,6 @@
+#Megjegyzés: id = file_id
+GET http://192.168.200.2:5000//webapi/VideoStation/subtitle.cgi?SYNO.VideoStation.Subtitle&method=list&version=2&id=334
+GET http://192.168.200.2:5000/webapi/VideoStation/subtitle.cgi?api=SYNO.VideoStation.Subtitle&version2&method=get&id=334&preview=false&subtitle_id=/video/Movie/Our.Universe.2013.1080p.BlueRay.DTS.x64.HuN-FASIRT/Our.Universe.2013.1080p.BLueRay.DTS.x64.HuN.FASIRT.eng.srt
+GET http://192.168.200.2:5000/webapi/VideoStation/subtitle.cgi?api=SYNO.VideoStation.Subtitle&version2&method=get&id=334&preview=false&subtitle_id=/video/Movie/Our.Universe.2013.1080p.BlueRay.DTS.x64.HuN-FASIRT/Our.Universe.2013.1080p.BLueRay.DTS.x64.HuN.FASIRT.hun.srt
+GET http://192.168.200.2:5000/webapi/VideoStation/subtitle.cgi?api=SYNO.VideoStation.Subtitle&version2&method=get&id=334&preview=false&subtitle_id=4
+GET http://192.168.200.2:5000/webapi/VideoStation/subtitle.cgi?api=SYNO.VideoStation.Subtitle&version2&method=get&id=334&preview=false&subtitle_id=5

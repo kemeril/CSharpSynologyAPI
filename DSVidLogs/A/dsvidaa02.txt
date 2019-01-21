@@ -1,0 +1,22 @@
+POST /webapi/VideoStation/tuner.cgi
+api=SYNO.DTV.Tuner&method=list&version=1&offset=0&limit=-1&additional=channel_status
+POST /webapi/VideoStation/folder.cgi
+api=SYNO.VideoStation.Folder&method=list&version=2&library_id=0&offset=0&limit=100&sort_by=title&sort_direction=asc&id=&type=movie&additional=["watched_ratio","backdrop_mtime","poster_mtime"]&preview_video=4
+POST /webapi/VideoStation/folder.cgi
+api=SYNO.VideoStation.Folder&method=list&version=2&library_id=1&offset=0&limit=100&sort_by=title&sort_direction=asc&id=&type=movie&additional=["watched_ratio","backdrop_mtime","poster_mtime"]&preview_video=4
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.Movie&method=getinfo&version=1&id=[649]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]
+POST /webapi/VideoStation/folder.cgi
+api=SYNO.VideoStation.Folder&method=list&version=2&library_id=0&offset=0&limit=100&sort_by=title&sort_direction=asc&id=&type=tvshow&additional=["watched_ratio","backdrop_mtime","poster_mtime"]&preview_video=4
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.TVShow&method=getinfo&version=1&id=[224]&additional=["summary","backdrop_mtime","poster_mtime"]
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.Movie&method=getinfo&version=1&id=[655]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]
+POST /webapi/VideoStation/vtestreaming.cgi
+api=SYNO.VideoStation.Streaming&method=close&version=1&id=1e4f774aeba4322cdea44da46a5fd248_sNuJCRmt&format=hls_remux
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.Movie&method=getinfo&version=1&id=[624]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]

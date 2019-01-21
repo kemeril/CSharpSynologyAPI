@@ -1,0 +1,14 @@
+POST /webapi/query.cgi
+api=SYNO.API.Info&method=query&version=1&query=all
+
+POST /webapi/entry.cgi
+api=SYNO.Core.Desktop.Timeout&method=check&version=1
+
+POST /webapi/VideoStation/info.cgi
+api=SYNO.VideoStation.Info&method=getinfo&version=1
+
+POST /webapi/VideoStation/library.cgi
+api=SYNO.VideoStation.Library&method=list&version=2
+
+POST /webapi/VideoStation/movie.cgi
+api=SYNO.VideoStation.Movie&method=list&version=2&sort_by=title&sort_direction=asc&library_id=0&actor=[]&director=[]&writer=[]&genre=[]&year=[]&date=[]&channel_name=[]&title=[]&resolution=[]&watchedstatus=[]&filecount=[]&container=[]&duration=[]&certificate=[]&rating=[]&offset=0&limit=100&additional=["watched_ratio","backdrop_mtime","poster_mtime"]

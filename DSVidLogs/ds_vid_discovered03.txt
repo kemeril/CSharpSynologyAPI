@@ -1,0 +1,83 @@
+// 20180803211736
+// http://192.168.200.2:5000/webapi/entry.cgi?api=SYNO.VideoStation2.TVShowEpisode&method=getinfo&version=1&id=[12]&additional=[%22extra%22,%22summary%22,%22file%22,%22actor%22,%22writer%22,%22director%22,%22genre%22,%22collection%22,%22watched_ratio%22,%22conversion_produced%22,%22backdrop_mtime%22,%22poster_mtime%22,%22parental_control%22]&_sid=fK256KdnhABD61790QDN236400
+// http://192.168.200.2:5000/webapi/entry.cgi?api=SYNO.VideoStation2.TVShowEpisode&method=getinfo&version=1&id=[12]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]&_sid=fK256KdnhABD61790QDN236400
+
+{
+  "data": {
+    "episode": [
+      {
+        "additional": {
+          "actor": [
+            "Jeremy Clarkson",
+            "Richard Hammond",
+            "James May",
+            "Abbie Eaton",
+            "Mike Skinner"
+          ],
+          "director": [
+            "Phil Churchward"
+          ],
+          "extra": "{\"com.synology.TheTVDB\":{\"poster\":[\"https://www.thetvdb.com/banners/episodes/314087/5751144.jpg\"],\"rating\":{\"thetvdb\":8.4},\"reference\":{\"imdb\":\"tt5715192\",\"thetvdb\":\"5751144\"}}}\n",
+          "file": [
+            {
+              "audio_bitrate": 640000,
+              "audio_codec": "eac3",
+              "channel": 6,
+              "container_type": "matroska,webm",
+              "conversion_produced": false,
+              "display_x": 1280,
+              "display_y": 720,
+              "duration": "1:11:05",
+              "ff_video_profile": 100,
+              "filesize": 4908079893,
+              "frame_bitrate": 9205986,
+              "frame_rate_den": 1001,
+              "frame_rate_num": 24000,
+              "frequency": 48000,
+              "id": 22,
+              "path": "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.mkv",
+              "position": 13,
+              "resolutionx": 1280,
+              "resolutiony": 720,
+              "rotation": 0,
+              "sharepath": "/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.mkv",
+              "video_bitrate": 0,
+              "video_codec": "h264",
+              "video_level": 41,
+              "video_profile": 3,
+              "watched_ratio": 0
+            }
+          ],
+          "genre": [
+            "Documentary",
+            "Special Interest",
+            "Sport"
+          ],
+          "is_parental_controlled": false,
+          "poster_mtime": "2018-04-11 20:50:44.74334",
+          "summary": "Jeremy Clarkson, Richard Hammond and James May start their brand new car show with hundreds of cars, thousands of people, a fire spitting metal scorpion and a squadron of jets in the California desert, plus three amazing hybrid hypercars and a brilliant BMW.",
+          "tvshow_summary": "",
+          "watched_ratio": 0
+        },
+        "certificate": "TV-14",
+        "create_time": 0,
+        "episode": 1,
+        "id": 12,
+        "last_watched": 1533329414,
+        "library_id": 0,
+        "mapper_id": 67,
+        "original_available": "2016-11-18",
+        "rating": 84,
+        "season": 1,
+        "sort_title": "Grand Tour",
+        "tagline": "The Holy Trinity",
+        "title": "The Grand Tour",
+        "tvshow_backdrop_mtime": "2018-04-11 20:53:38.977039",
+        "tvshow_id": 2,
+        "tvshow_mapper_id": 46,
+        "tvshow_original_available": "2016-11-18"
+      }
+    ]
+  },
+  "success": true
+}

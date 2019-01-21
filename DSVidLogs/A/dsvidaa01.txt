@@ -1,0 +1,56 @@
+POST /webapi/query.cgi
+api=SYNO.API.Info&method=query&version=1&query=all
+POST /webapi/encryption.cgi
+api=SYNO.API.Encryption&method=getinfo&version=1
+POST /webapi/auth.cgi
+api=SYNO.API.Auth&method=login&version=6&__cIpHeRtExT=D90skVujIJXQ95iez0GqluG5b64qGIu1aZu%2B%2BeRrcd4qEm9PcARUYw%2BU5qzT%2BV7zVP%2B9b1yLVgyIWsjQVlEXZoyynbiOWOxfUyrjGSH%2BM%2BdmZ2nQ1c81LSZwUTQj34Hu0kxmhSMqQ1R4%2BqxCwZua6obomHYWDXJW7oOKrYEE8Wecw99s%2FmOOF20l9EHxpHjz%2FZMftX2XKoVNbPa659rSBVvYneEuJF3YgF6LLoL91cNI9Auf0en7AtGMv2jRVwB16Hrnau%2B0K6Lc%2BuRjvDvPlYBZ8OeHkP92x4iWChBUZXYtDCghE1tD2HiAj%2B2DV3U4gko5Roh8r8LBNVcdKsFTE5QIaNPHtqtrDVdt3taLQ1FoSu5PwcLIkvgXeNl9obWf7QF%2B46pRlcOi0J6PXdkd3oyWazm%2FHkn5Ehw4RHeq6azmCShbyzU7CZaV%2BBrJJRZdt%2FQkBNmzhtXb%2BpM4Pz%2BNtbNlFFF025tprM2JwPw51oexgo5g4Um7kdEFD1MC0f3IdhP0f4dCe4%2FlGC0WZeZdkh4ExTx%2B4p7XkxbSDh%2FZ6DUIYtQE2CBep48%2Ft%2BTR5dT4mAW7GmA4fXU03oIMR3tFwRi3ha95a4aG9ArXySdp%2F%2Bg3xVSNVOb6oBbydXbeqmycJuyV%2Bh2DggS7XmF5pkPfl1HlGEgwN0c6EyXtdyFol10%3D&session=VideoStation&client_time=1535572821
+POST /webapi/VideoStation/info.cgi
+api=SYNO.VideoStation.Info&method=getinfo&version=1
+POST /webapi/VideoStation/library.cgi
+api=SYNO.VideoStation.Library&method=list&version=2
+POST /webapi/VideoStation/movie.cgi
+api=SYNO.VideoStation.Movie&method=list&version=2&sort_by=added&sort_direction=desc&library_id=0&actor=[]&director=[]&writer=[]&genre=[]&year=[]&date=[]&channel_name=[]&title=[]&resolution=[]&watchedstatus=[]&filecount=[]&container=[]&duration=[]&certificate=[]&rating=[]&offset=0&limit=100&additional=["watched_ratio","backdrop_mtime","poster_mtime"]
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoStation/tuner.cgi
+api=SYNO.DTV.Tuner&method=list&version=1&offset=0&limit=-1&additional=channel_status
+POST /webapi/VideoStation/movie.cgi
+api=SYNO.VideoStation.Movie&method=list&version=2&sort_by=added&sort_direction=desc&library_id=1&actor=[]&director=[]&writer=[]&genre=[]&year=[]&date=[]&channel_name=[]&title=[]&resolution=[]&watchedstatus=[]&filecount=[]&container=[]&duration=[]&certificate=[]&rating=[]&offset=0&limit=100&additional=["watched_ratio","backdrop_mtime","poster_mtime"]
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoStation/tuner.cgi
+api=SYNO.DTV.Tuner&method=list&version=1&offset=0&limit=-1&additional=channel_status
+POST /webapi/VideoStation/tvshow.cgi
+api=SYNO.VideoStation.TVShow&method=list&version=2&sort_by=added&sort_direction=desc&library_id=0&actor=[]&director=[]&writer=[]&genre=[]&year=[]&date=[]&channel_name=[]&title=[]&resolution=[]&watchedstatus=[]&filecount=[]&container=[]&duration=[]&certificate=[]&rating=[]&offset=0&limit=100&additional=["watched_ratio","backdrop_mtime","poster_mtime"]
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoStation/tvshow_episode.cgi
+api=SYNO.VideoStation.TVShowEpisode&method=list&version=2&offset=0&limit=1000&sort_by=title&sort_direction=asc&library_id=0&tvshow_id=224&additional=["watched_ratio","file","backdrop_mtime","poster_mtime"]
+POST /webapi/VideoStation/tvshow_episode.cgi
+api=SYNO.VideoStation.TVShowEpisode&method=list&version=2&offset=0&limit=1000&sort_by=title&sort_direction=asc&library_id=0&tvshow_id=224&additional=["watched_ratio","file","backdrop_mtime","poster_mtime"]
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoStation/tuner.cgi
+api=SYNO.DTV.Tuner&method=list&version=1&offset=0&limit=-1&additional=channel_status
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoStation/audiotrack.cgi
+api=SYNO.VideoStation.AudioTrack&method=list&version=1&id=1293
+POST /webapi/VideoStation/subtitle.cgi
+api=SYNO.VideoStation.Subtitle&method=list&version=2&id=1293
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.Streaming&method=open&version=1&hls_remux={"audio_format":"ac3_copy","audio_track":1}&file={"id":1293,"path":""}
+POST /webapi/VideoStation/watchstatus.cgi
+api=SYNO.VideoStation.WatchStatus&method=getinfo&version=1&id=1293
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoStation/watchstatus.cgi
+api=SYNO.VideoStation.WatchStatus&method=setinfo&version=1&id=1293&position=9
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1

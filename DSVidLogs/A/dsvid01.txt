@@ -1,0 +1,20 @@
+POST /webapi/VideoController/device.cgi
+api=SYNO.VideoController.Device&method=list&version=1
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.TVShowEpisode&method=getinfo&version=1&id=[12]&additional=["extra","summary","file","actor","writer","director","genre","collection","watched_ratio","conversion_produced","backdrop_mtime","poster_mtime","parental_control"]
+
+POST /webapi/VideoStation/audiotrack.cgi
+api=SYNO.VideoStation.AudioTrack&method=list&version=1&id=22
+#Megjegyzés: id = file_id
+
+
+POST /webapi/VideoStation/subtitle.cgi
+api=SYNO.VideoStation.Subtitle&method=list&version=2&id=22
+#Megjegyzés: id = file_id
+
+POST /webapi/entry.cgi
+api=SYNO.VideoStation2.Streaming&method=open&version=1&raw={}&file={"id":22,"path":""}
+
+POST /webapi/VideoStation/watchstatus.cgi
+api=SYNO.VideoStation.WatchStatus&method=getinfo&version=1&id=22
+#Megjegyzés: id = file_id
