@@ -18,7 +18,7 @@ namespace SynologyAPI
         protected string Password;
         protected string Sid;
         protected string InternalSession;
-        protected WebProxy Proxy;
+        protected IWebProxy Proxy;
         protected ApiInfo ApiInfo;
 
         private Dictionary<string, int> _implementedApi;
@@ -45,7 +45,7 @@ namespace SynologyAPI
             return  new Dictionary<string, int> { { "SYNO.API.Auth", 3 } };
         }
 
-        public Station(Uri url, string username, string password, WebProxy proxy)
+        public Station(Uri url, string username, string password, IWebProxy proxy)
             : this(url, username, password)
         {
             if (proxy != null)
@@ -86,6 +86,7 @@ namespace SynologyAPI
             return request;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public RequestBuilder CreateRequest(KeyValuePair<string, ApiSpec> apiSpec)
         {
             return new RequestBuilder().
@@ -143,6 +144,7 @@ namespace SynologyAPI
                 : _createWebRequest(CreateRequest(requestBuilder, stationApi));
         }
 
+        // ReSharper disable once UnusedMember.Global
         public async Task<WebRequest> GetWebRequest(string apiName, string method)
         {
             return await GetWebRequest(apiName, new RequestBuilder(Sid).Session(Sid).Method(method)).ConfigureAwait(false);

@@ -28,7 +28,7 @@ namespace SynologyAPI
             InternalSession = "VideoStation";
         }
 
-        public VideoStation(Uri url, string username, string password, WebProxy proxy)
+        public VideoStation(Uri url, string username, string password, IWebProxy proxy)
             : base(url, username, password, proxy)
         {
             InternalSession = "VideoStation";
