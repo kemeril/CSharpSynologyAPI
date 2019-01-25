@@ -109,7 +109,7 @@ namespace VideoStationTest2
             var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
-            var posterRequest = VideoStation.Poster(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImage(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
             var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
             using (var file = System.IO.File.OpenWrite("poster" + movies[0].Id + ".jpg"))
             {
@@ -126,7 +126,7 @@ namespace VideoStationTest2
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
 
-            var posterRequest = VideoStation.Poster(tvShowsInfo[0].Id, VideoStation.MediaType.TVShow).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImage(tvShowsInfo[0].Id, VideoStation.MediaType.TVShow).GetAwaiter().GetResult();
             var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
             using (var file = System.IO.File.OpenWrite("poster" + tvShowsInfo[0].Id + ".jpg"))
             {
@@ -148,7 +148,7 @@ namespace VideoStationTest2
                 .GetAwaiter().GetResult();
             var episodes = episodesInfo.Episodes.ToList();
 
-            var posterRequest = VideoStation.Poster(episodes[0].Id, VideoStation.MediaType.TVShowEpisode).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImage(episodes[0].Id, VideoStation.MediaType.TVShowEpisode).GetAwaiter().GetResult();
             var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
             using (var file = System.IO.File.OpenWrite("poster" + episodes[0].Id + ".jpg"))
             {

@@ -257,7 +257,7 @@ namespace SynologyAPI
         /// <param name="id">Id of the media whose poster image wants to be downloaded. <see cref="MetaDataItem.Id"/></param>
         /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode</param>
         /// <returns></returns>
-        public async Task<WebRequest> Poster(int id, MediaType mediaType)
+        public async Task<WebRequest> PosterGetImage(int id, MediaType mediaType)
         {
             return await GetWebRequest(ApiSynoVideoStationPoster, "getimage", new ReqParams
             {
