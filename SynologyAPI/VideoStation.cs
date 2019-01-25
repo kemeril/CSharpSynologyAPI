@@ -18,6 +18,7 @@ namespace SynologyAPI
         private const string ApiSynoVideoStation2TvShowEpisode = "SYNO.VideoStation2.TVShowEpisode";
         private const string ApiSynoVideoStationMovie = "SYNO.VideoStation.Movie";
         private const string ApiSynoVideoStationLibrary = "SYNO.VideoStation.Library";
+        private const string ApiSynoVideoStationPoster = "SYNO.VideoStation.Poster";
         private const string Additional = @"[""summary"",""actor"",""file"",""extra"",""genre"",""writer"",""director"",""collection"",""poster_mtime"",""watched_ratio"",""conversion_produced"",""backdrop_mtime"",""parental_control""]";
 
 
@@ -45,7 +46,7 @@ namespace SynologyAPI
             implementedApi.Add("SYNO.VideoController.Device", 1);
             implementedApi.Add(ApiSynoVideoStationStreaming, 1);
             implementedApi.Add("SYNO.VideoStation2.Streaming", 1);
-            implementedApi.Add("SYNO.VideoStation.Poster", 1);
+            implementedApi.Add(ApiSynoVideoStationPoster, 2);
             implementedApi.Add("SYNO.VideoStation.Rating", 1);
             implementedApi.Add("SYNO.VideoStation.Collection", 1);
             implementedApi.Add("SYNO.VideoStation.TVRecording", 1);
@@ -71,6 +72,13 @@ namespace SynologyAPI
         {
             Ascending,
             Descending
+        }
+
+        public enum MediaType
+        {
+            Movie,
+            TVShow,
+            TVShowEpisode
         }
 
         #endregion
@@ -147,7 +155,7 @@ namespace SynologyAPI
 
         #endregion
 
-        #region
+        #region Movie
 
         /// <summary>
         /// Get movies
@@ -227,6 +235,37 @@ namespace SynologyAPI
             });
         }
 
+        #endregion
+
+        #region Poster
+
+        private static string MediaTypeToString(MediaType mediaType)
+        {
+            switch (mediaType)
+            {
+                case MediaType.Movie: return "movie";
+                case MediaType.TVShow: return "tvshow";
+                case MediaType.TVShowEpisode: return "tvshow_episode";
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(mediaType), mediaType, "Unsupported MediaType. Supported Media types are: Movie, TVShow, TVShowEpisode");
+            }
+        }
+
+        /// <summary>
+        /// Create a <see cref="WebRequest"/> instance for download the poster image for a media.
+        /// </summary>
+        /// <param name="id">Id of the media whose poster image wants to be downloaded. <see cref="MetaDataItem.Id"/></param>
+        /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode</param>
+        /// <returns></returns>
+        public async Task<WebRequest> Poster(int id, MediaType mediaType)
+        {
+            return await GetWebRequest(ApiSynoVideoStationPoster, "getimage", new ReqParams
+            {
+                {"id", id.ToString()},
+                {"type", MediaTypeToString(mediaType)}
+                
+            });
+        }
         #endregion
     }
 }

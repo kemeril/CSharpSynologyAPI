@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SynologyAPI;
 
@@ -55,7 +56,7 @@ namespace VideoStationTest2
             var duration = episodeFile.Duration;
             Assert.IsTrue(duration.Ticks >= 0);
 
-            var episodesResult = VideoStation.TvShowEpisodeGetInfo(firstEpisode.Id).GetAwaiter().GetResult(); 
+            var episodesResult = VideoStation.TvShowEpisodeGetInfo(firstEpisode.Id).GetAwaiter().GetResult();
 
             var firstEpisodeControl = episodesResult.Episodes.FirstOrDefault();
             Assert.IsNotNull(firstEpisodeControl);
@@ -89,7 +90,8 @@ namespace VideoStationTest2
         [TestMethod]
         public void Test_MovieList()
         {
-            var result = VideoStation.MovieList(0, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
             var files = movies[0].Additional.Files.ToList();
             var fileDescription = files[0].ToString();
@@ -98,6 +100,60 @@ namespace VideoStationTest2
 
             Assert.IsTrue(movies.Any());
             Assert.IsTrue(movies.Any(it => it.LibraryId == 0)); //has least one built in library
+        }
+
+        [TestMethod]
+        public void Test_Poster_Movie()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var posterRequest = VideoStation.Poster(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
+            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+            using (var file = System.IO.File.OpenWrite("poster" + movies[0].Id + ".jpg"))
+            {
+                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Poster_TVShow()
+        {
+            const int libraryId = 0; //Built in library
+            var tvShowsInfo = VideoStation.TvShowList(
+                    libraryId,
+                    VideoStation.SortBy.Added)
+                .GetAwaiter().GetResult().TvShows.ToList();
+
+            var posterRequest = VideoStation.Poster(tvShowsInfo[0].Id, VideoStation.MediaType.TVShow).GetAwaiter().GetResult();
+            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+            using (var file = System.IO.File.OpenWrite("poster" + tvShowsInfo[0].Id + ".jpg"))
+            {
+                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Poster_TVShowEpisode()
+        {
+            const int libraryId = 0; //Built in library
+            var tvShowsInfo = VideoStation.TvShowList(
+                    libraryId,
+                    VideoStation.SortBy.Added)
+                .GetAwaiter().GetResult().TvShows.ToList();
+            var episodesInfo = VideoStation.TvShowEpisodeList(
+                    libraryId,
+                    tvShowsInfo[0].Id)
+                .GetAwaiter().GetResult();
+            var episodes = episodesInfo.Episodes.ToList();
+
+            var posterRequest = VideoStation.Poster(episodes[0].Id, VideoStation.MediaType.TVShowEpisode).GetAwaiter().GetResult();
+            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+            using (var file = System.IO.File.OpenWrite("poster" + episodes[0].Id + ".jpg"))
+            {
+                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+            }
         }
     }
 }
