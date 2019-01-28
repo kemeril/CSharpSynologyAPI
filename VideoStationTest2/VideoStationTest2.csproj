@@ -45,6 +45,9 @@
     <Reference Include="Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\MSTest.TestFramework.1.3.2\lib\net45\Microsoft.VisualStudio.TestPlatform.TestFramework.Extensions.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
@@ -58,21 +61,21 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="SynoAPICapture.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\StdUtils\StdUtils.csproj">
-      <Project>{C4E83987-6223-46F2-B437-9C677B8A9E2B}</Project>
+      <Project>{a3649276-6c65-44ea-a0da-2befc2ba9322}</Project>
       <Name>StdUtils</Name>
     </ProjectReference>
     <ProjectReference Include="..\SynologyAPI\SynologyAPI.csproj">
-      <Project>{2416B308-D8C8-42C4-8D91-8769D2DDB4F7}</Project>
+      <Project>{3d77ae6c-639f-4d60-b1b4-d0e14371efb9}</Project>
       <Name>SynologyAPI</Name>
     </ProjectReference>
     <ProjectReference Include="..\SynologyRestDAL\SynologyRestDAL.csproj">
-      <Project>{893C1997-87CA-49E2-B277-B75607134574}</Project>
+      <Project>{c15e1b49-c71c-4eed-a0a6-f17de47c0d36}</Project>
       <Name>SynologyRestDAL</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="SynoAPICapture.txt" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
