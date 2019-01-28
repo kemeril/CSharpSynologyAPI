@@ -61,9 +61,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="SynoAPICapture.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\StdUtils\StdUtils.csproj">
       <Project>{a3649276-6c65-44ea-a0da-2befc2ba9322}</Project>
       <Name>StdUtils</Name>
