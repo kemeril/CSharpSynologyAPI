@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -151,6 +152,156 @@ namespace VideoStationTest2
             var posterRequest = VideoStation.PosterGetImage(episodes[0].Id, VideoStation.MediaType.TVShowEpisode).GetAwaiter().GetResult();
             var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
             using (var file = System.IO.File.OpenWrite("poster" + episodes[0].Id + ".jpg"))
+            {
+                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Backdrop_Movie_0()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var posterRequest = VideoStation.BackdropGet(movies[0].MapperId).GetAwaiter().GetResult();
+
+            try
+            {
+                var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+                using (var file = File.OpenWrite("backdrop" + movies[0].MapperId + ".jpg"))
+                {
+                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
+            }
+            catch (WebException ex)
+            {
+                HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+                if (status != null && status == HttpStatusCode.NotFound)
+                {
+                    Console.WriteLine("It has not backdrop image!");
+                }
+                else
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_Backdrop_Movie_1()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var posterRequest = VideoStation.BackdropGet(movies[1].MapperId).GetAwaiter().GetResult();
+
+            try
+            {
+                var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+                using (var file = File.OpenWrite("backdrop" + movies[1].MapperId + ".jpg"))
+                {
+                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
+            }
+            catch (WebException ex)
+            {
+                HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+                if (status != null && status == HttpStatusCode.NotFound)
+                {
+                    Console.WriteLine("It has not backdrop image!");
+                }
+                else
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_Backdrop_TVShow()
+        {
+            const int libraryId = 0; //Built in library
+            var tvShowsInfo = VideoStation.TvShowList(
+                    libraryId,
+                    VideoStation.SortBy.Added)
+                .GetAwaiter().GetResult().TvShows.ToList();
+
+            var posterRequest = VideoStation.BackdropGet(tvShowsInfo[0].MapperId).GetAwaiter().GetResult();
+            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+            using (var file = System.IO.File.OpenWrite("backdrop" + tvShowsInfo[0].MapperId + ".jpg"))
+            {
+                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Backdrop_TVShowEpisode_WithFallback()
+        {
+            const int libraryId = 0; //Built in library
+            var tvShowsInfo = VideoStation.TvShowList(
+                    libraryId,
+                    VideoStation.SortBy.Added)
+                .GetAwaiter().GetResult().TvShows.ToList();
+
+            var tvShowInfo = tvShowsInfo[0];
+
+            var episodesInfo = VideoStation.TvShowEpisodeList(
+                    libraryId,
+                    tvShowInfo.Id)
+                .GetAwaiter().GetResult();
+            var episodes = episodesInfo.Episodes.ToList();
+            int? backdropMapperId;
+
+            var posterRequest = VideoStation.BackdropGet(episodes[0].MapperId).GetAwaiter().GetResult();
+            try
+            {
+                var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+                using (var file = File.OpenWrite("backdrop" + episodes[0].MapperId + ".jpg"))
+                {
+                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                    backdropMapperId = episodes[0].MapperId;
+                }
+            }
+            catch (WebException ex)
+            {
+                HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+                if (status != null && status == HttpStatusCode.NotFound)
+                {
+                    Console.WriteLine("It has not backdrop image!");
+
+                    posterRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
+                    var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+                    using (var file = File.OpenWrite("backdrop" + episodes[0].MapperId + ".jpg"))
+                    {
+                        posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                        backdropMapperId = tvShowInfo.MapperId;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_Backdrop_TVShowEpisode_Direct()
+        {
+            //There is no backdrop image for episode parts of TVShow, please to download the TVShow(collection) backdrop image instead.
+
+            const int libraryId = 0; //Built in library
+            var tvShowsInfo = VideoStation.TvShowList(
+                    libraryId,
+                    VideoStation.SortBy.Added)
+                .GetAwaiter().GetResult().TvShows.ToList();
+
+            var tvShowInfo = tvShowsInfo[0];
+
+            var posterRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
+            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
+            using (var file = File.OpenWrite("backdrop" + tvShowInfo.MapperId + ".jpg"))
             {
                 posterStream.GetResponseStream()?.CopyTo(file, 8196);
             }

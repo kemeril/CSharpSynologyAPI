@@ -19,6 +19,7 @@ namespace SynologyAPI
         private const string ApiSynoVideoStationMovie = "SYNO.VideoStation.Movie";
         private const string ApiSynoVideoStationLibrary = "SYNO.VideoStation.Library";
         private const string ApiSynoVideoStationPoster = "SYNO.VideoStation.Poster";
+        private const string ApiSynoVideoStationBackdrop = "SYNO.VideoStation.Backdrop";
         private const string Additional = @"[""summary"",""actor"",""file"",""extra"",""genre"",""writer"",""director"",""collection"",""poster_mtime"",""watched_ratio"",""conversion_produced"",""backdrop_mtime"",""parental_control""]";
 
 
@@ -47,6 +48,7 @@ namespace SynologyAPI
             implementedApi.Add(ApiSynoVideoStationStreaming, 1);
             implementedApi.Add("SYNO.VideoStation2.Streaming", 1);
             implementedApi.Add(ApiSynoVideoStationPoster, 2);
+            implementedApi.Add(ApiSynoVideoStationBackdrop, 1);
             implementedApi.Add("SYNO.VideoStation.Rating", 1);
             implementedApi.Add("SYNO.VideoStation.Collection", 1);
             implementedApi.Add("SYNO.VideoStation.TVRecording", 1);
@@ -256,16 +258,34 @@ namespace SynologyAPI
         /// </summary>
         /// <param name="id">Id of the media whose poster image wants to be downloaded. <see cref="MetaDataItem.Id"/></param>
         /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode</param>
-        /// <returns></returns>
+        /// <returns>The <see cref="WebRequest"/> instance for download the poster image for a media.</returns>
         public async Task<WebRequest> PosterGetImage(int id, MediaType mediaType)
         {
             return await GetWebRequest(ApiSynoVideoStationPoster, "getimage", new ReqParams
             {
                 {"id", id.ToString()},
                 {"type", MediaTypeToString(mediaType)}
-                
             });
         }
+
+        #endregion
+
+        #region Backdrop
+
+        /// <summary>
+        /// Create a <see cref="WebRequest"/> instance for download the backdrop image for a media.
+        /// There is no backdrop image for episode parts of TVShow, please to download the TVShow (collection) backdrop image instead.
+        /// </summary>
+        /// <param name="mapperId">MapperId of the media whose backdrop image wants to be downloaded. <see cref="MetaDataItem.MapperId"/></param>
+        /// <returns>The <see cref="WebRequest"/> instance for download the backdrop image for a media.</returns>
+        public async Task<WebRequest> BackdropGet(int mapperId)
+        {
+            return await GetWebRequest(ApiSynoVideoStationBackdrop, "get", new ReqParams
+            {
+                {"mapper_id", mapperId.ToString()},
+            });
+        }
+
         #endregion
     }
 }
