@@ -274,7 +274,7 @@ namespace SynologyAPI
 
         /// <summary>
         /// Create a <see cref="WebRequest"/> instance for download the backdrop image for a media.
-        /// There is no backdrop image for episode parts of TVShow, please to download the TVShow (collection) backdrop image instead.
+        /// There is no backdrop image for episode parts of TVShow, please download the TVShow (collection) backdrop image instead.
         /// </summary>
         /// <param name="mapperId">MapperId of the media whose backdrop image wants to be downloaded. <see cref="MetaDataItem.MapperId"/></param>
         /// <returns>The <see cref="WebRequest"/> instance for download the backdrop image for a media.</returns>
