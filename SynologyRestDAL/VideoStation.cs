@@ -33,6 +33,11 @@ namespace SynologyRestDAL
         }
 
         [DataContract]
+        public class SubtitlesResult : TResult<IEnumerable<Subtitle>>
+        {
+        }
+
+        [DataContract]
         public class Info
         {
             [DataMember(Name = "total")]
@@ -473,6 +478,50 @@ namespace SynologyRestDAL
             public override string ToString()
             {
                 return string.Format("Format: {0}, StreamId: {1}", Format ?? string.Empty, StreamId ?? string.Empty);
+            }
+        }
+
+        [DataContract]
+        public class Subtitle
+        {
+            [DataMember(Name = "embedded")]
+            public bool Embedded { get; set; }
+
+            /// <summary>
+            /// Sample: "srt"
+            /// </summary>
+            [DataMember(Name = "format")]
+            public string Format { get; set; }
+
+            /// <summary>
+            /// Samples: 1
+            ///          2
+            ///          "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt"
+            /// </summary>
+            [DataMember(Name = "id")]
+            public string Id { get; set; }
+
+            /// <summary>
+            /// Samples: "hun"
+            ///          "eng"
+            /// </summary>
+            [DataMember(Name = "lang")]
+            public string Language { get; set; }
+
+            /// <summary>
+            /// Samples: ""
+            ///          "English"
+            ///          "English (SDH)"
+            /// </summary>
+            [DataMember(Name = "title")]
+            public string Title { get; set; }
+
+            [DataMember(Name = "need_preview")]
+            public bool NeedPreview { get; set; }
+
+            public override string ToString()
+            {
+                return string.Format("Embedded: {0}, Format: {1}, Language: {2}, Title: {3}, NeedPreview: {4}, Id: {5}", Embedded, Format, Language, Title, NeedPreview, Id);
             }
         }
     }

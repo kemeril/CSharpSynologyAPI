@@ -1,9 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using StdUtils;
 using SynologyAPI;
+using SynologyRestDAL.Vs;
+using File = System.IO.File;
 
 namespace VideoStationTest2
 {
@@ -230,7 +232,7 @@ namespace VideoStationTest2
 
             var posterRequest = VideoStation.BackdropGet(tvShowsInfo[0].MapperId).GetAwaiter().GetResult();
             var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-            using (var file = System.IO.File.OpenWrite("backdrop" + tvShowsInfo[0].MapperId + ".jpg"))
+            using (var file = File.OpenWrite("backdrop" + tvShowsInfo[0].MapperId + ".jpg"))
             {
                 posterStream.GetResponseStream()?.CopyTo(file, 8196);
             }
@@ -302,6 +304,50 @@ namespace VideoStationTest2
             var posterRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
             var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
             using (var file = File.OpenWrite("backdrop" + tvShowInfo.MapperId + ".jpg"))
+            {
+                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+            }
+        }
+
+        [TestMethod]
+        public void Test_SubtitleList_TVShowAndEpisode()
+        {
+            const int libraryId = 0; //Built in library
+            var tvShowsInfo = VideoStation.TvShowList(
+                    libraryId,
+                    VideoStation.SortBy.Added)
+                .GetAwaiter().GetResult();
+
+            var episodesInfo = VideoStation.TvShowEpisodeList(
+                    libraryId,
+                    tvShowsInfo.TvShows.First(item => item.SortTitle == "Grand Tour").Id)
+                .GetAwaiter().GetResult();
+            Assert.IsNotNull(episodesInfo);
+
+            var episodes = episodesInfo.Episodes.ToList();
+            Assert.IsTrue(episodes.Any());
+
+            var firstEpisode = episodes.First();
+            Assert.IsTrue(firstEpisode.Id > 0);
+
+            var episodeFile = firstEpisode.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(episodeFile);
+
+            var subtitles = VideoStation.SubtitleList(episodeFile.Id).GetAwaiter().GetResult();
+
+            foreach (var subtitle in subtitles)
+            {
+                Console.WriteLine(subtitle);
+            }
+        }
+
+        [TestMethod]
+        public void Test_SubtitleGet_TVShowAndEpisode()
+        {
+            //var subtitleRequest = VideoStation.SubtitleGet(27, false, "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt").GetAwaiter().GetResult();
+            var subtitleRequest = VideoStation.SubtitleGet(27, false, "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt").GetAwaiter().GetResult();
+            var posterStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult();
+            using (var file = File.OpenWrite("subtitleRequest_27.srt"))
             {
                 posterStream.GetResponseStream()?.CopyTo(file, 8196);
             }

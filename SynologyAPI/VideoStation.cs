@@ -20,6 +20,7 @@ namespace SynologyAPI
         private const string ApiSynoVideoStationLibrary = "SYNO.VideoStation.Library";
         private const string ApiSynoVideoStationPoster = "SYNO.VideoStation.Poster";
         private const string ApiSynoVideoStationBackdrop = "SYNO.VideoStation.Backdrop";
+        private const string ApiSynoVideoStationSubtitle = "SYNO.VideoStation.Subtitle";
         private const string Additional = @"[""summary"",""actor"",""file"",""extra"",""genre"",""writer"",""director"",""collection"",""poster_mtime"",""watched_ratio"",""conversion_produced"",""backdrop_mtime"",""parental_control""]";
 
 
@@ -55,7 +56,7 @@ namespace SynologyAPI
             implementedApi.Add("SYNO.VideoStation.HomeVideo", 1);
             implementedApi.Add("SYNO.VideoStation.Video", 1);
             implementedApi.Add("SYNO.VideoStation.Movie", 1);
-            implementedApi.Add("SYNO.VideoStation.Subtitle", 2);
+            implementedApi.Add(ApiSynoVideoStationSubtitle, 2);
             implementedApi.Add("SYNO.VideoStation.AudioTrack", 1);
             implementedApi.Add("SYNO.VideoStation.Folder", 1);
             implementedApi.Add("SYNO.VideoStation.WatchStatus", 1);
@@ -283,6 +284,43 @@ namespace SynologyAPI
             return await GetWebRequest(ApiSynoVideoStationBackdrop, "get", new ReqParams
             {
                 {"mapper_id", mapperId.ToString()},
+            });
+        }
+
+        #endregion
+
+        #region Subtitles
+
+        /// <summary>
+        /// List subtitles.
+        /// </summary>
+        public async Task<IEnumerable<Subtitle>> SubtitleList(int fileId)
+        {
+            var subtitlesResult = await CallMethod<SubtitlesResult>(ApiSynoVideoStationSubtitle, "list",
+                new ReqParams
+                {
+                    {"id", fileId.ToString()}
+                });
+
+            if (!subtitlesResult.Success)
+                throw new SynoRequestException(@"Synology error code " + subtitlesResult.Error);
+
+            return subtitlesResult.Data;
+        }
+
+        /// <summary>
+        /// Create a <see cref="WebRequest"/> instance for download the subtitle for a media.
+        /// </summary>
+        /// <returns>The <see cref="WebRequest"/> instance for download the subtitle for a media.</returns>
+        /// <remarks>id does not matter if the requested subtitle is not embedded!</remarks>
+        public async Task<WebRequest> SubtitleGet(int id, bool preview, string subtitleId)
+        {
+            //TODO: Discover that id comes from where!
+            return await GetWebRequest(ApiSynoVideoStationSubtitle, "get", new ReqParams
+            {
+                {"id", id.ToString()},
+                {"preview", preview.ToString().ToLower()},
+                {"subtitle_id", subtitleId.ToString()},
             });
         }
 
