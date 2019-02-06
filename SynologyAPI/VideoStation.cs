@@ -209,19 +209,25 @@ namespace SynologyAPI
 
         public async Task<VideoStreamResult> StreamingOpen(int fileId, string format = "raw")
         {
+            if (format == null) throw new ArgumentNullException(nameof(format));
+            if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
+
             return await CallMethod<VideoStreamResult>(ApiSynoVideoStationStreaming, "open", new ReqParams
             {
                 {"id", fileId.ToString()},
-                {"accept_format", format ?? "raw"}
+                {"accept_format", format}
             });
         }
 
         public async Task<bool> StreamingClose(string streamId, bool forceClose, string format = "raw")
         {
+            if (format == null) throw new ArgumentNullException(nameof(format));
+            if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
+
             var closeResult = await CallMethod<TResult<object>>(ApiSynoVideoStationStreaming, "close", new ReqParams
             {
                 {"id", streamId},
-                {"format", format ?? "raw"},
+                {"format", format},
                 {"force_close", forceClose.ToString().ToLower()}
             });
             return closeResult.Success;
@@ -231,10 +237,13 @@ namespace SynologyAPI
         //Todo: pass result to vlc
         public async Task<WebRequest> StreamingStream(string streamId, string format = "raw")
         {
+            if (format == null) throw new ArgumentNullException(nameof(format));
+            if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
+
             return await GetWebRequest(ApiSynoVideoStationStreaming, "stream", new ReqParams
             {
                 {"id", streamId},
-                {"format", format ?? "raw"}
+                {"format", format}
             });
         }
 
@@ -313,14 +322,16 @@ namespace SynologyAPI
         /// </summary>
         /// <returns>The <see cref="WebRequest"/> instance for download the subtitle for a media.</returns>
         /// <remarks>id does not matter if the requested subtitle is not embedded!</remarks>
-        public async Task<WebRequest> SubtitleGet(int id, bool preview, string subtitleId)
+        public async Task<WebRequest> SubtitleGet(int fileId, bool preview, string subtitleId)
         {
-            //TODO: Discover that id comes from where!
+            if (subtitleId == null) throw new ArgumentNullException(nameof(subtitleId));
+            if (string.IsNullOrEmpty(subtitleId)) throw new ArgumentException("subtitleId cannot be empty!", nameof(subtitleId));
+
             return await GetWebRequest(ApiSynoVideoStationSubtitle, "get", new ReqParams
             {
-                {"id", id.ToString()},
+                {"id", fileId.ToString()},
                 {"preview", preview.ToString().ToLower()},
-                {"subtitle_id", subtitleId.ToString()},
+                {"subtitle_id", subtitleId},
             });
         }
 

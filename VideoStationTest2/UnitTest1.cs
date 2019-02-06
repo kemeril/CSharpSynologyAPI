@@ -2,10 +2,7 @@
 using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using StdUtils;
 using SynologyAPI;
-using SynologyRestDAL.Vs;
-using File = System.IO.File;
 
 namespace VideoStationTest2
 {
@@ -13,6 +10,7 @@ namespace VideoStationTest2
     public class UnitTest1
     {
         private string _sid;
+        private string Sid => _sid;
 
         [TestInitialize()]
         public void Initialize()
@@ -21,6 +19,7 @@ namespace VideoStationTest2
             var loggedIn = VideoStation.Login().GetAwaiter().GetResult();
             Assert.IsTrue(loggedIn);
             _sid = ObjectAccessor.GetField(VideoStation, "Sid") as string;
+            Console.WriteLine("_sid (for debug purpose only): " + Sid);
         }
 
         [TestCleanup()]
@@ -113,10 +112,12 @@ namespace VideoStationTest2
             var movies = result.Movies.ToList();
 
             var posterRequest = VideoStation.PosterGetImage(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
-            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-            using (var file = System.IO.File.OpenWrite("poster" + movies[0].Id + ".jpg"))
+            using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
-                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                using (var file = System.IO.File.OpenWrite("poster" + movies[0].Id + ".jpg"))
+                {
+                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
             }
         }
 
@@ -130,10 +131,12 @@ namespace VideoStationTest2
                 .GetAwaiter().GetResult().TvShows.ToList();
 
             var posterRequest = VideoStation.PosterGetImage(tvShowsInfo[0].Id, VideoStation.MediaType.TVShow).GetAwaiter().GetResult();
-            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-            using (var file = System.IO.File.OpenWrite("poster" + tvShowsInfo[0].Id + ".jpg"))
+            using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
-                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                using (var file = System.IO.File.OpenWrite("poster" + tvShowsInfo[0].Id + ".jpg"))
+                {
+                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
             }
         }
 
@@ -152,10 +155,12 @@ namespace VideoStationTest2
             var episodes = episodesInfo.Episodes.ToList();
 
             var posterRequest = VideoStation.PosterGetImage(episodes[0].Id, VideoStation.MediaType.TVShowEpisode).GetAwaiter().GetResult();
-            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-            using (var file = System.IO.File.OpenWrite("poster" + episodes[0].Id + ".jpg"))
+            using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
-                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                using (var file = System.IO.File.OpenWrite("poster" + episodes[0].Id + ".jpg"))
+                {
+                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
             }
         }
 
@@ -166,19 +171,21 @@ namespace VideoStationTest2
             var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
-            var posterRequest = VideoStation.BackdropGet(movies[0].MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGet(movies[0].MapperId).GetAwaiter().GetResult();
 
             try
             {
-                var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-                using (var file = File.OpenWrite("backdrop" + movies[0].MapperId + ".jpg"))
+                using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
                 {
-                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                    using (var file = System.IO.File.OpenWrite("backdrop" + movies[0].MapperId + ".jpg"))
+                    {
+                        backdropStream.GetResponseStream()?.CopyTo(file, 8196);
+                    }
                 }
             }
             catch (WebException ex)
             {
-                HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+                var status = (ex.Response as HttpWebResponse)?.StatusCode;
                 if (status != null && status == HttpStatusCode.NotFound)
                 {
                     Console.WriteLine("It has not backdrop image!");
@@ -197,19 +204,21 @@ namespace VideoStationTest2
             var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
-            var posterRequest = VideoStation.BackdropGet(movies[1].MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGet(movies[1].MapperId).GetAwaiter().GetResult();
 
             try
             {
-                var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-                using (var file = File.OpenWrite("backdrop" + movies[1].MapperId + ".jpg"))
+                using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
                 {
-                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                    using (var file = System.IO.File.OpenWrite("backdrop" + movies[1].MapperId + ".jpg"))
+                    {
+                        backdropStream.GetResponseStream()?.CopyTo(file, 8196);
+                    }
                 }
             }
             catch (WebException ex)
             {
-                HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+                var status = (ex.Response as HttpWebResponse)?.StatusCode;
                 if (status != null && status == HttpStatusCode.NotFound)
                 {
                     Console.WriteLine("It has not backdrop image!");
@@ -230,11 +239,13 @@ namespace VideoStationTest2
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
 
-            var posterRequest = VideoStation.BackdropGet(tvShowsInfo[0].MapperId).GetAwaiter().GetResult();
-            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-            using (var file = File.OpenWrite("backdrop" + tvShowsInfo[0].MapperId + ".jpg"))
+            var backdropRequest = VideoStation.BackdropGet(tvShowsInfo[0].MapperId).GetAwaiter().GetResult();
+            using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
-                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                using (var file = System.IO.File.OpenWrite("backdrop" + tvShowsInfo[0].MapperId + ".jpg"))
+                {
+                    backdropStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
             }
         }
 
@@ -254,31 +265,35 @@ namespace VideoStationTest2
                     tvShowInfo.Id)
                 .GetAwaiter().GetResult();
             var episodes = episodesInfo.Episodes.ToList();
-            int? backdropMapperId;
+            int? backdropMapperId = null;
 
-            var posterRequest = VideoStation.BackdropGet(episodes[0].MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGet(episodes[0].MapperId).GetAwaiter().GetResult();
             try
             {
-                var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-                using (var file = File.OpenWrite("backdrop" + episodes[0].MapperId + ".jpg"))
+                using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
                 {
-                    posterStream.GetResponseStream()?.CopyTo(file, 8196);
-                    backdropMapperId = episodes[0].MapperId;
+                    using (var file = System.IO.File.OpenWrite("backdrop" + episodes[0].MapperId + ".jpg"))
+                    {
+                        backdropStream.GetResponseStream()?.CopyTo(file, 8196);
+                        backdropMapperId = episodes[0].MapperId;
+                    }
                 }
             }
             catch (WebException ex)
             {
-                HttpStatusCode? status = (ex.Response as HttpWebResponse)?.StatusCode;
+                var status = (ex.Response as HttpWebResponse)?.StatusCode;
                 if (status != null && status == HttpStatusCode.NotFound)
                 {
                     Console.WriteLine("It has not backdrop image!");
 
-                    posterRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
-                    var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-                    using (var file = File.OpenWrite("backdrop" + episodes[0].MapperId + ".jpg"))
+                    backdropRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
+                    using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
                     {
-                        posterStream.GetResponseStream()?.CopyTo(file, 8196);
-                        backdropMapperId = tvShowInfo.MapperId;
+                        using (var file = System.IO.File.OpenWrite("backdrop" + episodes[0].MapperId + ".jpg"))
+                        {
+                            backdropStream.GetResponseStream()?.CopyTo(file, 8196);
+                            backdropMapperId = tvShowInfo.MapperId;
+                        }
                     }
                 }
                 else
@@ -286,6 +301,8 @@ namespace VideoStationTest2
                     Console.WriteLine(ex.ToString());
                 }
             }
+
+            Console.WriteLine($"backdropMapperId: {(backdropMapperId.HasValue ? backdropMapperId.ToString() : "Unknown")}");
         }
 
         [TestMethod]
@@ -301,11 +318,13 @@ namespace VideoStationTest2
 
             var tvShowInfo = tvShowsInfo[0];
 
-            var posterRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
-            var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult();
-            using (var file = File.OpenWrite("backdrop" + tvShowInfo.MapperId + ".jpg"))
+            var backdropRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
+            using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
-                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                using (var file = System.IO.File.OpenWrite("backdrop" + tvShowInfo.MapperId + ".jpg"))
+                {
+                    backdropStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
             }
         }
 
@@ -342,14 +361,95 @@ namespace VideoStationTest2
         }
 
         [TestMethod]
-        public void Test_SubtitleGet_TVShowAndEpisode()
+        public void Test_SubtitleGet_TVShowAndEpisode_SimpleTest()
         {
             //var subtitleRequest = VideoStation.SubtitleGet(27, false, "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt").GetAwaiter().GetResult();
             var subtitleRequest = VideoStation.SubtitleGet(27, false, "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt").GetAwaiter().GetResult();
-            var posterStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult();
-            using (var file = File.OpenWrite("subtitleRequest_27.srt"))
+            using (var subtitleStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
-                posterStream.GetResponseStream()?.CopyTo(file, 8196);
+                using (var file = System.IO.File.OpenWrite("subtitleRequest_27.srt"))
+                {
+                    subtitleStream.GetResponseStream()?.CopyTo(file, 8196);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_SubtitleGet_TVShowAndEpisode()
+        {
+            const int libraryId = 0; //Built in library
+            var tvShowsInfo = VideoStation.TvShowList(
+                    libraryId,
+                    VideoStation.SortBy.Added)
+                .GetAwaiter().GetResult();
+
+            var episodesInfo = VideoStation.TvShowEpisodeList(
+                    libraryId,
+                    tvShowsInfo.TvShows.First(item => item.SortTitle == "Grand Tour").Id)
+                .GetAwaiter().GetResult();
+            Assert.IsNotNull(episodesInfo);
+
+            var episodes = episodesInfo.Episodes.ToList();
+            Assert.IsTrue(episodes.Any());
+
+            var firstEpisode = episodes.First();
+            Assert.IsTrue(firstEpisode.Id > 0);
+
+            var episodeFile = firstEpisode.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(episodeFile);
+
+            var subtitles = VideoStation.SubtitleList(episodeFile.Id).GetAwaiter().GetResult()
+                .ToList();
+            if (!subtitles.Any()) return;
+
+            foreach (var requestedSubtitle in subtitles)
+            {
+                //var requestedSubtitle = subtitles.FirstOrDefault(s => !s.Embedded);
+
+                var subtitleRequest = VideoStation.SubtitleGet(episodeFile.Id, false, requestedSubtitle.Id).GetAwaiter().GetResult();
+                using (var subtitleStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult())
+                {
+                    var subtitleEncodedId = WebUtility.UrlEncode(requestedSubtitle.Id);
+                    var filename = $"subtitleRequest_{episodeFile.Id}_{requestedSubtitle.Language ?? "Unknown"}_{subtitleEncodedId}.{requestedSubtitle.Format ?? "srt"}";
+                    using (var file = System.IO.File.OpenWrite(filename))
+                    {
+                        subtitleStream.GetResponseStream()?.CopyTo(file, 8196);
+                    }
+                }
+            }
+        }
+
+        [TestMethod]
+        public void Test_SubtitleGet_Movie()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var subtitles = VideoStation.SubtitleList(movieFile.Id).GetAwaiter().GetResult()
+                .ToList();
+            if (!subtitles.Any()) return;
+
+            foreach (var requestedSubtitle in subtitles)
+            {
+                //var requestedSubtitle = subtitles.FirstOrDefault(s => !s.Embedded);
+
+                var subtitleRequest = VideoStation.SubtitleGet(movieFile.Id, false, requestedSubtitle.Id).GetAwaiter().GetResult();
+                using (var subtitleStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult())
+                {
+                    var subtitleEncodedId = WebUtility.UrlEncode(requestedSubtitle.Id);
+                    var filename = $"subtitleRequest_{movieFile.Id}_{requestedSubtitle.Language ?? "Unknown"}_{subtitleEncodedId}.{requestedSubtitle.Format ?? "srt"}";
+                    using (var file = System.IO.File.OpenWrite(filename))
+                    {
+                        subtitleStream.GetResponseStream()?.CopyTo(file, 8196);
+                    }
+                }
             }
         }
     }
