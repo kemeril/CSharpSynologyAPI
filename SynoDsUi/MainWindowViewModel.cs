@@ -5,7 +5,6 @@ using SynologyRestDAL.Ds;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Linq;
@@ -32,13 +31,16 @@ namespace SynoDsUi
 
         public MainWindowViewModel()
         {
-            Mapper.CreateMap<Task, TaskViewModel>();
-            NameValueCollection appSettings = ConfigurationManager.AppSettings;
+            //Mapper.CreateMap<Task, TaskViewModel>();
+            //Replacement but not tested yet:
+            Mapper.Initialize(cfg=> cfg.CreateMap<Task, TaskViewModel>());
+            
+            var appSettings = ConfigurationManager.AppSettings;
             var downloadStation = new DownloadStation(new Uri(appSettings["host"]), appSettings["username"], appSettings["password"], CreateProxy(appSettings["proxy"]));
 
-            if (downloadStation.Login().GetAwaiter().GetResult())
+            if (downloadStation.LoginAsync().GetAwaiter().GetResult())
             {
-                var listResult = downloadStation.List(string.Join(",", new []{ "detail", "transfer", "file", "tracker" })).GetAwaiter().GetResult();
+                var listResult = downloadStation.ListAsync(string.Join(",", new []{ "detail", "transfer", "file", "tracker" })).GetAwaiter().GetResult();
                 if (listResult.Success)
                 {
                     var taskList = (from task in listResult.Data.Tasks orderby task.Additional.Detail.CreateTime select Mapper.Map<TaskViewModel>(task)).ToList();
@@ -64,7 +66,7 @@ namespace SynoDsUi
                 // ReSharper disable once ExplicitCallerInfoArgument
                 OnPropertyChanged("Statuses");
 
-                downloadStation.Logout().GetAwaiter();
+                downloadStation.LogoutAsync().GetAwaiter();
             }
         }
 

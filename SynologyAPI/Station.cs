@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SynologyAPI
@@ -54,7 +55,7 @@ namespace SynologyAPI
             }
         }
 
-        protected async Task<string> _run(RequestBuilder requestBuilder)
+        protected async Task<string> _runAsync(RequestBuilder requestBuilder, CancellationToken cancellationToken)
         {
             var request = WebRequest.Create(BaseUrl.ToString() + requestBuilder);
             if (Proxy != null)
@@ -62,10 +63,9 @@ namespace SynologyAPI
                 request.Proxy = Proxy;
             }
 
-            var response = await request.GetResponseAsync().ConfigureAwait(false);
+            var response = await request.GetResponseAsync(cancellationToken).ConfigureAwait(false);
 
-            if (response == null) return null;
-            var responseStream = response.GetResponseStream();
+            var responseStream = response?.GetResponseStream();
             if (responseStream == null) return null;
 
             using (var reader = new StreamReader(responseStream))
@@ -104,9 +104,9 @@ namespace SynologyAPI
                         Version(apiSpec.Value.MaxVersion.ToString());
         }
 
-        public async Task<T> PostFile<T>(string apiName, string method, string fileName, Stream fileStream, string fileParam = "file")
+        public async Task<T> PostFileAsync<T>(string apiName, string method, string fileName, Stream fileStream, string fileParam = "file", CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stationApi = (await GetApi(apiName).ConfigureAwait(false)).FirstOrDefault();
+            var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
             return stationApi.Key == null ? default(T) : 
                 JsonHelper.FromJson<T>(
                         _postFile(
@@ -118,68 +118,70 @@ namespace SynologyAPI
             );
         }
 
-        public async Task<T> Call<T>(string apiName, RequestBuilder requestBuilder)
+        public async Task<T> CallAsync<T>(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stationApi = (await GetApi(apiName).ConfigureAwait(false)).FirstOrDefault();
+            var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
             return stationApi.Key == null
                 ? default(T)
-                : JsonHelper.FromJson<T>(await _run(CreateRequest(requestBuilder, stationApi)));
+                : JsonHelper.FromJson<T>(await _runAsync(CreateRequest(requestBuilder, stationApi), cancellationToken));
         }
 
-        protected async Task<T> CallMethod<T>(string apiName, string method)
+        protected async Task<T> CallMethodAsync<T>(string apiName, string method, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await Call<T>(apiName, new RequestBuilder(Sid).Session(Sid).Method(method)).ConfigureAwait(false);
+            return await CallAsync<T>(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<T> CallMethod<T>(string apiName, string method, ReqParams param)
+        public async Task<T> CallMethodAsync<T>(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await Call<T>(apiName, new RequestBuilder(Sid).Method(method, param)).ConfigureAwait(false);
+            return await CallAsync<T>(apiName, new RequestBuilder(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<WebRequest> GetWebRequest(string apiName, RequestBuilder requestBuilder)
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var stationApi = (await GetApi(apiName).ConfigureAwait(false)).FirstOrDefault();
+            var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
             return stationApi.Key == null
                 ? null
                 : _createWebRequest(CreateRequest(requestBuilder, stationApi));
         }
 
         // ReSharper disable once UnusedMember.Global
-        public async Task<WebRequest> GetWebRequest(string apiName, string method)
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetWebRequest(apiName, new RequestBuilder(Sid).Session(Sid).Method(method)).ConfigureAwait(false);
+            return await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<WebRequest> GetWebRequest(string apiName, string method, ReqParams param)
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetWebRequest(apiName, new RequestBuilder(Sid).Session(Sid).Method(method, param)).ConfigureAwait(false);
+            return await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<Dictionary<string, ApiSpec>> GetApi(string apiName)
+        public async Task<Dictionary<string, ApiSpec>> GetApiAsync(string apiName, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (ApiInfo == null)
             {
-                ApiInfo = JsonHelper.FromJson<ApiInfo>(await _run(
+                ApiInfo = JsonHelper.FromJson<ApiInfo>(await _runAsync(
                     new RequestBuilder().
                         Api("SYNO.API.Info").
-                        AddParam("query", string.Join(",", ImplementedApi.Select(k => k.Key)))
-                   )
+                        AddParam("query", string.Join(",", ImplementedApi.Select(k => k.Key))),
+                        cancellationToken
+                   ).ConfigureAwait(false)
                 );
             }
             return ApiInfo.Data.Where(p => p.Key.StartsWith(apiName)).ToDictionary(t => t.Key, t => t.Value);
         }
 
-        public async Task<bool> Login()
+        public async Task<bool> LoginAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var loginResult = await CallMethod<LoginResult>("SYNO.API.Auth",
+            var loginResult = await CallMethodAsync<LoginResult>("SYNO.API.Auth",
                 "login", new ReqParams
                 {
                         {"account", Username},
                         {"passwd", Password},
                         {"session", InternalSession},
                         {"format", "sid"}
-                    }
-            );
+                },
+                cancellationToken)
+                .ConfigureAwait(false);
             if (loginResult.Success)
             {
                 Sid = loginResult.Data.Sid;
@@ -187,9 +189,10 @@ namespace SynologyAPI
             return loginResult.Success;
         }
 
-        public async Task<bool> Logout()
+        public async Task<bool> LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var logoutResult = await CallMethod<TResult<object>>("SYNO.API.Auth", "logout", new ReqParams { {"session", InternalSession} });
+            var logoutResult = await CallMethodAsync<TResult<object>>("SYNO.API.Auth", "logout", new ReqParams { {"session", InternalSession} }, cancellationToken)
+                .ConfigureAwait(false);
             return logoutResult.Success;
         }
 

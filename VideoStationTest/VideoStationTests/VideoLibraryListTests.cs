@@ -15,7 +15,7 @@ namespace SynologyApiTest.VideoStationTests
         public void Setup()
         {
             var vs = new VideoStation(new Uri(Host), Username, Password, CreateProxy(Proxy));
-            VideoStation = vs.Login().GetAwaiter().GetResult() ? vs : null;
+            VideoStation = vs.LoginAsync().GetAwaiter().GetResult() ? vs : null;
 
             Assert.That(VideoStation, Is.Not.Null);
         }
@@ -25,7 +25,7 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void CanListVideosInLibrary()
         {
-            var result = VideoStation.TvShowList(0).GetAwaiter().GetResult();
+            var result = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult();
 
 #if DEBUG
             var tvShowsList = result.TvShows.ToList();
@@ -46,7 +46,7 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void TvShowList_ListContainsShows()
         {
-            var result = VideoStation.TvShowList(0).GetAwaiter().GetResult().TvShows.ToArray();
+            var result = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult().TvShows.ToArray();
 
             Assert.That(result.Length, Is.GreaterThan(0));
         }
@@ -54,7 +54,7 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void TvShowList_ShowsHaveTitles()
         {
-            var result = VideoStation.TvShowList(0).GetAwaiter().GetResult().TvShows;
+            var result = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult().TvShows;
 
             Assert.That(result.First().Title, Is.Not.Null.And.Not.Empty);
         }
@@ -62,7 +62,7 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void TvShowList_ShowsHaveIds()
         {
-            var result = VideoStation.TvShowList(0).GetAwaiter().GetResult().TvShows;
+            var result = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult().TvShows;
 
             Assert.That(result.First().Id, Is.Not.Null.And.GreaterThan(0));
         }
@@ -70,7 +70,7 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void TvShowList_ShouldBeAbleToSort()
         {
-            var result = VideoStation.TvShowList(0).GetAwaiter().GetResult().TvShows.ToList();
+            var result = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult().TvShows.ToList();
 
             Assert.That(result, Is.Not.Null);
 
@@ -89,9 +89,9 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void TvShowEpisode_ShouldListEpisodesForSeries()
         {
-            var show = VideoStation.TvShowList(0).GetAwaiter().GetResult().TvShows.First();
+            var show = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult().TvShows.First();
 
-            var tvEpisodes = VideoStation.TvShowEpisodeList(0, show.Id).GetAwaiter().GetResult().Episodes;
+            var tvEpisodes = VideoStation.TvShowEpisodeListAsync(0, show.Id).GetAwaiter().GetResult().Episodes;
 
             Assert.That(tvEpisodes, Is.Not.Null);
         }
@@ -99,9 +99,9 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void TvShowEpisode_EpisodeShouldHaveTitle()
         {
-            var show = VideoStation.TvShowList(0).GetAwaiter().GetResult().TvShows.First();
+            var show = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult().TvShows.First();
 
-            var episodes = VideoStation.TvShowEpisodeList(0, show.Id).GetAwaiter().GetResult().Episodes;
+            var episodes = VideoStation.TvShowEpisodeListAsync(0, show.Id).GetAwaiter().GetResult().Episodes;
             var firstEpisode = episodes.First();
 
             Assert.That(show,           Is.Not.Null);
@@ -112,9 +112,9 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void TvShowEpisode_ShouldHaveShowInformation()
         {
-            var show = VideoStation.TvShowList(0).GetAwaiter().GetResult().TvShows.First();
+            var show = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult().TvShows.First();
 
-            var episode = VideoStation.TvShowEpisodeList(0, show.Id).GetAwaiter().GetResult().Episodes.First(e => e.Additional.Summary.Length > 0);
+            var episode = VideoStation.TvShowEpisodeListAsync(0, show.Id).GetAwaiter().GetResult().Episodes.First(e => e.Additional.Summary.Length > 0);
 
             //Assert.That(show, Is.EqualTo(episode.Show));
 
@@ -129,11 +129,11 @@ namespace SynologyApiTest.VideoStationTests
         [TestCase(@"House of cards")]
         public void TvShowEpisode_CanListEpisodesForShow(string showTitle)
         {
-            var data = VideoStation.TvShowList(0).GetAwaiter().GetResult();
+            var data = VideoStation.TvShowListAsync(0).GetAwaiter().GetResult();
 
 #if DEBUG
             var show = data.TvShows.First(s => s.Title.IndexOf(showTitle, StringComparison.OrdinalIgnoreCase) >= 0);
-            var episodes = VideoStation.TvShowEpisodeList(0, show.Id).GetAwaiter().GetResult().Episodes.ToList();
+            var episodes = VideoStation.TvShowEpisodeListAsync(0, show.Id).GetAwaiter().GetResult().Episodes.ToList();
             var longestEpisodeLength = episodes.OrderByDescending(s => s.Tagline.Length).First().Tagline.Length;
 
             foreach (var episode in episodes)
@@ -160,7 +160,7 @@ namespace SynologyApiTest.VideoStationTests
         //public void TvShowEpisode_ShouldGetExceptionIfSearchingEpisodesForNullShow()
         //{
         //    // ReSharper disable once UnusedVariable
-        //    var tvEpisodes = VideoStation.TvShowEpisodeList(null).GetAwaiter().GetResult().Episodes;
+        //    var tvEpisodes = VideoStation.TvShowEpisodeListAsync(null).GetAwaiter().GetResult().Episodes;
         //}
     }
 }

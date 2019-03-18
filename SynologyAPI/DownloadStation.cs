@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SynologyAPI
@@ -31,137 +32,148 @@ namespace SynologyAPI
         {
         }
 
-        public async Task<InfoResult> Info()
+        public async Task<InfoResult> InfoAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<InfoResult>("SYNO.DownloadStation.Info", "getinfo");
+            return await CallMethodAsync<InfoResult>("SYNO.DownloadStation.Info", "getinfo", cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> List()
+        public async Task<ListResult> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<ListResult>("SYNO.DownloadStation.Task", "list");
+            return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task", "list", cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> List(string[] additional, int offset = 0, int limit = -1)
+        public async Task<ListResult> ListAsync(string[] additional, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<ListResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "list", new ReqParams
                 {
                     {"additional", string.Join(",", additional)},
                     {"offset", offset.ToString()},
                     {"limit", limit.ToString()}
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> List(string additional, int offset = 0, int limit = -1)
+        public async Task<ListResult> ListAsync(string additional, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<ListResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "list", new ReqParams
                     {
                         {"additional", additional},
                         {"offset", offset.ToString()},
                         {"limit", limit.ToString()}
-                    }
-           );
+                    },
+                    cancellationToken
+           ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> PauseTasks(string[] taskIds)
+        public async Task<TaskOperationResult> PauseTasksAsync(string[] taskIds, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<TaskOperationResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "pause", new ReqParams
                 {
                     {"id", string.Join(",", taskIds)},
                 }
-            );
+                , cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> PauseTasks(string taskIds)
+        public async Task<TaskOperationResult> PauseTasksAsync(string taskIds, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<TaskOperationResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "pause", new ReqParams
                 {
                     {"id", taskIds},
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> ResumeTasks(string[] taskIds)
+        public async Task<TaskOperationResult> ResumeTasksAsync(string[] taskIds, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<TaskOperationResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "resume", new ReqParams
                 {
                     {"id", string.Join(",", taskIds)},
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> ResumeTasks(string taskIds)
+        public async Task<TaskOperationResult> ResumeTasksAsync(string taskIds, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<TaskOperationResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "resume", new ReqParams
                 {
                     {"id", taskIds},
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> DeleteTasks(string[] taskIds, bool forceComplete = false)
+        public async Task<TaskOperationResult> DeleteTasks(string[] taskIds, bool forceComplete = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<TaskOperationResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "delete", new ReqParams
                 {
                     {"id", string.Join(",", taskIds)},
                     {"force_complete", forceComplete.ToString().ToLower()}
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> DeleteTasks(string taskIds, bool forceComplete = false)
+        public async Task<TaskOperationResult> DeleteTasksAsync(string taskIds, bool forceComplete = false, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<TaskOperationResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "delete", new ReqParams
                 {
                     {"id", taskIds},
                     {"force_complete", forceComplete.ToString().ToLower()}
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> GetTasks(string[] taskIds, string[] additional)
+        public async Task<ListResult> GetTasksAsync(string[] taskIds, string[] additional, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<ListResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "getinfo", new ReqParams
                 {
                     {"id", string.Join(",", taskIds)},
                     {"additional", string.Join(",", additional)}
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> GetTasks(string taskIds, string additional = "detail")
+        public async Task<ListResult> GetTasksAsync(string taskIds, string additional = "detail", CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<ListResult>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "getinfo", new ReqParams
                 {
                     {"id", taskIds},
                     {"additional", additional}
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<TResult<object>> CreateTask(string url)
+        public async Task<TResult<object>> CreateTaskAsync(string url, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CallMethod<TResult<object>>("SYNO.DownloadStation.Task",
+            return await CallMethodAsync<TResult<object>>("SYNO.DownloadStation.Task",
                 "create", new ReqParams
                 {
                     {"uri", url}
-                }
-            );
+                },
+                cancellationToken
+            ).ConfigureAwait(false);
         }
 
-        public async Task<TResult<object>> CreateTask(string fileName, Stream fileStream)
+        public async Task<TResult<object>> CreateTaskAsync(string fileName, Stream fileStream, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await PostFile<TResult<object>>("SYNO.DownloadStation.Task", "create", fileName, fileStream);
+            return await PostFileAsync<TResult<object>>("SYNO.DownloadStation.Task", "create", fileName, fileStream, "file", cancellationToken: cancellationToken).ConfigureAwait(false);
         }
     }
 }

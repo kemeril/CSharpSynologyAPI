@@ -16,7 +16,7 @@ namespace VideoStationTest2
         public void Initialize()
         {
             VideoStation = VideoStationFactory.CreateVideoStation();
-            var loggedIn = VideoStation.Login().GetAwaiter().GetResult();
+            var loggedIn = VideoStation.LoginAsync().GetAwaiter().GetResult();
             Assert.IsTrue(loggedIn);
             _sid = ObjectAccessor.GetField(VideoStation, "Sid") as string;
             Console.WriteLine("_sid (for debug purpose only): " + Sid);
@@ -25,7 +25,7 @@ namespace VideoStationTest2
         [TestCleanup()]
         public void Cleanup()
         {
-            var loggedOut = VideoStation.Logout().GetAwaiter().GetResult();
+            var loggedOut = VideoStation.LogoutAsync().GetAwaiter().GetResult();
             Assert.IsTrue(loggedOut);
         }
 
@@ -35,12 +35,12 @@ namespace VideoStationTest2
         public void Test_TVShowAndEpisode()
         {
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult();
 
-            var episodesInfo = VideoStation.TvShowEpisodeList(
+            var episodesInfo = VideoStation.TvShowEpisodeListAsync(
                     libraryId,
                     tvShowsInfo.TvShows.First(item => item.SortTitle == "Grand Tour").Id)
                 .GetAwaiter().GetResult();
@@ -58,7 +58,7 @@ namespace VideoStationTest2
             var duration = episodeFile.Duration;
             Assert.IsTrue(duration.Ticks >= 0);
 
-            var episodesResult = VideoStation.TvShowEpisodeGetInfo(firstEpisode.Id).GetAwaiter().GetResult();
+            var episodesResult = VideoStation.TvShowEpisodeGetInfoAsync(firstEpisode.Id).GetAwaiter().GetResult();
 
             var firstEpisodeControl = episodesResult.Episodes.FirstOrDefault();
             Assert.IsNotNull(firstEpisodeControl);
@@ -69,20 +69,20 @@ namespace VideoStationTest2
 
             //open - stream - close
 
-            var videoStream = VideoStation.StreamingOpen(episodeFile.Id).GetAwaiter().GetResult();
+            var videoStream = VideoStation.StreamingOpenAsync(episodeFile.Id).GetAwaiter().GetResult();
             Assert.IsTrue(videoStream.Data.StreamId != null);
 
-            var webRequest = VideoStation.StreamingStream(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
             Assert.IsTrue(webRequest.RequestUri.ToString() != null);
 
-            var closeResult = VideoStation.StreamingClose(videoStream.Data.StreamId, true).GetAwaiter().GetResult();
+            var closeResult = VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true).GetAwaiter().GetResult();
             Assert.IsTrue(closeResult);
         }
 
         [TestMethod]
         public void Test_LibraryList()
         {
-            var result = VideoStation.LibraryList().GetAwaiter().GetResult();
+            var result = VideoStation.LibraryListAsync().GetAwaiter().GetResult();
             var libraries = result.Libraries.ToList();
 
             Assert.IsTrue(libraries.Any());
@@ -111,7 +111,7 @@ namespace VideoStationTest2
             var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
-            var posterRequest = VideoStation.PosterGetImage(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImageAsync(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
             using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("poster" + movies[0].Id + ".jpg"))
@@ -125,12 +125,12 @@ namespace VideoStationTest2
         public void Test_Poster_TVShow()
         {
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
 
-            var posterRequest = VideoStation.PosterGetImage(tvShowsInfo[0].Id, VideoStation.MediaType.TVShow).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImageAsync(tvShowsInfo[0].Id, VideoStation.MediaType.TvShow).GetAwaiter().GetResult();
             using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("poster" + tvShowsInfo[0].Id + ".jpg"))
@@ -144,17 +144,17 @@ namespace VideoStationTest2
         public void Test_Poster_TVShowEpisode()
         {
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
-            var episodesInfo = VideoStation.TvShowEpisodeList(
+            var episodesInfo = VideoStation.TvShowEpisodeListAsync(
                     libraryId,
                     tvShowsInfo[0].Id)
                 .GetAwaiter().GetResult();
             var episodes = episodesInfo.Episodes.ToList();
 
-            var posterRequest = VideoStation.PosterGetImage(episodes[0].Id, VideoStation.MediaType.TVShowEpisode).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImageAsync(episodes[0].Id, VideoStation.MediaType.TvShowEpisode).GetAwaiter().GetResult();
             using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("poster" + episodes[0].Id + ".jpg"))
@@ -171,7 +171,7 @@ namespace VideoStationTest2
             var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
-            var backdropRequest = VideoStation.BackdropGet(movies[0].MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGetAsync(movies[0].MapperId).GetAwaiter().GetResult();
 
             try
             {
@@ -204,7 +204,7 @@ namespace VideoStationTest2
             var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
-            var backdropRequest = VideoStation.BackdropGet(movies[1].MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGetAsync(movies[1].MapperId).GetAwaiter().GetResult();
 
             try
             {
@@ -234,12 +234,12 @@ namespace VideoStationTest2
         public void Test_Backdrop_TVShow()
         {
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
 
-            var backdropRequest = VideoStation.BackdropGet(tvShowsInfo[0].MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGetAsync(tvShowsInfo[0].MapperId).GetAwaiter().GetResult();
             using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("backdrop" + tvShowsInfo[0].MapperId + ".jpg"))
@@ -253,21 +253,21 @@ namespace VideoStationTest2
         public void Test_Backdrop_TVShowEpisode_WithFallback()
         {
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
 
             var tvShowInfo = tvShowsInfo[0];
 
-            var episodesInfo = VideoStation.TvShowEpisodeList(
+            var episodesInfo = VideoStation.TvShowEpisodeListAsync(
                     libraryId,
                     tvShowInfo.Id)
                 .GetAwaiter().GetResult();
             var episodes = episodesInfo.Episodes.ToList();
             int? backdropMapperId = null;
 
-            var backdropRequest = VideoStation.BackdropGet(episodes[0].MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGetAsync(episodes[0].MapperId).GetAwaiter().GetResult();
             try
             {
                 using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
@@ -286,7 +286,7 @@ namespace VideoStationTest2
                 {
                     Console.WriteLine("It has not backdrop image!");
 
-                    backdropRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
+                    backdropRequest = VideoStation.BackdropGetAsync(tvShowInfo.MapperId).GetAwaiter().GetResult();
                     using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
                     {
                         using (var file = System.IO.File.OpenWrite("backdrop" + episodes[0].MapperId + ".jpg"))
@@ -311,14 +311,14 @@ namespace VideoStationTest2
             //There is no backdrop image for episode parts of TVShow, please to download the TVShow(collection) backdrop image instead.
 
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
 
             var tvShowInfo = tvShowsInfo[0];
 
-            var backdropRequest = VideoStation.BackdropGet(tvShowInfo.MapperId).GetAwaiter().GetResult();
+            var backdropRequest = VideoStation.BackdropGetAsync(tvShowInfo.MapperId).GetAwaiter().GetResult();
             using (var backdropStream = backdropRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("backdrop" + tvShowInfo.MapperId + ".jpg"))
@@ -332,12 +332,12 @@ namespace VideoStationTest2
         public void Test_SubtitleList_TVShowAndEpisode()
         {
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult();
 
-            var episodesInfo = VideoStation.TvShowEpisodeList(
+            var episodesInfo = VideoStation.TvShowEpisodeListAsync(
                     libraryId,
                     tvShowsInfo.TvShows.First(item => item.SortTitle == "Grand Tour").Id)
                 .GetAwaiter().GetResult();
@@ -352,7 +352,7 @@ namespace VideoStationTest2
             var episodeFile = firstEpisode.Additional.Files.FirstOrDefault();
             Assert.IsNotNull(episodeFile);
 
-            var subtitles = VideoStation.SubtitleList(episodeFile.Id).GetAwaiter().GetResult();
+            var subtitles = VideoStation.SubtitleListAsync(episodeFile.Id).GetAwaiter().GetResult();
 
             foreach (var subtitle in subtitles)
             {
@@ -364,7 +364,7 @@ namespace VideoStationTest2
         public void Test_SubtitleGet_TVShowAndEpisode_SimpleTest()
         {
             //var subtitleRequest = VideoStation.SubtitleGet(27, false, "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt").GetAwaiter().GetResult();
-            var subtitleRequest = VideoStation.SubtitleGet(27, false, "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt").GetAwaiter().GetResult();
+            var subtitleRequest = VideoStation.SubtitleGetAsync(27, false, "/volume1/video/TV_Show/The.Grand.Tour/The.Grand.Tour.S01.720p.WEBRip.X264-DEFLATE/The.Grand.Tour_S01E01.hun.srt").GetAwaiter().GetResult();
             using (var subtitleStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("subtitleRequest_27.srt"))
@@ -378,12 +378,12 @@ namespace VideoStationTest2
         public void Test_SubtitleGet_TVShowAndEpisode()
         {
             const int libraryId = 0; //Built in library
-            var tvShowsInfo = VideoStation.TvShowList(
+            var tvShowsInfo = VideoStation.TvShowListAsync(
                     libraryId,
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult();
 
-            var episodesInfo = VideoStation.TvShowEpisodeList(
+            var episodesInfo = VideoStation.TvShowEpisodeListAsync(
                     libraryId,
                     tvShowsInfo.TvShows.First(item => item.SortTitle == "Grand Tour").Id)
                 .GetAwaiter().GetResult();
@@ -398,7 +398,7 @@ namespace VideoStationTest2
             var episodeFile = firstEpisode.Additional.Files.FirstOrDefault();
             Assert.IsNotNull(episodeFile);
 
-            var subtitles = VideoStation.SubtitleList(episodeFile.Id).GetAwaiter().GetResult()
+            var subtitles = VideoStation.SubtitleListAsync(episodeFile.Id).GetAwaiter().GetResult()
                 .ToList();
             if (!subtitles.Any()) return;
 
@@ -406,7 +406,7 @@ namespace VideoStationTest2
             {
                 //var requestedSubtitle = subtitles.FirstOrDefault(s => !s.Embedded);
 
-                var subtitleRequest = VideoStation.SubtitleGet(episodeFile.Id, false, requestedSubtitle.Id).GetAwaiter().GetResult();
+                var subtitleRequest = VideoStation.SubtitleGetAsync(episodeFile.Id, false, requestedSubtitle.Id).GetAwaiter().GetResult();
                 using (var subtitleStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult())
                 {
                     var subtitleEncodedId = WebUtility.UrlEncode(requestedSubtitle.Id);
@@ -432,7 +432,7 @@ namespace VideoStationTest2
             var movieFile = movie.Additional.Files.FirstOrDefault();
             Assert.IsNotNull(movieFile);
 
-            var subtitles = VideoStation.SubtitleList(movieFile.Id).GetAwaiter().GetResult()
+            var subtitles = VideoStation.SubtitleListAsync(movieFile.Id).GetAwaiter().GetResult()
                 .ToList();
             if (!subtitles.Any()) return;
 
@@ -440,7 +440,7 @@ namespace VideoStationTest2
             {
                 //var requestedSubtitle = subtitles.FirstOrDefault(s => !s.Embedded);
 
-                var subtitleRequest = VideoStation.SubtitleGet(movieFile.Id, false, requestedSubtitle.Id).GetAwaiter().GetResult();
+                var subtitleRequest = VideoStation.SubtitleGetAsync(movieFile.Id, false, requestedSubtitle.Id).GetAwaiter().GetResult();
                 using (var subtitleStream = subtitleRequest.GetResponseAsync().GetAwaiter().GetResult())
                 {
                     var subtitleEncodedId = WebUtility.UrlEncode(requestedSubtitle.Id);
