@@ -11,6 +11,15 @@ namespace SynologyRestDAL
     }
 
     [DataContract]
+    public class Result
+    {
+        [DataMember(Name = "success")]
+        public bool Success { get; set; }
+        [DataMember(Name = "error")]
+        public ErrorCode Error { get; set; }
+    }
+
+    [DataContract]
     public class TResult<T>
     {
         [DataMember(Name = "data")]
@@ -35,7 +44,6 @@ namespace SynologyRestDAL
     [DataContract]
     public class ApiInfo : TResult<Dictionary<string, ApiSpec>>
     {
-    
     }
 
     [DataContract]
@@ -48,7 +56,5 @@ namespace SynologyRestDAL
     [DataContract]
     public class LoginResult : TResult<SidContainer>
     {
-
     }
-
 }

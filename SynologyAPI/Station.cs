@@ -70,8 +70,8 @@ namespace SynologyAPI
 
             using (var reader = new StreamReader(responseStream))
             {
-                var resJson = await reader.ReadToEndAsync().ConfigureAwait(false);
-                return resJson;
+                var jsonResult = await reader.ReadToEndAsync().ConfigureAwait(false);
+                return jsonResult;
             }
         }
 
@@ -159,13 +159,11 @@ namespace SynologyAPI
         {
             if (ApiInfo == null)
             {
-                ApiInfo = JsonHelper.FromJson<ApiInfo>(await _runAsync(
-                    new RequestBuilder().
-                        Api("SYNO.API.Info").
-                        AddParam("query", string.Join(",", ImplementedApi.Select(k => k.Key))),
-                        cancellationToken
-                   ).ConfigureAwait(false)
-                );
+                var jsonResult = await _runAsync(
+                    new RequestBuilder().Api("SYNO.API.Info").AddParam("query", string.Join(",", ImplementedApi.Select(k => k.Key))),
+                    cancellationToken
+                ).ConfigureAwait(false);
+                ApiInfo = JsonHelper.FromJson<ApiInfo>(jsonResult);
             }
             return ApiInfo.Data.Where(p => p.Key.StartsWith(apiName)).ToDictionary(t => t.Key, t => t.Value);
         }

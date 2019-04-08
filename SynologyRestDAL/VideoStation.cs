@@ -38,6 +38,11 @@ namespace SynologyRestDAL
         }
 
         [DataContract]
+        public class AudioTrackResult : TResult<AudioTrackInfo>
+        {
+        }
+
+        [DataContract]
         public class Info
         {
             [DataMember(Name = "total")]
@@ -49,6 +54,11 @@ namespace SynologyRestDAL
 
         [DataContract]
         public class VideoStreamResult : TResult<VideoStreamInfo>
+        {
+        }
+
+        [DataContract]
+        public class WatchStatusResult : TResult<WatchStatusInfo>
         {
         }
 
@@ -85,6 +95,20 @@ namespace SynologyRestDAL
         {
             [DataMember(Name = "movies")]
             public IEnumerable<Movie> Movies { get; set; }
+        }
+
+        [DataContract]
+        public class AudioTrackInfo : Info
+        {
+            [DataMember(Name = "trackinfo")]
+            public IEnumerable<AudioTrack> AudioTracks { get; set; }
+        }
+
+        [DataContract]
+        public class WatchStatusInfo
+        {
+            [DataMember(Name = "watch_status")]
+            public WatchStatus WatchStatus { get; set; }
         }
 
         [DataContract]
@@ -159,7 +183,6 @@ namespace SynologyRestDAL
         [DataContract]
         public class TvShow : MetaDataItem
         {
-
         }
 
         [DataContract]
@@ -418,9 +441,9 @@ namespace SynologyRestDAL
         public enum LibraryType
         {
             Movie,
-            TVShow,
+            TvShow,
             HomeVideo,
-            TVRecord,
+            TvRecord,
             Unknown
         }
 
@@ -449,9 +472,9 @@ namespace SynologyRestDAL
                     switch (Type)
                     {
                         case "movie": return LibraryType.Movie;
-                        case "tvshow": return LibraryType.TVShow;
+                        case "tvshow": return LibraryType.TvShow;
                         case "home_video": return LibraryType.HomeVideo;
-                        case "tv_record": return LibraryType.TVRecord;
+                        case "tv_record": return LibraryType.TvRecord;
                         default: return LibraryType.Unknown;
                     }
                 }
@@ -522,6 +545,170 @@ namespace SynologyRestDAL
             public override string ToString()
             {
                 return string.Format("Embedded: {0}, Format: {1}, Language: {2}, Title: {3}, NeedPreview: {4}, Id: {5}", Embedded, Format, Language, Title, NeedPreview, Id);
+            }
+        }
+
+        [DataContract]
+        public class AudioTrack
+        {
+            /// <summary>
+            /// Id of audio track.
+            /// Samples:
+            /// "1"
+            /// "2"
+            /// </summary>
+            [DataMember(Name = "id")]
+            public string Id { get; set; }
+
+            /// <summary>
+            /// Track of audio track. Usually has the same value as <see cref="Id"/>.
+            /// Samples:
+            /// "1"
+            /// "2"
+            /// </summary>
+            [DataMember(Name = "track")]
+            public string Track { get; set; }
+
+            /// <summary>
+            /// Language of the audio track.
+            /// Samples:
+            /// "hun"
+            /// "eng"
+            /// </summary>
+            [DataMember(Name = "language")]
+            public string Language { get; set; }
+
+            /// <summary>
+            /// Audio stream id.
+            /// Samples:
+            /// 0
+            /// </summary>
+            [DataMember(Name = "streamid")]
+            public int StreamId { get; set; }
+
+            /// <summary>
+            /// Indicate whether this is the default audio track.
+            /// Samples:
+            /// true
+            /// false
+            /// </summary>
+            [DataMember(Name = "is_default")]
+            public bool IsDefault { get; set; }
+
+            /// <summary>
+            /// Audio bitrate.
+            /// Samples:
+            /// 192000
+            /// 448000
+            /// </summary>
+            [DataMember(Name = "bitrate")]
+            public int Bitrate { get; set; }
+
+            /// <summary>
+            /// Audio sample rate.
+            /// Samples:
+            /// 48000
+            /// </summary>
+            [DataMember(Name = "sample_rate")]
+            public int SampleRate { get; set; }
+
+            /// <summary>
+            /// Number of audio channels.
+            /// Samples:
+            /// 2
+            /// 6
+            /// </summary>
+            [DataMember(Name = "channel")]
+            public int Channel { get; set; }
+
+            /// <summary>
+            /// Layout name of <see cref="Channel"/>.
+            /// Samples:
+            /// "stereo"
+            /// "5.1(side)"
+            /// </summary>
+            [DataMember(Name = "channel_layout")]
+            public string ChannelLayout { get; set; }
+
+            /// <summary>
+            /// Name of the audio codec.
+            /// Samples:
+            /// "ac3"
+            /// "DTS"
+            /// </summary>
+            [DataMember(Name = "codec")]
+            public string Codec { get; set; }
+
+            /// <summary>
+            /// Raw name of the audio codec.
+            /// Samples:
+            /// "ac3"
+            /// "DTS"
+            /// </summary>
+            [DataMember(Name = "codec_raw")]
+            public string CodecRaw { get; set; }
+
+            /// <summary>
+            /// Audio frequency in Hz
+            /// Samples:
+            /// 48000
+            /// </summary>
+            [DataMember(Name = "frequency")]
+            public int Frequency { get; set; }
+
+            [DataMember(Name = "profile")]
+            public string Profile { get; set; }
+
+            public override string ToString()
+            {
+                return string.Format("Id: {0}, Track: {1}, Language: {2}, StreamId: {3}, IsDefault: {4}, Bitrate: {5}, SampleRate: {6}, Channel: {7}, ChannelLayout: {8}, Codec: {9}, CodecRaw: {10}, Frequency: {11}, Profile: {12}",
+                    Id, Track, Language, StreamId, IsDefault, Bitrate, SampleRate, Channel, ChannelLayout, Codec, CodecRaw, Frequency, Profile);
+            }
+        }
+
+        [DataContract]
+        public class WatchStatus
+        {
+            [DataMember(Name = "last_update")]
+            private long? LastUpdateSetter { get; set; }
+
+            /// <summary>
+            /// When was last updated the position. Null if this information is not available.
+            /// Samples:
+            /// 1554724904
+            /// and it means: Mon Apr 08 2019 13:01:44 GMT+0200 (CEST)
+            /// </summary>
+            public DateTime? LastUpdate
+            {
+                get => LastUpdateSetter.HasValue
+                    ? DateTimeConverter.FromUnixTime(LastUpdateSetter.Value)
+                    : (DateTime?)null;
+                set => LastUpdateSetter = value.HasValue
+                    ? DateTimeConverter.ToUnixTime(value.Value)
+                    : (long?)null;
+            }
+
+            /// <summary>
+            /// The last position.
+            /// Samples:
+            /// "13"
+            /// </summary>
+            [DataMember(Name = "position")]
+            private string PositionSetter { get; set; }
+
+            public long? Position
+            {
+                get => long.TryParse(PositionSetter, out long position)
+                    ? position
+                    : (long?) null;
+                set => PositionSetter = value.HasValue
+                    ? value.Value.ToString()
+                    : null;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("LastUpdate: {0}, Position: {1}", LastUpdate.HasValue ? LastUpdate.ToString() : "Unknown", Position.HasValue ? Position.ToString() : "Unknown");
             }
         }
     }

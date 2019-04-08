@@ -452,5 +452,58 @@ namespace VideoStationTest2
                 }
             }
         }
+
+        [TestMethod]
+        public void Test_AudioTrackGet_Movie()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTracks = audioTrackInfo.AudioTracks.ToList();
+            if (!audioTracks.Any()) return;
+            
+            Assert.AreEqual(2, audioTracks.Count);
+        }
+
+        [TestMethod]
+        public void Test_WatchStatusGetInfo_Movie()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var watchStatusResult = VideoStation.WatchStatusGetInfoAsync(movie.Id).GetAwaiter().GetResult();
+            Assert.IsNotNull(watchStatusResult);
+        }
+
+        [TestMethod]
+        public void Test_WatchStatusSetInfo_Movie()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            VideoStation.WatchStatusSetInfoAsync(movie.Id, 99).GetAwaiter();
+        }
     }
 }
