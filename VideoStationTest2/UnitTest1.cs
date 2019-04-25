@@ -11,8 +11,7 @@ namespace VideoStationTest2
     [TestClass]
     public class UnitTest1
     {
-        private string _sid;
-        private string Sid => _sid;
+        private string Sid { get; set; }
 
         [TestInitialize()]
         public void Initialize()
@@ -38,7 +37,7 @@ namespace VideoStationTest2
                 }
             }
             
-            _sid = ObjectAccessor.GetField(VideoStation, "Sid") as string;
+            Sid = ObjectAccessor.GetField(VideoStation, "Sid") as string;
             Console.WriteLine("_sid (for debug purpose only): " + Sid);
         }
 
