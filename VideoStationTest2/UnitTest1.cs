@@ -4,6 +4,7 @@ using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SynologyAPI;
 using SynologyAPI.Exception;
+using SynologyRestDAL;
 
 namespace VideoStationTest2
 {
@@ -16,17 +17,25 @@ namespace VideoStationTest2
         [TestInitialize()]
         public void Initialize()
         {
+            const string username = "video.station.dev";
+            const string password = "C1E908Vw18u474p99tsrFNqo6kEj7c";
+
             VideoStation = VideoStationFactory.CreateVideoStation();
 
             try
             {
-                VideoStation.LoginAsync("video.station.dev", "C1E908Vw18u474p99tsrFNqo6kEj7c").GetAwaiter().GetResult();
+                VideoStation.LoginAsync(username, password).GetAwaiter().GetResult();
             }
             catch (SynoRequestException e)
             {
-                
-
-                Assert.Fail("Login error. " + e);
+                if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
+                {
+                    Assert.Fail("2-way authentication not supported.");
+                }
+                else
+                {
+                    Assert.Fail("Login error. " + e);
+                }
             }
             
             _sid = ObjectAccessor.GetField(VideoStation, "Sid") as string;
