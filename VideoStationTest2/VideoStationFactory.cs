@@ -8,7 +8,7 @@ namespace VideoStationTest2
     {
         private static IWebProxy CreateProxy(string proxyUrl)
         {
-            return String.IsNullOrWhiteSpace(proxyUrl) ? null : new WebProxy(new Uri(proxyUrl));
+            return string.IsNullOrWhiteSpace(proxyUrl) ? null : new WebProxy(new Uri(proxyUrl));
         }
 
         private static IWebProxy GetDefaultProxy()
