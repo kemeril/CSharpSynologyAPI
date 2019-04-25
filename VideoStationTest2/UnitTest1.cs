@@ -24,6 +24,8 @@ namespace VideoStationTest2
             }
             catch (SynoRequestException e)
             {
+                
+
                 Assert.Fail("Login error. " + e);
             }
             

@@ -184,7 +184,7 @@ namespace SynologyAPI
             }
 
             if (!loginResult.Success)
-                throw new SynoRequestException(@"Synology error code " + loginResult.Error);
+                throw new SynoRequestException(@"Synology error code " + loginResult.Error, loginResult.Error.Code);
         }
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
@@ -193,7 +193,7 @@ namespace SynologyAPI
                 .ConfigureAwait(false);
 
             if (!logoutResult.Success)
-                throw new SynoRequestException(@"Synology error code " + logoutResult.Error);
+                throw new SynoRequestException(@"Synology error code " + logoutResult.Error, logoutResult.Error.Code);
         }
 
         protected string _postFile(RequestBuilder requestBuilder, string fileName, Stream fileStream, string fileParam = "file")

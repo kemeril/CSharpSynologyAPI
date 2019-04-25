@@ -4,10 +4,12 @@ namespace SynologyAPI.Exception
 {
     public class SynoRequestException : System.Exception
     {
-        public SynoRequestException(string error)
+        public int ErrorCode { get; private set; }
+
+        public SynoRequestException(string error, int errorCode)
             : base(error)
         {
-            
+            ErrorCode = errorCode;
         }
     }
 }

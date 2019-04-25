@@ -115,7 +115,7 @@ namespace SynologyAPI
                 }.SortBy(sortBy, sortDirection).Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
 
             if (!tvShowsResult.Success)
-                throw new SynoRequestException(@"Synology error code " + tvShowsResult.Error);
+                throw new SynoRequestException(@"Synology error code " + tvShowsResult.Error, tvShowsResult.Error.Code);
 
             return tvShowsResult.Data;
         }
@@ -142,7 +142,7 @@ namespace SynologyAPI
                         {"additional", Additional}
                     }.SortBy(sortBy, sortDirection).Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
             if (!tvEpisodesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + tvEpisodesResult.Error);
+                throw new SynoRequestException(@"Synology error code " + tvEpisodesResult.Error, tvEpisodesResult.Error.Code);
 
             return tvEpisodesResult.Data;
         }
@@ -162,7 +162,7 @@ namespace SynologyAPI
                 {"id", "["+tvShowEpisodeId+"]"}
             }, cancellationToken).ConfigureAwait(false);
             if (!tvEpisodesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + tvEpisodesResult.Error);
+                throw new SynoRequestException(@"Synology error code " + tvEpisodesResult.Error, tvEpisodesResult.Error.Code);
 
             return tvEpisodesResult.Data;
         }
@@ -191,7 +191,7 @@ namespace SynologyAPI
                     {"additional", Additional}
                 }.SortBy(sortBy, sortDirection).Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
             if (!movieResult.Success)
-                throw new SynoRequestException(@"Synology error code " + movieResult.Error);
+                throw new SynoRequestException(@"Synology error code " + movieResult.Error, movieResult.Error.Code);
 
             return movieResult.Data;
         }
@@ -213,7 +213,7 @@ namespace SynologyAPI
             var librariesResult =  await CallMethodAsync<LibrariesResult>(ApiSynoVideoStationLibrary, "list", new ReqParams().Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
 
             if (!librariesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + librariesResult.Error);
+                throw new SynoRequestException(@"Synology error code " + librariesResult.Error, librariesResult.Error.Code);
 
             return librariesResult.Data;
         }
@@ -234,7 +234,7 @@ namespace SynologyAPI
             }, cancellationToken).ConfigureAwait(false);
 
             if (!videoStreamResult.Success)
-                throw new SynoRequestException(@"Synology error code " + videoStreamResult.Error);
+                throw new SynoRequestException(@"Synology error code " + videoStreamResult.Error, videoStreamResult.Error.Code);
 
             return videoStreamResult;
         }
@@ -252,7 +252,7 @@ namespace SynologyAPI
             }, cancellationToken).ConfigureAwait(false);
 
             if (!closeResult.Success)
-                throw new SynoRequestException(@"Synology error code " + closeResult.Error);
+                throw new SynoRequestException(@"Synology error code " + closeResult.Error, closeResult.Error.Code);
         }
 
 
@@ -338,7 +338,7 @@ namespace SynologyAPI
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!subtitlesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + subtitlesResult.Error);
+                throw new SynoRequestException(@"Synology error code " + subtitlesResult.Error, subtitlesResult.Error.Code);
 
             return subtitlesResult.Data;
         }
@@ -381,7 +381,7 @@ namespace SynologyAPI
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!audioTracksResult.Success)
-                throw new SynoRequestException(@"Synology error code " + audioTracksResult.Error);
+                throw new SynoRequestException(@"Synology error code " + audioTracksResult.Error, audioTracksResult.Error.Code);
 
             return audioTracksResult.Data;
         }
@@ -406,7 +406,7 @@ namespace SynologyAPI
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!watchStatusResult.Success)
-                throw new SynoRequestException(@"Synology error code " + watchStatusResult.Error);
+                throw new SynoRequestException(@"Synology error code " + watchStatusResult.Error, watchStatusResult.Error.Code);
 
             return watchStatusResult.Data ?? new WatchStatusInfo { WatchStatus = new WatchStatus() };
         }
@@ -428,7 +428,7 @@ namespace SynologyAPI
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!result.Success)
-                throw new SynoRequestException(@"Synology error code " + result.Error);
+                throw new SynoRequestException(@"Synology error code " + result.Error, result.Error.Code);
         }
 
 
