@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SynologyAPI;
+using SynologyAPI.Exception;
 
 namespace VideoStationTest2
 {
@@ -16,8 +17,16 @@ namespace VideoStationTest2
         public void Initialize()
         {
             VideoStation = VideoStationFactory.CreateVideoStation();
-            var loggedIn = VideoStation.LoginAsync().GetAwaiter().GetResult();
-            Assert.IsTrue(loggedIn);
+
+            try
+            {
+                VideoStation.LoginAsync().GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Login error. " + e);
+            }
+            
             _sid = ObjectAccessor.GetField(VideoStation, "Sid") as string;
             Console.WriteLine("_sid (for debug purpose only): " + Sid);
         }
@@ -25,8 +34,14 @@ namespace VideoStationTest2
         [TestCleanup()]
         public void Cleanup()
         {
-            var loggedOut = VideoStation.LogoutAsync().GetAwaiter().GetResult();
-            Assert.IsTrue(loggedOut);
+            try
+            {
+                VideoStation.LogoutAsync().GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Logout error. " + e);
+            }
         }
 
         private VideoStation VideoStation { get; set; }
@@ -75,8 +90,14 @@ namespace VideoStationTest2
             var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
             Assert.IsTrue(webRequest.RequestUri.ToString() != null);
 
-            var closeResult = VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true).GetAwaiter().GetResult();
-            Assert.IsTrue(closeResult);
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true).GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
         }
 
         [TestMethod]

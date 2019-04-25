@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using SynologyAPI.Exception;
 
 namespace SynologyApiTest.VideoStationTests
 {
@@ -15,7 +16,15 @@ namespace SynologyApiTest.VideoStationTests
         public void Setup()
         {
             var vs = new VideoStation(new Uri(Host), Username, Password, CreateProxy(Proxy));
-            VideoStation = vs.LoginAsync().GetAwaiter().GetResult() ? vs : null;
+            try
+            {
+                vs.LoginAsync().GetAwaiter().GetResult();
+                VideoStation = vs;
+            }
+            catch (SynoRequestException)
+            {
+                VideoStation = null;
+            }
 
             Assert.That(VideoStation, Is.Not.Null);
         }

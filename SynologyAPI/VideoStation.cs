@@ -229,14 +229,19 @@ namespace SynologyAPI
             if (format == null) throw new ArgumentNullException(nameof(format));
             if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
 
-            return await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStationStreaming, "open", new ReqParams
+            var videoStreamResult = await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStationStreaming, "open", new ReqParams
             {
                 {"id", fileId.ToString()},
                 {"accept_format", format}
             }, cancellationToken).ConfigureAwait(false);
+
+            if (!videoStreamResult.Success)
+                throw new SynoRequestException(@"Synology error code " + videoStreamResult.Error);
+
+            return videoStreamResult;
         }
 
-        public async Task<bool> StreamingCloseAsync(string streamId, bool forceClose, string format = "raw", CancellationToken cancellationToken = default(CancellationToken))
+        public async Task StreamingCloseAsync(string streamId, bool forceClose, string format = "raw", CancellationToken cancellationToken = default(CancellationToken))
         {
             if (format == null) throw new ArgumentNullException(nameof(format));
             if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
@@ -247,7 +252,9 @@ namespace SynologyAPI
                 {"format", format},
                 {"force_close", forceClose.ToString().ToLower()}
             }, cancellationToken).ConfigureAwait(false);
-            return closeResult.Success;
+
+            if (!closeResult.Success)
+                throw new SynoRequestException(@"Synology error code " + closeResult.Error);
         }
 
 

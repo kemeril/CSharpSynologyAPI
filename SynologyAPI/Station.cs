@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+using SynologyAPI.Exception;
 
 namespace SynologyAPI
 {
@@ -168,7 +169,7 @@ namespace SynologyAPI
             return ApiInfo.Data.Where(p => p.Key.StartsWith(apiName)).ToDictionary(t => t.Key, t => t.Value);
         }
 
-        public async Task<bool> LoginAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task LoginAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var loginResult = await CallMethodAsync<LoginResult>("SYNO.API.Auth",
                 "login", new ReqParams
@@ -184,14 +185,18 @@ namespace SynologyAPI
             {
                 Sid = loginResult.Data.Sid;
             }
-            return loginResult.Success;
+
+            if (!loginResult.Success)
+                throw new SynoRequestException(@"Synology error code " + loginResult.Error);
         }
 
-        public async Task<bool> LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var logoutResult = await CallMethodAsync<TResult<object>>("SYNO.API.Auth", "logout", new ReqParams { {"session", InternalSession} }, cancellationToken)
                 .ConfigureAwait(false);
-            return logoutResult.Success;
+
+            if (!logoutResult.Success)
+                throw new SynoRequestException(@"Synology error code " + logoutResult.Error);
         }
 
         protected string _postFile(RequestBuilder requestBuilder, string fileName, Stream fileStream, string fileParam = "file")

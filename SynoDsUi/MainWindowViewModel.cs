@@ -10,6 +10,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
+using SynologyAPI.Exception;
 
 namespace SynoDsUi
 {
@@ -38,7 +39,17 @@ namespace SynoDsUi
             var appSettings = ConfigurationManager.AppSettings;
             var downloadStation = new DownloadStation(new Uri(appSettings["host"]), appSettings["username"], appSettings["password"], CreateProxy(appSettings["proxy"]));
 
-            if (downloadStation.LoginAsync().GetAwaiter().GetResult())
+            var loggedIn = false;
+            try
+            {
+                downloadStation.LoginAsync().GetAwaiter().GetResult();
+                loggedIn = true;
+            }
+            catch (SynoRequestException)
+            {
+            }
+
+            if (loggedIn)
             {
                 var listResult = downloadStation.ListAsync(string.Join(",", new []{ "detail", "transfer", "file", "tracker" })).GetAwaiter().GetResult();
                 if (listResult.Success)
