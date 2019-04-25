@@ -16,44 +16,35 @@ namespace SynologyAPI
     public class Station
     {
         protected Uri BaseUrl;
-        protected string Username;
-        protected string Password;
         protected string Sid;
-        protected string InternalSession;
         protected IWebProxy Proxy;
         protected ApiInfo ApiInfo;
 
         private Dictionary<string, int> _implementedApi;
         protected Dictionary<string, int> ImplementedApi => _implementedApi ?? (_implementedApi = GetImplementedApi());
-
-        public Station()
+      
+        public Station(Uri url, IWebProxy proxy = null)
         {
             // **** Ignore any ssl errors
             ServicePointManager.ServerCertificateValidationCallback +=
                 (sender, certificate, chain, sslPolicyErrors) => true;
-        }
-      
-        public Station(Uri url, string username, string password)
-            : this()
-        {
+
             BaseUrl = url;
-            Username = username;
-            Password = password;
-            InternalSession = "DownloadStation";
-        }
 
-        protected virtual Dictionary<string, int> GetImplementedApi()
-        {
-            return  new Dictionary<string, int> { { "SYNO.API.Auth", 3 } };
-        }
-
-        public Station(Uri url, string username, string password, IWebProxy proxy)
-            : this(url, username, password)
-        {
             if (proxy != null)
             {
                 Proxy = proxy;
             }
+        }
+
+        protected virtual string GetSessionName()
+        {
+            return "DownloadStation";
+        }
+
+        protected virtual Dictionary<string, int> GetImplementedApi()
+        {
+            return new Dictionary<string, int> { { "SYNO.API.Auth", 3 } };
         }
 
         protected async Task<string> _runAsync(RequestBuilder requestBuilder, CancellationToken cancellationToken)
@@ -169,14 +160,20 @@ namespace SynologyAPI
             return ApiInfo.Data.Where(p => p.Key.StartsWith(apiName)).ToDictionary(t => t.Key, t => t.Value);
         }
 
-        public async Task LoginAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task LoginAsync(string username, string password, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (username == null) throw new ArgumentNullException(nameof(username));
+            if (string.IsNullOrEmpty(username)) throw new ArgumentException("username cannot be empty!", nameof(username));
+
+            if (password == null) throw new ArgumentNullException(nameof(password));
+            if (string.IsNullOrEmpty(password)) throw new ArgumentException("password cannot be empty!", nameof(password));
+
             var loginResult = await CallMethodAsync<LoginResult>("SYNO.API.Auth",
                 "login", new ReqParams
                 {
-                        {"account", Username},
-                        {"passwd", Password},
-                        {"session", InternalSession},
+                        {"account", username},
+                        {"passwd", password},
+                        {"session",  GetSessionName()},
                         {"format", "sid"}
                 },
                 cancellationToken)
@@ -192,7 +189,7 @@ namespace SynologyAPI
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var logoutResult = await CallMethodAsync<TResult<object>>("SYNO.API.Auth", "logout", new ReqParams { {"session", InternalSession} }, cancellationToken)
+            var logoutResult = await CallMethodAsync<TResult<object>>("SYNO.API.Auth", "logout", new ReqParams { {"session", GetSessionName()} }, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!logoutResult.Success)

@@ -14,13 +14,13 @@ namespace VideoStationTest2
         private static IWebProxy GetDefaultProxy()
         {
             var proxy = WebRequest.GetSystemWebProxy();
-            proxy.Credentials = System.Net.CredentialCache.DefaultNetworkCredentials;
+            proxy.Credentials = CredentialCache.DefaultNetworkCredentials;
             return proxy;
         }
 
         public static VideoStation CreateVideoStation()
         {
-            return new VideoStation(new Uri("http://<your-subdomain-here>.duckdns.org/"), "video.station.dev", "C1E908Vw18u474p99tsrFNqo6kEj7c", GetDefaultProxy() ?? CreateProxy(""));
+            return new VideoStation(new Uri("http://<your-subdomain-here>.duckdns.org/"), GetDefaultProxy() ?? CreateProxy(""));
         }
     }
 }

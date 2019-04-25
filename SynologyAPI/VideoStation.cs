@@ -13,7 +13,6 @@ namespace SynologyAPI
 {
     public sealed class VideoStation : Station
     {
-        
         // ReSharper disable InconsistentNaming
         private const string ApiSynoVideoStationTvShow = "SYNO.VideoStation.TVShow";
         private const string ApiSynoVideoStationStreaming = "SYNO.VideoStation.Streaming";
@@ -32,16 +31,15 @@ namespace SynologyAPI
 
 
         #region Boilerplate
-
-        public VideoStation()
+        
+        public VideoStation(Uri url, IWebProxy proxy = null)
+            : base(url, proxy)
         {
-            InternalSession = "VideoStation";
         }
-
-        public VideoStation(Uri url, string username, string password, IWebProxy proxy)
-            : base(url, username, password, proxy)
+        
+        protected override string GetSessionName()
         {
-            InternalSession = "VideoStation";
+            return "VideoStation";
         }
 
         protected override Dictionary<string, int> GetImplementedApi()

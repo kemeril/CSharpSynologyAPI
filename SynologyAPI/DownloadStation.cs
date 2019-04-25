@@ -11,8 +11,15 @@ namespace SynologyAPI
 {
     public sealed class DownloadStation : Station
     {
-        public DownloadStation()
-        {}
+        public DownloadStation(Uri url, IWebProxy proxy = null)
+            : base(url, proxy)
+        {
+        }
+
+        protected override string GetSessionName()
+        {
+            return "DownloadStation";
+        }
 
         protected override Dictionary<string, int> GetImplementedApi()
         {
@@ -20,16 +27,6 @@ namespace SynologyAPI
             implementedApi.Add("SYNO.DownloadStation.Task", 3);
             implementedApi.Add("SYNO.DownloadStation.Info", 3);
             return implementedApi;
-        }
-
-        public DownloadStation(Uri url, string username, string password, WebProxy proxy)
-            : base(url, username, password, proxy)
-        {
-        }
-
-        public DownloadStation(Uri url, string username, string password)
-            : base(url, username, password)
-        {
         }
 
         public async Task<InfoResult> InfoAsync(CancellationToken cancellationToken = default(CancellationToken))

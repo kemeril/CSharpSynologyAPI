@@ -20,7 +20,7 @@ namespace VideoStationTest2
 
             try
             {
-                VideoStation.LoginAsync().GetAwaiter().GetResult();
+                VideoStation.LoginAsync("video.station.dev", "C1E908Vw18u474p99tsrFNqo6kEj7c").GetAwaiter().GetResult();
             }
             catch (SynoRequestException e)
             {

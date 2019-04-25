@@ -37,12 +37,12 @@ namespace SynoDsUi
             Mapper.Initialize(cfg=> cfg.CreateMap<Task, TaskViewModel>());
             
             var appSettings = ConfigurationManager.AppSettings;
-            var downloadStation = new DownloadStation(new Uri(appSettings["host"]), appSettings["username"], appSettings["password"], CreateProxy(appSettings["proxy"]));
+            var downloadStation = new DownloadStation(new Uri(appSettings["host"]), CreateProxy(appSettings["proxy"]));
 
             var loggedIn = false;
             try
             {
-                downloadStation.LoginAsync().GetAwaiter().GetResult();
+                downloadStation.LoginAsync(appSettings["username"], appSettings["password"]).GetAwaiter().GetResult();
                 loggedIn = true;
             }
             catch (SynoRequestException)
