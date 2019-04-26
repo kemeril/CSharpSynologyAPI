@@ -27,6 +27,16 @@ namespace SynologyAPI
         private const string ApiSynoVideoStationWatchStatus = "SYNO.VideoStation.WatchStatus";
         // ReSharper restore InconsistentNaming
 
+        private const string MethodList = "list";
+        private const string MethodGetInfo = "getinfo";
+        private const string MethodSetInfo = "setinfo";
+        private const string MethodOpen = "open";
+        private const string MethodClose = "close";
+        private const string MethodStream = "stream";
+        private const string MethodGet = "get";
+        private const string MethodGetImage = "getimage";
+
+
         private const string Additional = @"[""summary"",""actor"",""file"",""extra"",""genre"",""writer"",""director"",""collection"",""poster_mtime"",""watched_ratio"",""conversion_produced"",""backdrop_mtime"",""parental_control""]";
 
 
@@ -106,7 +116,7 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<TvShowsInfo> TvShowListAsync(int libraryId, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tvShowsResult = await CallMethodAsync<TvShowsResult>(ApiSynoVideoStationTvShow, "list",
+            var tvShowsResult = await CallMethodAsync<TvShowsResult>(ApiSynoVideoStationTvShow, MethodList,
                 new ReqParams
                 {
                     {"library_id", libraryId.ToString()},
@@ -115,7 +125,7 @@ namespace SynologyAPI
                 }.SortBy(sortBy, sortDirection).Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
 
             if (!tvShowsResult.Success)
-                throw new SynoRequestException(@"Synology error code " + tvShowsResult.Error, tvShowsResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationTvShow, MethodList, tvShowsResult.Error.Code);
 
             return tvShowsResult.Data;
         }
@@ -134,7 +144,7 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<TvEpisodesInfo> TvShowEpisodeListAsync(int libraryId, int tvShowId, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tvEpisodesResult = await CallMethodAsync<TvEpisodesResult>(ApiSynoVideoStationTvShowEpisode, "list",
+            var tvEpisodesResult = await CallMethodAsync<TvEpisodesResult>(ApiSynoVideoStationTvShowEpisode, MethodList,
                     new ReqParams
                     {
                         {"library_id", libraryId.ToString()},
@@ -142,7 +152,7 @@ namespace SynologyAPI
                         {"additional", Additional}
                     }.SortBy(sortBy, sortDirection).Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
             if (!tvEpisodesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + tvEpisodesResult.Error, tvEpisodesResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationTvShowEpisode, MethodList, tvEpisodesResult.Error.Code);
 
             return tvEpisodesResult.Data;
         }
@@ -156,13 +166,13 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<TvEpisodeInfo> TvShowEpisodeGetInfoAsync(int tvShowEpisodeId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var tvEpisodesResult = await CallMethodAsync<TvEpisodeResult>(ApiSynoVideoStation2TvShowEpisode, "getinfo", new ReqParams
+            var tvEpisodesResult = await CallMethodAsync<TvEpisodeResult>(ApiSynoVideoStation2TvShowEpisode, MethodGetInfo, new ReqParams
             {
                 {"additional", Additional},
                 {"id", "["+tvShowEpisodeId+"]"}
             }, cancellationToken).ConfigureAwait(false);
             if (!tvEpisodesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + tvEpisodesResult.Error, tvEpisodesResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStation2TvShowEpisode, MethodGetInfo, tvEpisodesResult.Error.Code);
 
             return tvEpisodesResult.Data;
         }
@@ -184,14 +194,14 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<MoviesInfo> MovieList(int libraryId, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var movieResult = await CallMethodAsync<MovieResult>(ApiSynoVideoStationMovie, "list",
+            var movieResult = await CallMethodAsync<MovieResult>(ApiSynoVideoStationMovie, MethodList,
                 new ReqParams
                 {
                     {"library_id", libraryId.ToString()},
                     {"additional", Additional}
                 }.SortBy(sortBy, sortDirection).Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
             if (!movieResult.Success)
-                throw new SynoRequestException(@"Synology error code " + movieResult.Error, movieResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationMovie, MethodList, movieResult.Error.Code);
 
             return movieResult.Data;
         }
@@ -210,10 +220,10 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<LibrariesInfo> LibraryListAsync(int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var librariesResult =  await CallMethodAsync<LibrariesResult>(ApiSynoVideoStationLibrary, "list", new ReqParams().Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
+            var librariesResult =  await CallMethodAsync<LibrariesResult>(ApiSynoVideoStationLibrary, MethodList, new ReqParams().Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
 
             if (!librariesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + librariesResult.Error, librariesResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationLibrary, MethodList, librariesResult.Error.Code);
 
             return librariesResult.Data;
         }
@@ -227,14 +237,14 @@ namespace SynologyAPI
             if (format == null) throw new ArgumentNullException(nameof(format));
             if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
 
-            var videoStreamResult = await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStationStreaming, "open", new ReqParams
+            var videoStreamResult = await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStationStreaming, MethodOpen, new ReqParams
             {
                 {"id", fileId.ToString()},
                 {"accept_format", format}
             }, cancellationToken).ConfigureAwait(false);
 
             if (!videoStreamResult.Success)
-                throw new SynoRequestException(@"Synology error code " + videoStreamResult.Error, videoStreamResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationStreaming, MethodOpen, videoStreamResult.Error.Code);
 
             return videoStreamResult;
         }
@@ -244,7 +254,7 @@ namespace SynologyAPI
             if (format == null) throw new ArgumentNullException(nameof(format));
             if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
 
-            var closeResult = await CallMethodAsync<TResult<object>>(ApiSynoVideoStationStreaming, "close", new ReqParams
+            var closeResult = await CallMethodAsync<TResult<object>>(ApiSynoVideoStationStreaming, MethodClose, new ReqParams
             {
                 {"id", streamId},
                 {"format", format},
@@ -252,7 +262,7 @@ namespace SynologyAPI
             }, cancellationToken).ConfigureAwait(false);
 
             if (!closeResult.Success)
-                throw new SynoRequestException(@"Synology error code " + closeResult.Error, closeResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationStreaming, MethodClose, closeResult.Error.Code);
         }
 
 
@@ -262,7 +272,7 @@ namespace SynologyAPI
             if (format == null) throw new ArgumentNullException(nameof(format));
             if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
 
-            return await GetWebRequestAsync(ApiSynoVideoStationStreaming, "stream", new ReqParams
+            return await GetWebRequestAsync(ApiSynoVideoStationStreaming, MethodStream, new ReqParams
             {
                 {"id", streamId},
                 {"format", format}
@@ -295,7 +305,7 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<WebRequest> PosterGetImageAsync(int id, MediaType mediaType, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetWebRequestAsync(ApiSynoVideoStationPoster, "getimage", new ReqParams
+            return await GetWebRequestAsync(ApiSynoVideoStationPoster, MethodGetImage, new ReqParams
             {
                 {"id", id.ToString()},
                 {"type", MediaTypeToString(mediaType)}
@@ -316,7 +326,7 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<WebRequest> BackdropGetAsync(int mapperId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await GetWebRequestAsync(ApiSynoVideoStationBackdrop, "get", new ReqParams
+            return await GetWebRequestAsync(ApiSynoVideoStationBackdrop, MethodGet, new ReqParams
             {
                 {"mapper_id", mapperId.ToString()},
             }, cancellationToken).ConfigureAwait(false);
@@ -331,14 +341,14 @@ namespace SynologyAPI
         /// </summary>
         public async Task<IEnumerable<Subtitle>> SubtitleListAsync(int fileId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var subtitlesResult = await CallMethodAsync<SubtitlesResult>(ApiSynoVideoStationSubtitle, "list",
+            var subtitlesResult = await CallMethodAsync<SubtitlesResult>(ApiSynoVideoStationSubtitle, MethodList,
                 new ReqParams
                 {
                     {"id", fileId.ToString()}
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!subtitlesResult.Success)
-                throw new SynoRequestException(@"Synology error code " + subtitlesResult.Error, subtitlesResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationSubtitle, MethodList, subtitlesResult.Error.Code);
 
             return subtitlesResult.Data;
         }
@@ -357,7 +367,7 @@ namespace SynologyAPI
             if (subtitleId == null) throw new ArgumentNullException(nameof(subtitleId));
             if (string.IsNullOrEmpty(subtitleId)) throw new ArgumentException("subtitleId cannot be empty!", nameof(subtitleId));
 
-            return await GetWebRequestAsync(ApiSynoVideoStationSubtitle, "get", new ReqParams
+            return await GetWebRequestAsync(ApiSynoVideoStationSubtitle, MethodGet, new ReqParams
             {
                 {"id", fileId.ToString()},
                 {"preview", preview.ToString().ToLower()},
@@ -374,14 +384,14 @@ namespace SynologyAPI
         /// </summary>
         public async Task<AudioTrackInfo> AudioTrackListAsync(int fileId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var audioTracksResult = await CallMethodAsync<AudioTrackResult>(ApiSynoVideoStationAudioTrack, "list",
+            var audioTracksResult = await CallMethodAsync<AudioTrackResult>(ApiSynoVideoStationAudioTrack, MethodList,
                 new ReqParams
                 {
                     {"id", fileId.ToString()}
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!audioTracksResult.Success)
-                throw new SynoRequestException(@"Synology error code " + audioTracksResult.Error, audioTracksResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationAudioTrack, MethodList, audioTracksResult.Error.Code);
 
             return audioTracksResult.Data;
         }
@@ -399,14 +409,14 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task<WatchStatusInfo> WatchStatusGetInfoAsync(int id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var watchStatusResult = await CallMethodAsync<WatchStatusResult>(ApiSynoVideoStationWatchStatus, "getinfo",
+            var watchStatusResult = await CallMethodAsync<WatchStatusResult>(ApiSynoVideoStationWatchStatus, MethodGetInfo,
                 new ReqParams
                 {
                     {"id", id.ToString()}
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!watchStatusResult.Success)
-                throw new SynoRequestException(@"Synology error code " + watchStatusResult.Error, watchStatusResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationWatchStatus, MethodGetInfo, watchStatusResult.Error.Code);
 
             return watchStatusResult.Data ?? new WatchStatusInfo { WatchStatus = new WatchStatus() };
         }
@@ -420,7 +430,7 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is throws on error</exception>
         public async Task WatchStatusSetInfoAsync(int id, long position, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var result = await CallMethodAsync<Result>(ApiSynoVideoStationWatchStatus, "setinfo",
+            var result = await CallMethodAsync<Result>(ApiSynoVideoStationWatchStatus, MethodSetInfo,
                 new ReqParams
                 {
                     {"id", id.ToString()},
@@ -428,7 +438,7 @@ namespace SynologyAPI
                 }, cancellationToken).ConfigureAwait(false);
 
             if (!result.Success)
-                throw new SynoRequestException(@"Synology error code " + result.Error, result.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStationWatchStatus, MethodSetInfo, result.Error.Code);
         }
 
 

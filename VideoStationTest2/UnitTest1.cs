@@ -29,7 +29,16 @@ namespace VideoStationTest2
             {
                 if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
                 {
-                    Assert.Fail("2-way authentication not supported.");
+                    string optCode = "123456";
+                    try
+                    {
+                        VideoStation.LoginAsync(username, password, optCode).GetAwaiter().GetResult();
+                    }
+                    catch (SynoRequestException e2)
+                    {
+                        Assert.Fail("Login error. " + e2);
+                    }
+                    //Assert.Fail("2-way authentication not supported.");
                 }
                 else
                 {

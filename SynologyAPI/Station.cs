@@ -15,10 +15,20 @@ namespace SynologyAPI
 {
     public class Station
     {
+        // ReSharper disable InconsistentNaming
+        private const string ApiSynoApiAuth = "SYNO.API.Auth";
+        private const string ApiSynoApiInfo = "SYNO.API.Info";
+        // ReSharper restore InconsistentNaming
+
+        private const string MethodLogin = "login";
+        private const string MethodLogout = "logout";
+
         protected Uri BaseUrl;
         protected string Sid;
         protected IWebProxy Proxy;
+        // ReSharper disable InconsistentNaming
         protected ApiInfo ApiInfo;
+        // ReSharper restore InconsistentNaming
 
         private Dictionary<string, int> _implementedApi;
         protected Dictionary<string, int> ImplementedApi => _implementedApi ?? (_implementedApi = GetImplementedApi());
@@ -44,7 +54,7 @@ namespace SynologyAPI
 
         protected virtual Dictionary<string, int> GetImplementedApi()
         {
-            return new Dictionary<string, int> { { "SYNO.API.Auth", 3 } };
+            return new Dictionary<string, int> { { ApiSynoApiAuth, 3 } };
         }
 
         protected async Task<string> _runAsync(RequestBuilder requestBuilder, CancellationToken cancellationToken)
@@ -152,7 +162,7 @@ namespace SynologyAPI
             if (ApiInfo == null)
             {
                 var jsonResult = await _runAsync(
-                    new RequestBuilder().Api("SYNO.API.Info").AddParam("query", string.Join(",", ImplementedApi.Select(k => k.Key))),
+                    new RequestBuilder().Api(ApiSynoApiInfo).AddParam("query", string.Join(",", ImplementedApi.Select(k => k.Key))),
                     cancellationToken
                 ).ConfigureAwait(false);
                 ApiInfo = JsonHelper.FromJson<ApiInfo>(jsonResult);
@@ -160,7 +170,33 @@ namespace SynologyAPI
             return ApiInfo.Data.Where(p => p.Key.StartsWith(apiName)).ToDictionary(t => t.Key, t => t.Value);
         }
 
-        public async Task LoginAsync(string username, string password, CancellationToken cancellationToken = default(CancellationToken))
+        /// <summary>
+        /// Logins to the Synology NAS.
+        /// Support 2-way authentication.
+        /// </summary>
+        /// <param name="username">The username.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="otpCode">
+        /// 6-digit otp code. Optional. Available DSM 3 and onward.
+        /// First try to login with optCode left null or empty string.
+        /// If login has failed with error code 403 ask user for 6-digit optCode and try to login again but pass the optCode as well.
+        ///
+        /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
+        /// </param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// username
+        /// or
+        /// password
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// username cannot be empty! - username
+        /// or
+        /// password cannot be empty! - password
+        /// </exception>
+        /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
+        public async Task LoginAsync(string username, string password, string otpCode = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (username == null) throw new ArgumentNullException(nameof(username));
             if (string.IsNullOrEmpty(username)) throw new ArgumentException("username cannot be empty!", nameof(username));
@@ -168,15 +204,22 @@ namespace SynologyAPI
             if (password == null) throw new ArgumentNullException(nameof(password));
             if (string.IsNullOrEmpty(password)) throw new ArgumentException("password cannot be empty!", nameof(password));
 
-            var loginResult = await CallMethodAsync<LoginResult>("SYNO.API.Auth",
-                "login", new ReqParams
-                {
-                        {"account", username},
-                        {"passwd", password},
-                        {"session",  GetSessionName()},
-                        {"format", "sid"}
-                },
-                cancellationToken)
+            var param = new ReqParams
+            {
+                {"account", username},
+                {"passwd", password},
+                {"session",  GetSessionName()},
+                {"format", "sid"}
+            };
+
+            if (!string.IsNullOrWhiteSpace(otpCode))
+            {
+                param.Add("otp_code", otpCode);
+            }
+
+            var loginResult = await CallMethodAsync<LoginResult>(ApiSynoApiAuth,
+                    MethodLogin, param,
+                    cancellationToken)
                 .ConfigureAwait(false);
             if (loginResult.Success)
             {
@@ -184,16 +227,16 @@ namespace SynologyAPI
             }
 
             if (!loginResult.Success)
-                throw new SynoRequestException(@"Synology error code " + loginResult.Error, loginResult.Error.Code);
+                throw new SynoRequestException(ApiSynoApiAuth, MethodLogin, loginResult.Error.Code);
         }
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
-            var logoutResult = await CallMethodAsync<TResult<object>>("SYNO.API.Auth", "logout", new ReqParams { {"session", GetSessionName()} }, cancellationToken)
+            var logoutResult = await CallMethodAsync<TResult<object>>(ApiSynoApiAuth, MethodLogout, new ReqParams { {"session", GetSessionName()} }, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!logoutResult.Success)
-                throw new SynoRequestException(@"Synology error code " + logoutResult.Error, logoutResult.Error.Code);
+                throw new SynoRequestException(ApiSynoApiAuth, MethodLogout, logoutResult.Error.Code);
         }
 
         protected string _postFile(RequestBuilder requestBuilder, string fileName, Stream fileStream, string fileParam = "file")
