@@ -180,9 +180,10 @@ namespace SynologyAPI
         /// 6-digit otp code. Optional. Available DSM 3 and onward.
         /// First try to login with optCode left null or empty string.
         /// If login has failed with error code 403 ask user for 6-digit optCode and try to login again but pass the optCode as well.
-        ///
+        /// 
         /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
         /// </param>
+        /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">
@@ -196,13 +197,18 @@ namespace SynologyAPI
         /// password cannot be empty! - password
         /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        public async Task LoginAsync(string username, string password, string otpCode = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<LoginInfo> LoginAsync(string username, string password, string otpCode = null, string deviceId = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (username == null) throw new ArgumentNullException(nameof(username));
             if (string.IsNullOrEmpty(username)) throw new ArgumentException("username cannot be empty!", nameof(username));
 
             if (password == null) throw new ArgumentNullException(nameof(password));
             if (string.IsNullOrEmpty(password)) throw new ArgumentException("password cannot be empty!", nameof(password));
+
+            if (!string.IsNullOrWhiteSpace(otpCode) && otpCode.Length != 6)
+            {
+                throw new ArgumentException("otpCode is optional but if it is passed it has to be 6 digits length!", nameof(otpCode));
+            }
 
             var param = new ReqParams
             {
@@ -217,6 +223,11 @@ namespace SynologyAPI
                 param.Add("otp_code", otpCode);
             }
 
+            if (!string.IsNullOrWhiteSpace(deviceId))
+            {
+                param.Add("device_id", deviceId);
+            }
+
             var loginResult = await CallMethodAsync<LoginResult>(ApiSynoApiAuth,
                     MethodLogin, param,
                     cancellationToken)
@@ -228,6 +239,8 @@ namespace SynologyAPI
 
             if (!loginResult.Success)
                 throw new SynoRequestException(ApiSynoApiAuth, MethodLogin, loginResult.Error.Code);
+
+            return loginResult.Data;
         }
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))

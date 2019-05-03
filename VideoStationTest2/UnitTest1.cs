@@ -12,6 +12,7 @@ namespace VideoStationTest2
     public class UnitTest1
     {
         private string Sid { get; set; }
+        private string DeviceId { get; set; } = string.Empty;
 
         [TestInitialize()]
         public void Initialize()
@@ -23,31 +24,34 @@ namespace VideoStationTest2
 
             try
             {
-                VideoStation.LoginAsync(username, password).GetAwaiter().GetResult();
+                var loginInfo = VideoStation.LoginAsync(username, password, null, DeviceId).GetAwaiter().GetResult();
+                Sid = loginInfo.Sid;
             }
             catch (SynoRequestException e)
             {
                 if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
                 {
-                    string optCode = "123456";
+                    string otpCode = "123456"; //obtain OTP CODE
                     try
                     {
-                        VideoStation.LoginAsync(username, password, optCode).GetAwaiter().GetResult();
+                        var loginInfo = VideoStation.LoginAsync(username, password, otpCode).GetAwaiter().GetResult();
+                        Sid = loginInfo.Sid;
+
+                        //store device id for later login to bypass OTP CODE obtaining.
+                        DeviceId = loginInfo.DeviceId;
                     }
                     catch (SynoRequestException e2)
                     {
-                        Assert.Fail("Login error. " + e2);
+                        Assert.Fail("Login (OTP CODE) error. " + e2);
                     }
-                    //Assert.Fail("2-way authentication not supported.");
                 }
                 else
                 {
-                    Assert.Fail("Login error. " + e);
+                    Assert.Fail("Login (normal) error. " + e);
                 }
             }
             
-            Sid = ObjectAccessor.GetField(VideoStation, "Sid") as string;
-            Console.WriteLine("_sid (for debug purpose only): " + Sid);
+            Console.WriteLine("Sid (for debug purpose only): " + Sid);
         }
 
         [TestCleanup()]

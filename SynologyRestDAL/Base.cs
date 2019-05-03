@@ -170,14 +170,29 @@ namespace SynologyRestDAL
     }
 
     [DataContract]
-    public class SidContainer
+    public class LoginInfo
     {
+        /// <summary>
+        /// Session ID, pass this value by HTTP argument "_sid" or Cookie argument. DSM 2 and onward.
+        /// </summary>
         [DataMember(Name = "sid")]
-        public string Sid { get; set; }
+        public string Sid { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Device id, use to skip OTP checking. DSM 6 and onward.
+        /// </summary>
+        [DataMember(Name = "did")]
+        public string DeviceId { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Login through app portal. DSM 4 and onward.
+        /// </summary>
+        [DataMember(Name = "is_portal_port")]
+        public string IsPortalPort { get; set; }
     }
 
     [DataContract]
-    public class LoginResult : TResult<SidContainer>
+    public class LoginResult : TResult<LoginInfo>
     {
     }
 }

@@ -11,9 +11,14 @@
             return Epoch.AddSeconds(unixTime);
         }
 
-        public static long ToUnixTime(DateTime date)
+        public static long ToUnixTime(DateTime utcTimestamp)
         {
-            return Convert.ToInt64((date - Epoch).TotalSeconds);
+            if (utcTimestamp.Kind != DateTimeKind.Utc)
+            {
+                throw new ArgumentException("The " + nameof(utcTimestamp) + " must be in Utc format.", nameof(utcTimestamp));
+            }
+
+            return Convert.ToInt64((utcTimestamp - Epoch).TotalSeconds);
         }
     }
 }
