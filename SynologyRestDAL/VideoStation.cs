@@ -490,10 +490,10 @@ namespace SynologyRestDAL
         public class VideoStreamInfo
         {
             /// <summary>
-            /// Types: "raw", "hls_remux", "mp4", "smooth"
+            /// Types: "raw", "hls_remux", "hls"
             /// </summary>
             [DataMember(Name="format")]
-            private string Format { get; set; }
+            public string Format { get; set; }
 
             [DataMember(Name = "stream_id")]
             public string StreamId { get; set; }

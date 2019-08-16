@@ -115,7 +115,7 @@ namespace VideoStationTest2
 
             try
             {
-                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true).GetAwaiter().GetResult();
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format).GetAwaiter().GetResult();
             }
             catch (SynoRequestException e)
             {
