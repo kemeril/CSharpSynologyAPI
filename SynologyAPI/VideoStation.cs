@@ -99,6 +99,38 @@ namespace SynologyAPI
             TvShowEpisode
         }
 
+
+        /// <summary>
+        /// Video transcoding options
+        /// See: https://www.synology.com/en-us/knowledgebase/DSM/tutorial/Multimedia/How_do_I_stream_videos_smoothly_via_Video_Station_DS_video
+        /// </summary>
+        public enum VideoTranscoding
+        {
+            /// <summary>
+            /// Raw (original) format.
+            /// There is no video transcoding.
+            /// </summary>
+            Raw,
+
+            /// <summary>
+            /// The high quality.
+            /// There is no video transcoding but the format is remuxed.
+            /// </summary>
+            HighQuality,
+
+            /// <summary>
+            /// The medium quality.
+            /// There is video transcoding.
+            /// </summary>
+            MediumQuality,
+
+            /// <summary>
+            /// The low quality.
+            /// There is video transcoding.
+            /// </summary>
+            LowQuality
+        }
+
         #endregion
 
         #region TvShow
@@ -231,6 +263,62 @@ namespace SynologyAPI
         #endregion
 
         #region Streaming
+
+        //TODO: What shall be the value of audioTrackNumber if there is no any audio track? Suggested to be 0.
+        /// <summary>
+        /// Streaming the open asynchronous new.
+        /// </summary>
+        /// <param name="fileId">The file identifier.</param>
+        /// <param name="audioTrackNumber">
+        /// The audio track (index) number.
+        /// Started at 1. Ignored when <paramref name="format"/> is <see cref="VideoTranscoding.Raw"/> and <paramref name="ac3PassThrough"/> is <c>true</c>.
+        /// Assumed: 0 if there is no any audio track.
+        /// </param>
+        /// <param name="format">The format.</param>
+        /// <param name="ac3PassThrough">if set to <c>true</c> [ac3 pass through].</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<VideoStreamResult> StreamingOpenAsync_new(int fileId, int audioTrackNumber, VideoTranscoding format = VideoTranscoding.Raw, bool ac3PassThrough = true,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var reqParams = new ReqParams();
+
+            switch (format)
+            {
+                case VideoTranscoding.Raw:
+                    if (ac3PassThrough || audioTrackNumber < 1)
+                    {
+                        reqParams.Add("raw", "{}");
+                    }
+                    else
+                    {
+                        reqParams.Add("hls_remux", string.Format("{{\"audio_track\":{0}}}", audioTrackNumber));
+                    }
+                    break;
+                case VideoTranscoding.HighQuality:
+                    //TODO: Implement this
+                    break;
+                case VideoTranscoding.MediumQuality:
+                    //TODO: Implement this
+                    break;
+                case VideoTranscoding.LowQuality:
+                    //TODO: Implement this
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(format), format, null);
+            }
+
+            reqParams.Add("file", string.Format("{{\"id\":{0},\"path\":\"\"}}", fileId));
+
+            var videoStreamResult = await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStationStreaming, MethodOpen, reqParams, cancellationToken)
+                .ConfigureAwait(false);
+
+            if (!videoStreamResult.Success)
+                throw new SynoRequestException(ApiSynoVideoStationStreaming, MethodOpen, videoStreamResult.Error.Code);
+
+            return videoStreamResult;
+        }
 
         public async Task<VideoStreamResult> StreamingOpenAsync(int fileId, string format = "raw", CancellationToken cancellationToken = default(CancellationToken))
         {

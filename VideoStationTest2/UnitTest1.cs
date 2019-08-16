@@ -107,7 +107,8 @@ namespace VideoStationTest2
 
             //open - stream - close
 
-            var videoStream = VideoStation.StreamingOpenAsync(episodeFile.Id).GetAwaiter().GetResult();
+            //var videoStream = VideoStation.StreamingOpenAsync(episodeFile.Id).GetAwaiter().GetResult();
+            var videoStream = VideoStation.StreamingOpenAsync_new(episodeFile.Id, 1).GetAwaiter().GetResult();
             Assert.IsTrue(videoStream.Data.StreamId != null);
 
             var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
