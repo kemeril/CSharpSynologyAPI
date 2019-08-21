@@ -105,23 +105,55 @@ namespace VideoStationTest2
             Assert.AreEqual(firstEpisode.Season, firstEpisodeControl.Season);
             Assert.AreEqual(firstEpisode.Tagline, firstEpisodeControl.Tagline);
 
-            //open - stream - close
 
-            //var videoStream = VideoStation.StreamingOpenAsync(episodeFile.Id).GetAwaiter().GetResult();
-            var videoStream = VideoStation.StreamingOpenAsync_new(episodeFile.Id, 1).GetAwaiter().GetResult();
-            Assert.IsTrue(videoStream.Data.StreamId != null);
 
-            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
-            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
-
-            try
+            //open raw and with ac3PassThrough - stream - close
             {
-                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format).GetAwaiter().GetResult();
+                //var videoStream = VideoStation.StreamingOpenAsync(episodeFile.Id).GetAwaiter().GetResult();
+                var videoStream = VideoStation
+                    .StreamingOpenAsync_new(episodeFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                    .GetAwaiter().GetResult();
+                Assert.IsTrue(videoStream.Data.StreamId != null);
+
+                var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+                Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+
+                try
+                {
+                    VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                        .GetAwaiter().GetResult();
+                }
+                catch (SynoRequestException e)
+                {
+                    Assert.Fail("Streaming closing error. " + e);
+                }
             }
-            catch (SynoRequestException e)
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(episodeFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with loq quality and with no ac3PassThrough - stream - close
             {
-                Assert.Fail("Streaming closing error. " + e);
+                var videoStream = VideoStation
+                    .StreamingOpenAsync_new(episodeFile.Id, audioTrackId, VideoStation.VideoTranscoding.LowQuality, true)
+                    .GetAwaiter().GetResult();
+                Assert.IsTrue(videoStream.Data.StreamId != null);
+
+                var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+                Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+
+                try
+                {
+                    VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                        .GetAwaiter().GetResult();
+                }
+                catch (SynoRequestException e)
+                {
+                    Assert.Fail("Streaming closing error. " + e);
+                }
             }
+
         }
 
         [TestMethod]

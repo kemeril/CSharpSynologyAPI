@@ -554,20 +554,20 @@ namespace SynologyRestDAL
             /// <summary>
             /// Id of audio track.
             /// Samples:
-            /// "1"
-            /// "2"
+            /// 1
+            /// 2
             /// </summary>
             [DataMember(Name = "id")]
-            public string Id { get; set; }
+            public int Id { get; set; }
 
             /// <summary>
             /// Track of audio track. Usually has the same value as <see cref="Id"/>.
             /// Samples:
-            /// "1"
-            /// "2"
+            /// 1
+            /// 2
             /// </summary>
             [DataMember(Name = "track")]
-            public string Track { get; set; }
+            public int Track { get; set; }
 
             /// <summary>
             /// Language of the audio track.

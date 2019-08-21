@@ -16,6 +16,7 @@ namespace SynologyAPI
         // ReSharper disable InconsistentNaming
         private const string ApiSynoVideoStationTvShow = "SYNO.VideoStation.TVShow";
         private const string ApiSynoVideoStationStreaming = "SYNO.VideoStation.Streaming";
+        private const string ApiSynoVideoStation2Streaming = "SYNO.VideoStation2.Streaming";
         private const string ApiSynoVideoStationTvShowEpisode = "SYNO.VideoStation.TVShowEpisode";
         private const string ApiSynoVideoStation2TvShowEpisode = "SYNO.VideoStation2.TVShowEpisode";
         private const string ApiSynoVideoStationMovie = "SYNO.VideoStation.Movie";
@@ -62,7 +63,7 @@ namespace SynologyAPI
             implementedApi.Add(ApiSynoVideoStationLibrary, 1);
             implementedApi.Add("SYNO.VideoController.Device", 1);
             implementedApi.Add(ApiSynoVideoStationStreaming, 1);
-            implementedApi.Add("SYNO.VideoStation2.Streaming", 1);
+            implementedApi.Add(ApiSynoVideoStation2Streaming, 1);
             implementedApi.Add(ApiSynoVideoStationPoster, 2);
             implementedApi.Add(ApiSynoVideoStationBackdrop, 1);
             implementedApi.Add("SYNO.VideoStation.Rating", 1);
@@ -264,46 +265,84 @@ namespace SynologyAPI
 
         #region Streaming
 
+        private static string JsonFormatParamForAudioTrackNumber(int audioTrackId, string jsonFormatParam)
+        {
+            if (audioTrackId > 0)
+            {
+                if (!string.IsNullOrWhiteSpace(jsonFormatParam))
+                {
+                    jsonFormatParam += ",";
+                }
+                jsonFormatParam += string.Format("\"audio_track\":{0}", audioTrackId);
+            }
+
+            return jsonFormatParam;
+        }
+
+        private static string JsonFormatParamForAc3PassThrough(bool ac3PassThrough, string jsonFormatParam)
+        {
+            if (ac3PassThrough)
+            {
+                if (!string.IsNullOrWhiteSpace(jsonFormatParam))
+                {
+                    jsonFormatParam += ",";
+                }
+                jsonFormatParam += "\"audio_format\":\"ac3_copy\"";
+            }
+
+            return jsonFormatParam;
+        }
+
         //TODO: What shall be the value of audioTrackNumber if there is no any audio track? Suggested to be 0.
         /// <summary>
         /// Streaming the open asynchronous new.
         /// </summary>
         /// <param name="fileId">The file identifier.</param>
-        /// <param name="audioTrackNumber">
-        /// The audio track (index) number.
-        /// Started at 1. Ignored when <paramref name="format"/> is <see cref="VideoTranscoding.Raw"/> and <paramref name="ac3PassThrough"/> is <c>true</c>.
-        /// Assumed: 0 if there is no any audio track.
+        /// <param name="audioTrackId">
+        /// The audio track id.
+        /// Ignored when <paramref name="format"/> is <see cref="VideoTranscoding.Raw"/> and <paramref name="ac3PassThrough"/> is <c>true</c>.
+        /// 0 if there is no any audio track.
         /// </param>
         /// <param name="format">The format.</param>
-        /// <param name="ac3PassThrough">if set to <c>true</c> [ac3 pass through].</param>
+        /// <param name="ac3PassThrough">if set to <c>true</c> [ac3 audio pass through].</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<VideoStreamResult> StreamingOpenAsync_new(int fileId, int audioTrackNumber, VideoTranscoding format = VideoTranscoding.Raw, bool ac3PassThrough = true,
+        public async Task<VideoStreamResult> StreamingOpenAsync_new(int fileId, int audioTrackId, VideoTranscoding format = VideoTranscoding.Raw, bool ac3PassThrough = true,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var reqParams = new ReqParams();
+            var jsonFormatParam = string.Empty;
 
             switch (format)
             {
                 case VideoTranscoding.Raw:
-                    if (ac3PassThrough || audioTrackNumber < 1)
+                    if (ac3PassThrough)
                     {
                         reqParams.Add("raw", "{}");
                     }
                     else
                     {
-                        reqParams.Add("hls_remux", string.Format("{{\"audio_track\":{0}}}", audioTrackNumber));
+                        jsonFormatParam = JsonFormatParamForAudioTrackNumber(audioTrackId, jsonFormatParam);
+                        reqParams.Add("hls_remux", string.Format("{{{0}}}", jsonFormatParam));
                     }
                     break;
                 case VideoTranscoding.HighQuality:
-                    //TODO: Implement this
+                    jsonFormatParam = JsonFormatParamForAc3PassThrough(ac3PassThrough, jsonFormatParam);
+                    jsonFormatParam = JsonFormatParamForAudioTrackNumber(audioTrackId, jsonFormatParam);
+                    reqParams.Add("hls_remux", string.Format("{{{0}}}", jsonFormatParam));
                     break;
                 case VideoTranscoding.MediumQuality:
-                    //TODO: Implement this
+                    jsonFormatParam = "\"force_open_vte\":false,\"profile\":\"hd_medium\"";
+                    jsonFormatParam = JsonFormatParamForAc3PassThrough(ac3PassThrough, jsonFormatParam);
+                    jsonFormatParam = JsonFormatParamForAudioTrackNumber(audioTrackId, jsonFormatParam);
+                    reqParams.Add("hls", string.Format("{{{0}}}", jsonFormatParam));
                     break;
                 case VideoTranscoding.LowQuality:
-                    //TODO: Implement this
+                    jsonFormatParam = "\"force_open_vte\":false,\"profile\":\"hd_low\"";
+                    jsonFormatParam = JsonFormatParamForAc3PassThrough(ac3PassThrough, jsonFormatParam);
+                    jsonFormatParam = JsonFormatParamForAudioTrackNumber(audioTrackId, jsonFormatParam);
+                    reqParams.Add("hls", string.Format("{{{0}}}", jsonFormatParam));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(format), format, null);
@@ -311,15 +350,17 @@ namespace SynologyAPI
 
             reqParams.Add("file", string.Format("{{\"id\":{0},\"path\":\"\"}}", fileId));
 
-            var videoStreamResult = await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStationStreaming, MethodOpen, reqParams, cancellationToken)
+            var videoStreamResult = await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStation2Streaming, MethodOpen, reqParams, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!videoStreamResult.Success)
-                throw new SynoRequestException(ApiSynoVideoStationStreaming, MethodOpen, videoStreamResult.Error.Code);
+                throw new SynoRequestException(ApiSynoVideoStation2Streaming, MethodOpen, videoStreamResult.Error.Code);
 
             return videoStreamResult;
         }
 
+
+        [Obsolete("Use ... instead!")]
         public async Task<VideoStreamResult> StreamingOpenAsync(int fileId, string format = "raw", CancellationToken cancellationToken = default(CancellationToken))
         {
             if (format == null) throw new ArgumentNullException(nameof(format));
