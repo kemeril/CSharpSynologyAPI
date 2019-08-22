@@ -3,6 +3,7 @@ using SynologyRestDAL;
 using SynologyRestDAL.Vs;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -293,9 +294,9 @@ namespace SynologyAPI
             return jsonFormatParam;
         }
 
-        //TODO: What shall be the value of audioTrackNumber if there is no any audio track? Suggested to be 0.
         /// <summary>
-        /// Streaming the open asynchronous new.
+        /// Asynchronous open a video stream.
+        /// By the default parameter values the method opens the video stream in <see cref="VideoTranscoding.Raw"/> format and with AC3PassThrough audio format with all the audio tracks.
         /// </summary>
         /// <param name="fileId">The file identifier.</param>
         /// <param name="audioTrackId">
@@ -303,12 +304,14 @@ namespace SynologyAPI
         /// Ignored when <paramref name="format"/> is <see cref="VideoTranscoding.Raw"/> and <paramref name="ac3PassThrough"/> is <c>true</c>.
         /// 0 if there is no any audio track.
         /// </param>
-        /// <param name="format">The format.</param>
+        /// <param name="format">The format. See <see cref="VideoTranscoding"/>.</param>
         /// <param name="ac3PassThrough">if set to <c>true</c> [ac3 audio pass through].</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
-        public async Task<VideoStreamResult> StreamingOpenAsync_new(int fileId, int audioTrackId, VideoTranscoding format = VideoTranscoding.Raw, bool ac3PassThrough = true,
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <exception cref="SynoRequestException">
+        /// Opening error on the server side.
+        /// There is a special error code: 1204. It means that the stream tried to open in non raw format but the server not supported this mode for the video by the possible reason the applied video or audio codec cannot be transcoded or remuxed. In this case the video shall be opened in raw format with AC3PassThrough settings.
+        /// </exception>
+        public async Task<VideoStreamResult> StreamingOpenAsync(int fileId, int audioTrackId = 0, VideoTranscoding format = VideoTranscoding.Raw, bool ac3PassThrough = true,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var reqParams = new ReqParams();
@@ -360,16 +363,13 @@ namespace SynologyAPI
         }
 
 
-        [Obsolete("Use ... instead!")]
-        public async Task<VideoStreamResult> StreamingOpenAsync(int fileId, string format = "raw", CancellationToken cancellationToken = default(CancellationToken))
+        [Obsolete("Use another StreamingOpenAsync method instead!")]
+        public async Task<VideoStreamResult> StreamingOpenAsync(int fileId, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (format == null) throw new ArgumentNullException(nameof(format));
-            if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
-
             var videoStreamResult = await CallMethodAsync<VideoStreamResult>(ApiSynoVideoStationStreaming, MethodOpen, new ReqParams
             {
                 {"id", fileId.ToString()},
-                {"accept_format", format}
+                {"accept_format", "raw"}
             }, cancellationToken).ConfigureAwait(false);
 
             if (!videoStreamResult.Success)
@@ -378,10 +378,26 @@ namespace SynologyAPI
             return videoStreamResult;
         }
 
-        public async Task StreamingCloseAsync(string streamId, bool forceClose, string format = "raw", CancellationToken cancellationToken = default(CancellationToken))
+        /// <summary>
+        /// Asynchronous close am opened stream.
+        /// </summary>
+        /// <param name="streamId">The stream identifier, returned by <see><cref>StreamingOpenAsync</cref></see> method.</param>
+        /// <param name="forceClose">if set to <c>true</c> [force close].</param>
+        /// <param name="format">The format. Valid values: "raw", "hls_remux", "hls"</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException">format cannot be null!</exception>
+        /// <exception cref="ArgumentException">format cannot be empty! - format</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Invalid format value. Allowed values are: "raw", "hls_remux", "hls" - format</exception>
+        /// <exception cref="SynoRequestException">Closing error on the server side.</exception>
+        public async Task StreamingCloseAsync(string streamId, bool forceClose = true, string format = "raw", CancellationToken cancellationToken = default(CancellationToken))
         {
             if (format == null) throw new ArgumentNullException(nameof(format));
             if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
+            if (!new[] {"raw", "hls_remux", "hls"}.Contains(format))
+            {
+                throw new ArgumentOutOfRangeException(nameof(format), format, "Invalid format value. Allowed values are: \"raw\", \"hls_remux\", \"hls\"");
+            }
 
             var closeResult = await CallMethodAsync<TResult<object>>(ApiSynoVideoStationStreaming, MethodClose, new ReqParams
             {

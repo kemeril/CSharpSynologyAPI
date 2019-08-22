@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SynologyAPI;
 using SynologyAPI.Exception;
 using SynologyRestDAL;
+using SynologyRestDAL.Vs;
 
 namespace VideoStationTest2
 {
@@ -111,7 +112,7 @@ namespace VideoStationTest2
             {
                 //var videoStream = VideoStation.StreamingOpenAsync(episodeFile.Id).GetAwaiter().GetResult();
                 var videoStream = VideoStation
-                    .StreamingOpenAsync_new(episodeFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                    .StreamingOpenAsync(episodeFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
                     .GetAwaiter().GetResult();
                 Assert.IsTrue(videoStream.Data.StreamId != null);
 
@@ -128,32 +129,6 @@ namespace VideoStationTest2
                     Assert.Fail("Streaming closing error. " + e);
                 }
             }
-
-            //Get audio track list
-            var audioTrackInfo = VideoStation.AudioTrackListAsync(episodeFile.Id).GetAwaiter().GetResult();
-            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
-
-            //open transcoding with loq quality and with no ac3PassThrough - stream - close
-            {
-                var videoStream = VideoStation
-                    .StreamingOpenAsync_new(episodeFile.Id, audioTrackId, VideoStation.VideoTranscoding.LowQuality, true)
-                    .GetAwaiter().GetResult();
-                Assert.IsTrue(videoStream.Data.StreamId != null);
-
-                var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
-                Assert.IsTrue(webRequest.RequestUri.ToString() != null);
-
-                try
-                {
-                    VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
-                        .GetAwaiter().GetResult();
-                }
-                catch (SynoRequestException e)
-                {
-                    Assert.Fail("Streaming closing error. " + e);
-                }
-            }
-
         }
 
         [TestMethod]
@@ -547,7 +522,7 @@ namespace VideoStationTest2
             var audioTracks = audioTrackInfo.AudioTracks.ToList();
             if (!audioTracks.Any()) return;
             
-            Assert.AreEqual(2, audioTracks.Count);
+            Assert.AreEqual(1, audioTracks.Count);
         }
 
         [TestMethod]
@@ -582,5 +557,458 @@ namespace VideoStationTest2
 
             VideoStation.WatchStatusSetInfoAsync(movie.Id, 99).GetAwaiter();
         }
+
+        #region StreamingOpenAsync tests
+
+        [TestMethod]
+        public void Test_Open_Movie_Raw_AC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //open transcoding with loq quality and with no ac3PassThrough - stream - close
+            var videoStream = VideoStation
+                .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                .GetAwaiter().GetResult();
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Open_Movie_Raw_NoAC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with raw quality and with no ac3PassThrough - stream - close
+            VideoStreamResult videoStream;
+            try
+            {
+                videoStream = VideoStation
+                    .StreamingOpenAsync(movieFile.Id, audioTrackId, VideoStation.VideoTranscoding.Raw, false)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException sre)
+            {
+                if (sre.ErrorCode == 1204)
+                {
+                    videoStream = VideoStation
+                        .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                        .GetAwaiter().GetResult();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Open_Movie_HighQuality_AC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with raw quality and with no ac3PassThrough - stream - close
+            VideoStreamResult videoStream;
+            try
+            {
+                videoStream = VideoStation
+                    .StreamingOpenAsync(movieFile.Id, audioTrackId, VideoStation.VideoTranscoding.HighQuality, true)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException sre)
+            {
+                if (sre.ErrorCode == 1204)
+                {
+                    videoStream = VideoStation
+                        .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                        .GetAwaiter().GetResult();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Open_Movie_HighQuality_NoAC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with raw quality and with no ac3PassThrough - stream - close
+            VideoStreamResult videoStream;
+            try
+            {
+                videoStream = VideoStation
+                    .StreamingOpenAsync(movieFile.Id, audioTrackId, VideoStation.VideoTranscoding.HighQuality, false)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException sre)
+            {
+                if (sre.ErrorCode == 1204)
+                {
+                    videoStream = VideoStation
+                        .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                        .GetAwaiter().GetResult();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Open_Movie_MediumQuality_AC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with raw quality and with no ac3PassThrough - stream - close
+            VideoStreamResult videoStream;
+            try
+            {
+                videoStream = VideoStation
+                    .StreamingOpenAsync(movieFile.Id, audioTrackId, VideoStation.VideoTranscoding.MediumQuality, true)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException sre)
+            {
+                if (sre.ErrorCode == 1204)
+                {
+                    videoStream = VideoStation
+                        .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                        .GetAwaiter().GetResult();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Open_Movie_MediumQuality_NoAC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with raw quality and with no ac3PassThrough - stream - close
+            VideoStreamResult videoStream;
+            try
+            {
+                videoStream = VideoStation
+                    .StreamingOpenAsync(movieFile.Id, audioTrackId, VideoStation.VideoTranscoding.MediumQuality, false)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException sre)
+            {
+                if (sre.ErrorCode == 1204)
+                {
+                    videoStream = VideoStation
+                        .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                        .GetAwaiter().GetResult();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Open_Movie_LowQuality_AC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with raw quality and with no ac3PassThrough - stream - close
+            VideoStreamResult videoStream;
+            try
+            {
+                videoStream = VideoStation
+                    .StreamingOpenAsync(movieFile.Id, audioTrackId, VideoStation.VideoTranscoding.LowQuality, true)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException sre)
+            {
+                if (sre.ErrorCode == 1204)
+                {
+                    videoStream = VideoStation
+                        .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                        .GetAwaiter().GetResult();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+
+        [TestMethod]
+        public void Test_Open_Movie_LowQuality_NoAC3PassThrough()
+        {
+            const int libraryId = 0; //Built in library
+            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var movies = result.Movies.ToList();
+
+            var movie = movies.FirstOrDefault();
+            Assert.IsNotNull(movie);
+
+            var movieFile = movie.Additional.Files.FirstOrDefault();
+            Assert.IsNotNull(movieFile);
+
+            var duration = movieFile.Duration;
+            Assert.IsTrue(duration.Ticks >= 0);
+
+            //Get audio track list
+            var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
+            var audioTrackId = audioTrackInfo.AudioTracks.FirstOrDefault()?.Id ?? 0;
+
+            //open transcoding with raw quality and with no ac3PassThrough - stream - close
+            VideoStreamResult videoStream;
+            try
+            {
+                videoStream = VideoStation
+                    .StreamingOpenAsync(movieFile.Id, audioTrackId, VideoStation.VideoTranscoding.LowQuality, false)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException sre)
+            {
+                if (sre.ErrorCode == 1204)
+                {
+                    videoStream = VideoStation
+                        .StreamingOpenAsync(movieFile.Id, 0, VideoStation.VideoTranscoding.Raw, true)
+                        .GetAwaiter().GetResult();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            Assert.IsTrue(videoStream.Data.StreamId != null);
+
+            var webRequest = VideoStation.StreamingStreamAsync(videoStream.Data.StreamId).GetAwaiter().GetResult();
+            Assert.IsTrue(webRequest.RequestUri.ToString() != null);
+            //TODO: Pass the webRequest.RequestUri to an external player such as VLC here!
+
+            try
+            {
+                VideoStation.StreamingCloseAsync(videoStream.Data.StreamId, true, videoStream.Data.Format)
+                    .GetAwaiter().GetResult();
+            }
+            catch (SynoRequestException e)
+            {
+                Assert.Fail("Streaming closing error. " + e);
+            }
+        }
+        #endregion
     }
 }
