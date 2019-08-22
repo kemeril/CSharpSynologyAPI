@@ -1,6 +1,7 @@
 ﻿using StdUtils;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace SynologyRestDAL
@@ -235,13 +236,21 @@ namespace SynologyRestDAL
             ///// </summary>
             [DataMember(Name = "duration")]
             // ReSharper disable once InconsistentNaming
-            private string _duration { get; set; }
+            public string DurationRaw { get; private set; }
 
-            public TimeSpan Duration
+            public TimeSpan? Duration
             {
                 get
                 {
-                    return TimeSpanParser.Parse(_duration).Duration();
+
+                    try
+                    {
+                        return TimeSpanParser.Parse(DurationRaw, CultureInfo.InvariantCulture).Duration();
+                    }
+                    catch
+                    {
+                        return null;
+                    }
                 }
             }
 
@@ -253,6 +262,7 @@ namespace SynologyRestDAL
             public int FFVideoProfile { get; set; }
 
             /// <summary>
+            /// File size in bytes.
             /// Sample value:4908079893
             /// </summary>
             [DataMember(Name = "filesize")]
@@ -294,11 +304,17 @@ namespace SynologyRestDAL
             [DataMember(Name = "path")]
             public string Path { get; set; }
 
-            ///// <summary>
-            ///// Sample value:4265
-            ///// </summary>
+            /// <summary>
+            /// The position where the video seeing has been ended last time in seconds. 
+            /// Sample value:4265
+            /// </summary>
             [DataMember(Name = "position")]
-            public long Position { get; set; }
+            public long PositionRaw { get; set; }
+
+            public TimeSpan Position
+            {
+                get { return TimeSpan.FromSeconds(PositionRaw); }
+            }
 
             ///// <summary>
             ///// Sample value:1280

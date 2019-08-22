@@ -32,7 +32,7 @@ namespace VideoStationTest2
             {
                 if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
                 {
-                    string otpCode = "123456"; //obtain OTP CODE
+                    string otpCode = "297334"; //obtain OTP CODE
                     try
                     {
                         var loginInfo = VideoStation.LoginAsync(username, password, otpCode).GetAwaiter().GetResult();
@@ -95,7 +95,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(episodeFile);
 
             var duration = episodeFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             var episodesResult = VideoStation.TvShowEpisodeGetInfoAsync(firstEpisode.Id).GetAwaiter().GetResult();
 
@@ -574,7 +575,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //open transcoding with loq quality and with no ac3PassThrough - stream - close
             var videoStream = VideoStation
@@ -611,7 +613,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //Get audio track list
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
@@ -670,7 +673,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //Get audio track list
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
@@ -729,7 +733,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //Get audio track list
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
@@ -788,7 +793,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //Get audio track list
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
@@ -847,7 +853,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //Get audio track list
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
@@ -906,7 +913,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //Get audio track list
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
@@ -965,7 +973,8 @@ namespace VideoStationTest2
             Assert.IsNotNull(movieFile);
 
             var duration = movieFile.Duration;
-            Assert.IsTrue(duration.Ticks >= 0);
+            Assert.IsNotNull(duration);
+            Assert.IsTrue(duration.Value.Ticks >= 0);
 
             //Get audio track list
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
