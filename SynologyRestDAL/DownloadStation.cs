@@ -142,11 +142,6 @@ namespace SynologyRestDAL
             public TaskStatusExtra StatusExtra { get; set; }
             [DataMember(Name = "additional")]
             public Additional Additional { get; set; }
-
-            public override string ToString()
-            {
-                return base.ToString();
-            }
         }
 
 

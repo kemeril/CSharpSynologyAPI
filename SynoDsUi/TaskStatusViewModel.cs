@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SynoDsUi
+﻿namespace SynoDsUi
 {
     public class TaskStatusViewModel
     {
-        private string _title;
         public TaskStatusViewModel(string title)
         {
-            _title = title;
+            Title = title;
         }
 
-        public string Title { get { return _title; } }
+        public string Title { get; }
     }
 }
