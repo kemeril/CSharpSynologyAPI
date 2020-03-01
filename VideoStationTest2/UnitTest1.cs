@@ -21,11 +21,12 @@ namespace VideoStationTest2
             const string username = "video.station.dev";
             const string password = "C1E908Vw18u474p99tsrFNqo6kEj7c";
 
-            VideoStation = VideoStationFactory.CreateVideoStation();
+            var proxy = VideoStationFactory.GetDefaultProxy() ?? VideoStationFactory.CreateProxy("");
+            VideoStation = new VideoStation();
 
             try
             {
-                var loginInfo = VideoStation.LoginAsync(username, password, null, DeviceId).GetAwaiter().GetResult();
+                var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, null, DeviceId, proxy).GetAwaiter().GetResult();
                 Sid = loginInfo.Sid;
             }
             catch (SynoRequestException e)
@@ -35,7 +36,7 @@ namespace VideoStationTest2
                     string otpCode = "297334"; //obtain OTP CODE
                     try
                     {
-                        var loginInfo = VideoStation.LoginAsync(username, password, otpCode).GetAwaiter().GetResult();
+                        var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, otpCode, proxy: proxy).GetAwaiter().GetResult();
                         Sid = loginInfo.Sid;
 
                         //store device id for later login to bypass OTP CODE obtaining.

@@ -1,21 +1,14 @@
-﻿using SynologyRestDAL;
-using SynologyRestDAL.Ds;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using SynologyRestDAL;
+using SynologyRestDAL.Ds;
 
 namespace SynologyAPI
 {
     public sealed class DownloadStation : Station
     {
-        public DownloadStation(Uri url, IWebProxy proxy = null)
-            : base(url, proxy)
-        {
-        }
-
         protected override string GetSessionName()
         {
             return "DownloadStation";
@@ -29,17 +22,17 @@ namespace SynologyAPI
             return implementedApi;
         }
 
-        public async Task<InfoResult> InfoAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<InfoResult> InfoAsync(CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<InfoResult>("SYNO.DownloadStation.Info", "getinfo", cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> ListAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ListResult> ListAsync(CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task", "list", cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> ListAsync(string[] additional, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ListResult> ListAsync(string[] additional, int offset = 0, int limit = -1, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "list", new ReqParams
@@ -52,7 +45,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> ListAsync(string additional, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ListResult> ListAsync(string additional, int offset = 0, int limit = -1, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "list", new ReqParams
@@ -65,7 +58,7 @@ namespace SynologyAPI
            ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> PauseTasksAsync(string[] taskIds, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TaskOperationResult> PauseTasksAsync(string[] taskIds, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "pause", new ReqParams
@@ -76,7 +69,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> PauseTasksAsync(string taskIds, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TaskOperationResult> PauseTasksAsync(string taskIds, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "pause", new ReqParams
@@ -87,7 +80,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> ResumeTasksAsync(string[] taskIds, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TaskOperationResult> ResumeTasksAsync(string[] taskIds, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "resume", new ReqParams
@@ -98,7 +91,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> ResumeTasksAsync(string taskIds, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TaskOperationResult> ResumeTasksAsync(string taskIds, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "resume", new ReqParams
@@ -109,7 +102,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> DeleteTasks(string[] taskIds, bool forceComplete = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TaskOperationResult> DeleteTasks(string[] taskIds, bool forceComplete = false, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "delete", new ReqParams
@@ -121,7 +114,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<TaskOperationResult> DeleteTasksAsync(string taskIds, bool forceComplete = false, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TaskOperationResult> DeleteTasksAsync(string taskIds, bool forceComplete = false, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<TaskOperationResult>("SYNO.DownloadStation.Task",
                 "delete", new ReqParams
@@ -133,7 +126,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> GetTasksAsync(string[] taskIds, string[] additional, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ListResult> GetTasksAsync(string[] taskIds, string[] additional, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "getinfo", new ReqParams
@@ -145,7 +138,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<ListResult> GetTasksAsync(string taskIds, string additional = "detail", CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<ListResult> GetTasksAsync(string taskIds, string additional = "detail", CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<ListResult>("SYNO.DownloadStation.Task",
                 "getinfo", new ReqParams
@@ -157,7 +150,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<TResult<object>> CreateTaskAsync(string url, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TResult<object>> CreateTaskAsync(string url, CancellationToken cancellationToken = default)
         {
             return await CallMethodAsync<TResult<object>>("SYNO.DownloadStation.Task",
                 "create", new ReqParams
@@ -168,7 +161,7 @@ namespace SynologyAPI
             ).ConfigureAwait(false);
         }
 
-        public async Task<TResult<object>> CreateTaskAsync(string fileName, Stream fileStream, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<TResult<object>> CreateTaskAsync(string fileName, Stream fileStream, CancellationToken cancellationToken = default)
         {
             return await PostFileAsync<TResult<object>>("SYNO.DownloadStation.Task", "create", fileName, fileStream, "file", cancellationToken: cancellationToken).ConfigureAwait(false);
         }

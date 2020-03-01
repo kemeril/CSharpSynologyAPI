@@ -33,18 +33,11 @@ namespace SynologyAPI
         private Dictionary<string, int> _implementedApi;
         protected Dictionary<string, int> ImplementedApi => _implementedApi ?? (_implementedApi = GetImplementedApi());
       
-        public Station(Uri url, IWebProxy proxy = null)
+        public Station()
         {
             // **** Ignore any ssl errors
             ServicePointManager.ServerCertificateValidationCallback +=
                 (sender, certificate, chain, sslPolicyErrors) => true;
-
-            BaseUrl = url;
-
-            if (proxy != null)
-            {
-                Proxy = proxy;
-            }
         }
 
         protected virtual string GetSessionName()
@@ -174,8 +167,9 @@ namespace SynologyAPI
         /// Logins to the Synology NAS.
         /// Support 2-way authentication.
         /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
+        /// <param name="url">THe VideoStation base url. Required.</param>
+        /// <param name="username">The username. Required.</param>
+        /// <param name="password">The password. Required.</param>
         /// <param name="otpCode">
         /// 6-digit otp code. Optional. Available DSM 3 and onward.
         /// First try to login with optCode left null or empty string.
@@ -184,6 +178,7 @@ namespace SynologyAPI
         /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
         /// </param>
         /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.</param>
+        /// <param name="proxy">Optional.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException">
@@ -197,8 +192,11 @@ namespace SynologyAPI
         /// password cannot be empty! - password
         /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        public async Task<LoginInfo> LoginAsync(string username, string password, string otpCode = null, string deviceId = null, CancellationToken cancellationToken = default)
+        public async Task<LoginInfo> LoginAsync(Uri url, string username, string password, string otpCode = null, string deviceId = null,
+             IWebProxy proxy = null, CancellationToken cancellationToken = default)
         {
+            if (url == null) throw new ArgumentNullException(nameof(url));
+
             if (username == null) throw new ArgumentNullException(nameof(username));
             if (string.IsNullOrEmpty(username)) throw new ArgumentException("username cannot be empty!", nameof(username));
 
@@ -208,6 +206,13 @@ namespace SynologyAPI
             if (!string.IsNullOrWhiteSpace(otpCode) && otpCode.Length != 6)
             {
                 throw new ArgumentException("otpCode is optional but if it is passed it has to be 6 digits length!", nameof(otpCode));
+            }
+
+            BaseUrl = url;
+
+            if (proxy != null)
+            {
+                Proxy = proxy;
             }
 
             var param = new ReqParams
@@ -245,6 +250,8 @@ namespace SynologyAPI
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default)
         {
+            Sid = String.Empty;
+
             var logoutResult = await CallMethodAsync<TResult<object>>(ApiSynoApiAuth, MethodLogout, new ReqParams { {"session", GetSessionName()} }, cancellationToken)
                 .ConfigureAwait(false);
 

@@ -15,10 +15,10 @@ namespace SynologyApiTest.VideoStationTests
         [Test]
         public void Setup()
         {
-            var vs = new VideoStation(new Uri(Host), CreateProxy(Proxy));
+            var vs = new VideoStation();
             try
             {
-                vs.LoginAsync(Username, Password).GetAwaiter().GetResult();
+                vs.LoginAsync(new Uri(Host), Username, Password, proxy: CreateProxy(Proxy)).GetAwaiter().GetResult();
                 VideoStation = vs;
             }
             catch (SynoRequestException)

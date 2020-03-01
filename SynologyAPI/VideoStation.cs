@@ -43,12 +43,7 @@ namespace SynologyAPI
 
 
         #region Boilerplate
-        
-        public VideoStation(Uri url, IWebProxy proxy = null)
-            : base(url, proxy)
-        {
-        }
-        
+      
         protected override string GetSessionName()
         {
             return "VideoStation";

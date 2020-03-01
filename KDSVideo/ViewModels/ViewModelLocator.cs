@@ -2,6 +2,7 @@
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Views;
 using KDSVideo.Views;
+using SynologyAPI;
 
 namespace KDSVideo.ViewModels
 {
@@ -19,9 +20,10 @@ namespace KDSVideo.ViewModels
 
             var navigationService = new NavigationService();
             navigationService.Configure(LoginPageKey, typeof(LoginPage));
-            navigationService.Configure(MainPageKey, typeof(Views.MainPage));
+            navigationService.Configure(MainPageKey, typeof(MainPage));
 
             //Register your services used here
+            SimpleIoc.Default.Register<IVideoStation>(() => new VideoStation());
             SimpleIoc.Default.Register<INavigationService>(() => navigationService);
             SimpleIoc.Default.Register<LoginViewModel>();
             SimpleIoc.Default.Register<MainViewModel>();
