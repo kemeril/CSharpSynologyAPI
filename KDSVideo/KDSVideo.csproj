@@ -172,6 +172,10 @@
       <Project>{503587ba-a352-486e-a653-e7565e5b78bf}</Project>
       <Name>SynologyAPI</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SynologyRestDAL\SynologyRestDAL.csproj">
+      <Project>{820CD773-C147-4880-B09D-CBDE1CE87952}</Project>
+      <Name>SynologyRestDAL</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
