@@ -13,7 +13,7 @@ using SynologyAPI.Exception;
 
 namespace SynologyAPI
 {
-    public class Station
+    public class Station : IStation
     {
         // ReSharper disable InconsistentNaming
         private const string ApiSynoApiAuth = "SYNO.API.Auth";
@@ -106,10 +106,10 @@ namespace SynologyAPI
                         Version(apiSpec.Value.MaxVersion.ToString());
         }
 
-        public async Task<T> PostFileAsync<T>(string apiName, string method, string fileName, Stream fileStream, string fileParam = "file", CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<T> PostFileAsync<T>(string apiName, string method, string fileName, Stream fileStream, string fileParam = "file", CancellationToken cancellationToken = default)
         {
             var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
-            return stationApi.Key == null ? default(T) : 
+            return stationApi.Key == null ? default : 
                 JsonHelper.FromJson<T>(
                         _postFile(
                             CreateRequest((new RequestBuilder(Sid)).Session(Sid).Method(method), stationApi),
@@ -120,25 +120,25 @@ namespace SynologyAPI
             );
         }
 
-        public async Task<T> CallAsync<T>(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<T> CallAsync<T>(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default)
         {
             var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
             return stationApi.Key == null
-                ? default(T)
+                ? default
                 : JsonHelper.FromJson<T>(await _runAsync(CreateRequest(requestBuilder, stationApi), cancellationToken));
         }
 
-        protected async Task<T> CallMethodAsync<T>(string apiName, string method, CancellationToken cancellationToken = default(CancellationToken))
+        protected async Task<T> CallMethodAsync<T>(string apiName, string method, CancellationToken cancellationToken = default)
         {
             return await CallAsync<T>(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<T> CallMethodAsync<T>(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<T> CallMethodAsync<T>(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default)
         {
             return await CallAsync<T>(apiName, new RequestBuilder(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<WebRequest> GetWebRequestAsync(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default)
         {
             var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
             return stationApi.Key == null
@@ -147,17 +147,17 @@ namespace SynologyAPI
         }
 
         // ReSharper disable once UnusedMember.Global
-        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, CancellationToken cancellationToken = default)
         {
             return await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default)
         {
             return await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
         }
 
-        public async Task<Dictionary<string, ApiSpec>> GetApiAsync(string apiName, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<Dictionary<string, ApiSpec>> GetApiAsync(string apiName, CancellationToken cancellationToken = default)
         {
             if (ApiInfo == null)
             {
@@ -197,7 +197,7 @@ namespace SynologyAPI
         /// password cannot be empty! - password
         /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        public async Task<LoginInfo> LoginAsync(string username, string password, string otpCode = null, string deviceId = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<LoginInfo> LoginAsync(string username, string password, string otpCode = null, string deviceId = null, CancellationToken cancellationToken = default)
         {
             if (username == null) throw new ArgumentNullException(nameof(username));
             if (string.IsNullOrEmpty(username)) throw new ArgumentException("username cannot be empty!", nameof(username));
@@ -243,7 +243,7 @@ namespace SynologyAPI
             return loginResult.Data;
         }
 
-        public async Task LogoutAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public async Task LogoutAsync(CancellationToken cancellationToken = default)
         {
             var logoutResult = await CallMethodAsync<TResult<object>>(ApiSynoApiAuth, MethodLogout, new ReqParams { {"session", GetSessionName()} }, cancellationToken)
                 .ConfigureAwait(false);

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SynologyAPI
 {
-    public sealed class VideoStation : Station
+    public sealed class VideoStation : Station, IVideoStation
     {
         // ReSharper disable InconsistentNaming
         private const string ApiSynoVideoStationTvShow = "SYNO.VideoStation.TVShow";
