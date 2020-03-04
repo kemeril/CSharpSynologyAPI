@@ -47,7 +47,7 @@
 
             <CheckBox Grid.Column="0" Grid.Row="4" Content="Remember" IsChecked="True" Margin="10,8,0,10"/>
 
-            <Button Grid.Column="0" Grid.Row="5" Content="Login" HorizontalAlignment="Stretch"/> 
+            <Button Grid.Column="0" Grid.Row="5" Content="Login" HorizontalAlignment="Stretch" Command="{Binding LoginCommand}"/> 
         </Grid>
     </Grid>
 </Page>
