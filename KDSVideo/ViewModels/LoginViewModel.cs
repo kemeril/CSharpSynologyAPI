@@ -1,44 +1,25 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Net;
-using System.Runtime.CompilerServices;
 using System.Threading;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Views;
+using KDSVideo.Infrastructure;
 using SynologyAPI;
 using SynologyAPI.Exception;
 using SynologyRestDAL;
 
 namespace KDSVideo.ViewModels
 {
-    public class LoginViewModel : INotifyPropertyChanged
+    public class LoginViewModel : ViewModelBase
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        public LoginViewModel(INavigationService navigationService, IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, INetworkService networkService, IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+            _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
             LoginCommand = new RelayCommand(Login);
-        }
-
-        private IWebProxy CreateProxy(string proxyUrl)
-        {
-            return string.IsNullOrWhiteSpace(proxyUrl) ? null : new WebProxy(new Uri(proxyUrl));
-        }
-
-        private IWebProxy GetDefaultProxy()
-        {
-            var proxy = WebRequest.GetSystemWebProxy();
-            proxy.Credentials = CredentialCache.DefaultNetworkCredentials;
-            return proxy;
         }
 
         private async void Login()
@@ -53,7 +34,7 @@ namespace KDSVideo.ViewModels
                 var baseUri = new Uri(Host);
 
                 // TODO: Implement custom, user defined proxy usage
-                var proxy = GetDefaultProxy() ?? CreateProxy("");
+                var proxy = _networkService.GetProxy();
 
                 try
                 {
@@ -88,6 +69,7 @@ namespace KDSVideo.ViewModels
         }
 
         private readonly INavigationService _navigationService;
+        private readonly INetworkService _networkService;
         private readonly IVideoStation _videoStation;
 
         private string _deviceId = string.Empty;
@@ -108,7 +90,7 @@ namespace KDSVideo.ViewModels
             set
             {
                 _host = value ?? string.Empty;
-                OnPropertyChanged(nameof(Host));
+                RaisePropertyChanged(nameof(Host));
             }
         }
         
@@ -118,7 +100,7 @@ namespace KDSVideo.ViewModels
             set
             {
                 _account = value ?? string.Empty;
-                OnPropertyChanged(nameof(Account));
+                RaisePropertyChanged(nameof(Account));
             }
         }
         
@@ -128,7 +110,7 @@ namespace KDSVideo.ViewModels
             set
             {
                 _password = value ?? string.Empty;
-                OnPropertyChanged(nameof(Password));
+                RaisePropertyChanged(nameof(Password));
             }
         }
         
@@ -137,8 +119,8 @@ namespace KDSVideo.ViewModels
             get => _otpCode;
             set
             {
-                _otpCode = value ?? String.Empty;
-                OnPropertyChanged(nameof(OtpCode));
+                _otpCode = value ?? string.Empty;
+                RaisePropertyChanged(nameof(OtpCode));
             }
         }
         
@@ -148,7 +130,7 @@ namespace KDSVideo.ViewModels
             set
             {
                 _rememberMe = value;
-                OnPropertyChanged(nameof(RememberMe));
+                RaisePropertyChanged(nameof(RememberMe));
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Views;
+using KDSVideo.Infrastructure;
 using KDSVideo.Views;
 using SynologyAPI;
 
@@ -23,6 +24,7 @@ namespace KDSVideo.ViewModels
             navigationService.Configure(MainPageKey, typeof(MainPage));
 
             //Register your services used here
+            SimpleIoc.Default.Register<INetworkService>(() => new NetworkService());
             SimpleIoc.Default.Register<IVideoStation>(() => new VideoStation());
             SimpleIoc.Default.Register<INavigationService>(() => navigationService);
             SimpleIoc.Default.Register<LoginViewModel>();
