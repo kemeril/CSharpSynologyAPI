@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using GalaSoft.MvvmLight;
@@ -28,11 +29,15 @@ namespace KDSVideo.ViewModels
         {
             try
             {
-                var baseUri = new Uri(Host);
+                _baseUri = _networkService.GetHostUri(Host);
+                if (_baseUri == null)
+                {
+                    return;
+                }
                 _webProxy = _networkService.GetProxy();
                 var deviceId = LoadDeviceId(Host, Account, Password);
                 var cts = new CancellationTokenSource(_timeout);
-                var loginInfo = await _videoStation.LoginAsync(baseUri, Account, Password, null, deviceId, _webProxy, cts.Token);
+                var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, null, deviceId, _webProxy, cts.Token);
                 if (RememberMe && !string.IsNullOrWhiteSpace(loginInfo.DeviceId))
                 {
                     SaveDeviceId(Host, Account, Password, loginInfo.DeviceId);
@@ -46,10 +51,15 @@ namespace KDSVideo.ViewModels
                 {
                     // TODO: Request new 6 digits OTP CODE view state
                 }
+                else
+                {
+                    Trace.TraceInformation(e.ToString());
+                }
             }
             catch (Exception e)
             {
                 // ignored (because of OperationCanceledException or other exception)
+                Trace.TraceInformation(e.ToString());
             }
         }
 
@@ -59,25 +69,32 @@ namespace KDSVideo.ViewModels
 
         private async void LoginTwoFactorAuthentication()
         {
-            var baseUri = new Uri(Host);
-
-            var cts = new CancellationTokenSource(_timeout);
             try
             {
-                var loginInfo = await _videoStation.LoginAsync(baseUri, Account, Password, OtpCode, null, _webProxy, cts.Token);
+                var cts = new CancellationTokenSource(_timeout);
+                var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, null, _webProxy, cts.Token);
                 if (RememberMe)
                 {
                     SaveDeviceId(Host, Account, Password, loginInfo.DeviceId);
                 }
                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
             }
-            catch (SynoRequestException)
+            catch (SynoRequestException e)
             {
                 // ignored (because of invalid 6 digits OTP CODE)
+                if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
+                {
+                    // ignored (because of invalid 6 digits OTP CODE)
+                }
+                else
+                {
+                    Trace.TraceInformation(e.ToString());
+                }
             }
             catch (Exception e)
             {
                 // ignored (because of OperationCanceledException or other exception)
+                Trace.TraceInformation(e.ToString());
             }
         }
 
@@ -100,6 +117,7 @@ namespace KDSVideo.ViewModels
 
         private TimeSpan _timeout = TimeSpan.FromSeconds(30);
         private IWebProxy _webProxy;
+        private Uri _baseUri;
         private string _host = string.Empty;
         private string _account = string.Empty;
         private string _password = string.Empty;
