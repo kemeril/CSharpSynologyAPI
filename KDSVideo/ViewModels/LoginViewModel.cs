@@ -98,7 +98,7 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private bool CanLoginTwoFactorAuthentication => CanLogin() && !string.IsNullOrWhiteSpace(OtpCode);
+        private bool CanLoginTwoFactorAuthentication() => CanLogin() && !string.IsNullOrWhiteSpace(OtpCode);
 
         private string LoadDeviceId(string host, string account, string password)
         {
