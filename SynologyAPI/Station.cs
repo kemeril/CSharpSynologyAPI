@@ -240,6 +240,11 @@ namespace SynologyAPI
             if (loginResult.Success)
             {
                 Sid = loginResult.Data.Sid;
+
+                if (!string.IsNullOrWhiteSpace(deviceId) && !string.IsNullOrWhiteSpace(otpCode))
+                {
+                    loginResult.Data.DeviceId = deviceId;
+                }
             }
 
             if (!loginResult.Success)
