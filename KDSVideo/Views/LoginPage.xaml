@@ -4,10 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding LoginViewModel, Source={StaticResource Locator}}">
-
+    <Page.Resources>
+        <converters:BoolToObjectConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+    </Page.Resources>
     <Grid Background="#FF303234">
         <HyperlinkButton Content="Login" Margin="189,158,0,0" VerticalAlignment="Top" Command="{Binding NavigateCommand}"/>
         <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
@@ -19,8 +22,8 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <TextBlock Text="KDS Video" Foreground="#E83238" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20" Grid.ColumnSpan="3" Grid.Row="0" FontSize="20"/>
-            
+            <TextBlock Text="KDS Video" Foreground="#FFFA4B4B" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,24" Grid.ColumnSpan="3" Grid.Row="0" FontSize="24"/>
+
             <TextBox x:Name="Host"
                      Text="{Binding Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Grid.Row="1" Padding="40,5,30,0" Margin="0,0,0,10" BorderThickness="0"
@@ -47,7 +50,11 @@
 
             <CheckBox Grid.Column="0" Grid.Row="4" Content="Remember" IsChecked="True" Margin="10,8,0,10"/>
 
-            <Button Grid.Column="0" Grid.Row="5" Content="Login" HorizontalAlignment="Stretch" Command="{Binding LoginCommand}"/> 
+            <Button Grid.Column="0" Grid.Row="5" Content="Login" HorizontalAlignment="Stretch" Command="{Binding LoginCommand}"/>
+        </Grid>
+
+        <Grid Background="Black" Opacity="0.3" Visibility="{Binding ShowProgressIndicator, Converter={StaticResource BoolToVisibilityConverter}}">
+            <ProgressRing IsActive="{Binding ShowProgressIndicator}" />
         </Grid>
     </Grid>
 </Page>

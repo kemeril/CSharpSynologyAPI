@@ -2,10 +2,13 @@
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
+using Windows.UI.Xaml.Controls;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Views;
 using KDSVideo.Infrastructure;
+using KDSVideo.Views;
 using SynologyAPI;
 using SynologyAPI.Exception;
 using SynologyRestDAL;
@@ -22,7 +25,6 @@ namespace KDSVideo.ViewModels
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
             LoginCommand = new RelayCommand(Login, CanLogin);
-            LoginTwoFactorAuthenticationCommand = new RelayCommand(LoginTwoFactorAuthentication, CanLoginTwoFactorAuthentication);
         }
 
         private async void Login()
@@ -35,25 +37,33 @@ namespace KDSVideo.ViewModels
                     return;
                 }
                 _webProxy = _networkService.GetProxy();
-                var deviceId = LoadDeviceId(Host, Account, Password);
+                _deviceId = await LoadDeviceId(Host, Account, Password);
                 var cts = new CancellationTokenSource(_timeout);
-                var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, null, deviceId, _webProxy, cts.Token);
-                if (RememberMe && !string.IsNullOrWhiteSpace(loginInfo.DeviceId))
+                ShowProgressIndicator = true;
+                try
                 {
-                    SaveDeviceId(Host, Account, Password, loginInfo.DeviceId);
+                    await _videoStation.LoginAsync(_baseUri, Account, Password, null, _deviceId, _webProxy, cts.Token);
+                    if (RememberMe)
+                    {
+                        await SaveDeviceId(Host, Account, Password, _deviceId);
+                    }
+                }
+                finally
+                {
+                    ShowProgressIndicator = false;
                 }
                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
             }
             catch (SynoRequestException e)
             {
-                OtpCode = string.Empty;
+                Trace.TraceInformation(e.ToString());
                 if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
                 {
-                    // TODO: Request new 6 digits OTP CODE view state
-                }
-                else
-                {
-                    Trace.TraceInformation(e.ToString());
+                    var loginSuccess = await LoginDialogOtpRequestDialogShowAsync();
+                    if (loginSuccess)
+                    {
+                        _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
+                    }
                 }
             }
             catch (Exception e)
@@ -67,69 +77,98 @@ namespace KDSVideo.ViewModels
             !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) &&
             !string.IsNullOrWhiteSpace(Password);
 
-        private async void LoginTwoFactorAuthentication()
+        private async Task<bool> LoginDialogOtpRequestDialogShowAsync()
         {
-            try
+            do
             {
-                var cts = new CancellationTokenSource(_timeout);
-                var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, null, _webProxy, cts.Token);
-                if (RememberMe)
+                OtpCode = string.Empty;
+                TrustThisDevice = false;
+                var otpDialog = new LoginDialogOtpRequestDialog();
+                var dialogResult = await otpDialog.ShowAsync();
+                if (dialogResult == ContentDialogResult.Primary)
                 {
-                    SaveDeviceId(Host, Account, Password, loginInfo.DeviceId);
-                }
-                _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
-            }
-            catch (SynoRequestException e)
-            {
-                // ignored (because of invalid 6 digits OTP CODE)
-                if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
-                {
-                    // ignored (because of invalid 6 digits OTP CODE)
+                    var loginSuccess = await Login2FA();
+                    if (loginSuccess)
+                    {
+                        return true;
+                    }
                 }
                 else
                 {
-                    Trace.TraceInformation(e.ToString());
+                    return false;
                 }
+            } while (true);
+        }
+
+        // ReSharper disable once InconsistentNaming
+        private async Task<bool> Login2FA()
+        {
+            if (string.IsNullOrWhiteSpace(OtpCode) || OtpCode.Length != 6)
+            {
+                return false;
+            }
+
+            try
+            {
+                ShowProgressIndicator = true;
+                var cts = new CancellationTokenSource(_timeout);
+                try
+                {
+                    await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, deviceId: _deviceId, _webProxy, cts.Token);
+                    if (RememberMe && TrustThisDevice)
+                    {
+                        await SaveDeviceId(Host, Account, Password, _deviceId);
+                    }
+                }
+                finally
+                {
+                    ShowProgressIndicator = false;
+                }
+
+                return true;
             }
             catch (Exception e)
             {
-                // ignored (because of OperationCanceledException or other exception)
+                // ignored (because of OperationCanceledException, SynoRequestException or other exception)
                 Trace.TraceInformation(e.ToString());
+                return false;
             }
         }
 
-        private bool CanLoginTwoFactorAuthentication() => CanLogin() && !string.IsNullOrWhiteSpace(OtpCode);
-
-        private string LoadDeviceId(string host, string account, string password)
+        private async Task<string> LoadDeviceId(string host, string account, string password)
         {
             // TODO: Implement DeviceId reloading if available here
-            return string.Empty;
+            await Task.CompletedTask;
+            // ReSharper disable once StringLiteralTypo
+            return @"abcdef";
         }
 
-        private void SaveDeviceId(string host, string account, string password, string deviceId)
+        private async Task SaveDeviceId(string host, string account, string password, string deviceId)
         {
             // TODO: Implement DeviceId saving if available here
+            await Task.CompletedTask;
         }
 
         private readonly INavigationService _navigationService;
         private readonly INetworkService _networkService;
         private readonly IVideoStation _videoStation;
 
-        private TimeSpan _timeout = TimeSpan.FromSeconds(30);
+        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
         private IWebProxy _webProxy;
         private Uri _baseUri;
+        private string _deviceId = string.Empty;
         private string _host = string.Empty;
         private string _account = string.Empty;
         private string _password = string.Empty;
         private string _otpCode = string.Empty;
 
         private bool _rememberMe;
+        private bool _trustThisDevice;
+        private bool _showProgressIndicator;
 
         public RelayCommand NavigateCommand { get; }
 
         public RelayCommand LoginCommand { get; }
-
-        public RelayCommand LoginTwoFactorAuthenticationCommand { get; }
 
         public string Host
         {
@@ -139,7 +178,6 @@ namespace KDSVideo.ViewModels
                 _host = value ?? string.Empty;
                 RaisePropertyChanged(nameof(Host));
                 LoginCommand.RaiseCanExecuteChanged();
-                LoginTwoFactorAuthenticationCommand.RaiseCanExecuteChanged();
             }
         }
         
@@ -151,7 +189,6 @@ namespace KDSVideo.ViewModels
                 _account = value ?? string.Empty;
                 RaisePropertyChanged(nameof(Account));
                 LoginCommand.RaiseCanExecuteChanged();
-                LoginTwoFactorAuthenticationCommand.RaiseCanExecuteChanged();
             }
         }
         
@@ -163,7 +200,6 @@ namespace KDSVideo.ViewModels
                 _password = value ?? string.Empty;
                 RaisePropertyChanged(nameof(Password));
                 LoginCommand.RaiseCanExecuteChanged();
-                LoginTwoFactorAuthenticationCommand.RaiseCanExecuteChanged();
             }
         }
         
@@ -174,7 +210,6 @@ namespace KDSVideo.ViewModels
             {
                 _otpCode = value ?? string.Empty;
                 RaisePropertyChanged(nameof(OtpCode));
-                LoginTwoFactorAuthenticationCommand.RaiseCanExecuteChanged();
             }
         }
         
@@ -185,6 +220,26 @@ namespace KDSVideo.ViewModels
             {
                 _rememberMe = value;
                 RaisePropertyChanged(nameof(RememberMe));
+            }
+        }
+
+        public bool TrustThisDevice
+        {
+            get => _trustThisDevice;
+            set
+            {
+                _trustThisDevice = value;
+                RaisePropertyChanged(nameof(TrustThisDevice));
+            }
+        }
+
+        public bool ShowProgressIndicator
+        {
+            get => _showProgressIndicator;
+            set
+            {
+                _showProgressIndicator = value;
+                RaisePropertyChanged(nameof(ShowProgressIndicator));
             }
         }
     }
