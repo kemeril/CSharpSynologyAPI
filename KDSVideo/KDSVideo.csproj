@@ -119,6 +119,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\DeviceIdProvider.cs" />
+    <Compile Include="Infrastructure\IDeviceIdProvider.cs" />
     <Compile Include="Infrastructure\INetworkService.cs" />
     <Compile Include="Infrastructure\NetworkService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

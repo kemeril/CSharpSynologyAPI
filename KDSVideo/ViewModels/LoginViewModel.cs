@@ -17,9 +17,10 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        public LoginViewModel(INavigationService navigationService, INetworkService networkService, IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+            _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
@@ -37,7 +38,7 @@ namespace KDSVideo.ViewModels
                     return;
                 }
                 _webProxy = _networkService.GetProxy();
-                _deviceId = await LoadDeviceId(Host, Account, Password);
+                _deviceId = _deviceIdProvider.GetDeviceId();
                 var cts = new CancellationTokenSource(_timeout);
                 ShowProgressIndicator = true;
                 try
@@ -135,14 +136,6 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private async Task<string> LoadDeviceId(string host, string account, string password)
-        {
-            // TODO: Implement DeviceId reloading if available here
-            await Task.CompletedTask;
-            // ReSharper disable once StringLiteralTypo
-            return @"abcdef";
-        }
-
         private async Task SaveDeviceId(string host, string account, string password, string deviceId)
         {
             // TODO: Implement DeviceId saving if available here
@@ -150,6 +143,7 @@ namespace KDSVideo.ViewModels
         }
 
         private readonly INavigationService _navigationService;
+        private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IVideoStation _videoStation;
 
