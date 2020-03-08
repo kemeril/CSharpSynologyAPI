@@ -48,7 +48,7 @@
                          GotFocus="Password_GotFocus" LostFocus="Password_LostFocus" />
             <FontIcon x:Name="PasswordIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE72E;"  Grid.Row="3" Margin="8,0,0,10" HorizontalAlignment="Left"/>
 
-            <CheckBox Grid.Column="0" Grid.Row="4" Content="Remember" IsChecked="True" Margin="10,8,0,10"/>
+            <CheckBox Grid.Column="0" Grid.Row="4" Content="Remember me"  Margin="10,8,0,10" IsChecked="{Binding RememberMe, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
 
             <Button Grid.Column="0" Grid.Row="5" Content="Login" HorizontalAlignment="Stretch" Command="{Binding LoginCommand}"/>
         </Grid>

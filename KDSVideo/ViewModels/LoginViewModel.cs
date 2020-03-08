@@ -17,15 +17,26 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, ILoginDataHandler loginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
+            _loginDataHandler = loginDataHandler ?? throw new ArgumentNullException(nameof(loginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
             LoginCommand = new RelayCommand(Login, CanLogin);
+
+            var lastLoginData = _loginDataHandler.GetLast();
+            if (lastLoginData != null)
+            {
+                Host = lastLoginData.Host ?? string.Empty;
+                Account = lastLoginData.Account ?? string.Empty;
+                Password = lastLoginData.Password ?? string.Empty;
+                OtpCode = lastLoginData.OtpCode ?? string.Empty;
+                RememberMe = true;
+            }
         }
 
         private async void Login()
@@ -43,10 +54,10 @@ namespace KDSVideo.ViewModels
                 ShowProgressIndicator = true;
                 try
                 {
-                    await _videoStation.LoginAsync(_baseUri, Account, Password, null, _deviceId, _webProxy, cts.Token);
+                    await _videoStation.LoginAsync(_baseUri, Account, Password, null, _deviceId, DeviceName, null, _webProxy, cts.Token);
                     if (RememberMe)
                     {
-                        await SaveDeviceId(Host, Account, Password, _deviceId);
+                        _loginDataHandler.AddOrUpdate(new LoginData{ Host = Host, Account = Account, Password = Password, OtpCode = string.Empty });
                     }
                 }
                 finally
@@ -115,10 +126,10 @@ namespace KDSVideo.ViewModels
                 var cts = new CancellationTokenSource(_timeout);
                 try
                 {
-                    await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, deviceId: _deviceId, _webProxy, cts.Token);
-                    if (RememberMe && TrustThisDevice)
+                    await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, deviceId: _deviceId, DeviceName, null, _webProxy, cts.Token);
+                    if (TrustThisDevice)
                     {
-                        await SaveDeviceId(Host, Account, Password, _deviceId);
+                        _loginDataHandler.AddOrUpdate(new LoginData { Host = Host, Account = Account, Password = Password, OtpCode = OtpCode });
                     }
                 }
                 finally
@@ -136,18 +147,15 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private async Task SaveDeviceId(string host, string account, string password, string deviceId)
-        {
-            // TODO: Implement DeviceId saving if available here
-            await Task.CompletedTask;
-        }
-
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
+        private readonly ILoginDataHandler _loginDataHandler;
         private readonly IVideoStation _videoStation;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
+        private const string DeviceName = "SM-T580 - DS video";
+
         private IWebProxy _webProxy;
         private Uri _baseUri;
         private string _deviceId = string.Empty;

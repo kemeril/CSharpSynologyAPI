@@ -119,6 +119,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\ILoginDataHandler.cs" />
+    <Compile Include="Infrastructure\JsonHelper.cs" />
+    <Compile Include="Infrastructure\LoginDataHandler.cs" />
     <Compile Include="Infrastructure\DeviceIdProvider.cs" />
     <Compile Include="Infrastructure\IDeviceIdProvider.cs" />
     <Compile Include="Infrastructure\INetworkService.cs" />

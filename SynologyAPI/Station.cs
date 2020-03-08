@@ -178,6 +178,8 @@ namespace SynologyAPI
         /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
         /// </param>
         /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.</param>
+        /// <param name="deviceName">Optional.</param>
+        /// <param name="cipherText">>Optional.</param>
         /// <param name="proxy">Optional.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
@@ -192,7 +194,7 @@ namespace SynologyAPI
         /// password cannot be empty! - password
         /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        public async Task<LoginInfo> LoginAsync(Uri url, string username, string password, string otpCode = null, string deviceId = null,
+        public async Task<LoginInfo> LoginAsync(Uri url, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null,
              IWebProxy proxy = null, CancellationToken cancellationToken = default)
         {
             if (url == null) throw new ArgumentNullException(nameof(url));
@@ -205,7 +207,7 @@ namespace SynologyAPI
 
             if (!string.IsNullOrWhiteSpace(otpCode) && otpCode.Length != 6)
             {
-                throw new ArgumentException("otpCode is optional but if it is passed it has to be 6 digits length!", nameof(otpCode));
+                throw new ArgumentException("otpCode is optional but if it is passed it has to be 6-digits length!", nameof(otpCode));
             }
 
             BaseUrl = url;
@@ -233,6 +235,18 @@ namespace SynologyAPI
                 param.Add("device_id", deviceId);
             }
 
+            if (!string.IsNullOrWhiteSpace(deviceName))
+            {
+                param.Add("device_name", deviceName);
+            }
+
+            if (!string.IsNullOrWhiteSpace(cipherText))
+            {
+                param.Add("__cIpHeRtExT", cipherText);
+            }
+
+            Sid = string.Empty;
+
             var loginResult = await CallMethodAsync<LoginResult>(ApiSynoApiAuth,
                     MethodLogin, param,
                     cancellationToken)
@@ -255,7 +269,7 @@ namespace SynologyAPI
 
         public async Task LogoutAsync(CancellationToken cancellationToken = default)
         {
-            Sid = String.Empty;
+            Sid = string.Empty;
 
             var logoutResult = await CallMethodAsync<TResult<object>>(ApiSynoApiAuth, MethodLogout, new ReqParams { {"session", GetSessionName()} }, cancellationToken)
                 .ConfigureAwait(false);

@@ -23,6 +23,8 @@ namespace SynologyAPI
         /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
         /// </param>
         /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.</param>
+        /// <param name="deviceName">Optional.</param>
+        /// <param name="cipherText">Optional.</param>
         /// <param name="proxy">Optional.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
@@ -37,7 +39,7 @@ namespace SynologyAPI
         /// password cannot be empty! - password
         /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        Task<LoginInfo> LoginAsync(Uri url, string username, string password, string otpCode = null, string deviceId = null, IWebProxy proxy = null, CancellationToken cancellationToken = default);
+        Task<LoginInfo> LoginAsync(Uri url, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default);
 
         Task LogoutAsync(CancellationToken cancellationToken = default);
     }
