@@ -120,7 +120,6 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Infrastructure\ILoginDataHandler.cs" />
-    <Compile Include="Infrastructure\JsonHelper.cs" />
     <Compile Include="Infrastructure\LoginDataHandler.cs" />
     <Compile Include="Infrastructure\DeviceIdProvider.cs" />
     <Compile Include="Infrastructure\IDeviceIdProvider.cs" />
@@ -191,6 +190,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\StdUtils\StdUtils.csproj">
+      <Project>{7a805454-4a33-4d26-87f2-387b4e310d96}</Project>
+      <Name>StdUtils</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SynologyAPI\SynologyAPI.csproj">
       <Project>{503587ba-a352-486e-a653-e7565e5b78bf}</Project>
       <Name>SynologyAPI</Name>

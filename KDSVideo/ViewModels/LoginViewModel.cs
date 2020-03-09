@@ -34,8 +34,13 @@ namespace KDSVideo.ViewModels
                 Host = lastLoginData.Host ?? string.Empty;
                 Account = lastLoginData.Account ?? string.Empty;
                 Password = lastLoginData.Password ?? string.Empty;
-                OtpCode = lastLoginData.OtpCode ?? string.Empty;
+                _deviceId = lastLoginData.DeviceId ?? string.Empty;
                 RememberMe = true;
+            }
+
+            if (string.IsNullOrWhiteSpace(_deviceId))
+            {
+                _deviceId = _deviceIdProvider.GetDeviceId(); // Must have a default deviceId value!
             }
         }
 
@@ -49,15 +54,14 @@ namespace KDSVideo.ViewModels
                     return;
                 }
                 _webProxy = _networkService.GetProxy();
-                _deviceId = _deviceIdProvider.GetDeviceId();
                 var cts = new CancellationTokenSource(_timeout);
                 ShowProgressIndicator = true;
                 try
                 {
-                    await _videoStation.LoginAsync(_baseUri, Account, Password, null, _deviceId, DeviceName, null, _webProxy, cts.Token);
+                    var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, null, _deviceId, DeviceName, null, _webProxy, cts.Token);
                     if (RememberMe)
                     {
-                        _loginDataHandler.AddOrUpdate(new LoginData{ Host = Host, Account = Account, Password = Password, OtpCode = string.Empty });
+                        _loginDataHandler.AddOrUpdate(new LoginData{ Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId ?? _deviceId });
                     }
                 }
                 finally
@@ -126,10 +130,11 @@ namespace KDSVideo.ViewModels
                 var cts = new CancellationTokenSource(_timeout);
                 try
                 {
-                    await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, deviceId: _deviceId, DeviceName, null, _webProxy, cts.Token);
+                    var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, deviceId: _deviceId, DeviceName, null, _webProxy, cts.Token);
                     if (TrustThisDevice)
                     {
-                        _loginDataHandler.AddOrUpdate(new LoginData { Host = Host, Account = Account, Password = Password, OtpCode = OtpCode });
+                        _loginDataHandler.AddOrUpdate(new LoginData { Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId });
+                        _deviceId = loginInfo.DeviceId;
                     }
                 }
                 finally

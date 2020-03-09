@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.Serialization;
 using Windows.Storage;
+using StdUtils;
 
 namespace KDSVideo.Infrastructure
 {
@@ -17,8 +18,8 @@ namespace KDSVideo.Infrastructure
         [DataMember(Name = "password")]
         public string Password { get; set; }
 
-        [DataMember(Name = "otp_code")]
-        public string OtpCode { get; set; }
+        [DataMember(Name = "did")]
+        public string DeviceId { get; set; }
     }
     
     public class LoginDataHandler : ILoginDataHandler

@@ -233,6 +233,10 @@ namespace SynologyAPI
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
                 param.Add("device_id", deviceId);
+                if (!string.IsNullOrWhiteSpace(otpCode))
+                {
+                    param.Add("enable_device_token", "yes");
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(deviceName))
@@ -245,6 +249,9 @@ namespace SynologyAPI
                 param.Add("__cIpHeRtExT", cipherText);
             }
 
+            var clientTime = DateTimeConverter.ToUnixTime(DateTime.UtcNow);
+            param.Add("client_time", clientTime.ToString());
+
             Sid = string.Empty;
 
             var loginResult = await CallMethodAsync<LoginResult>(ApiSynoApiAuth,
@@ -254,11 +261,6 @@ namespace SynologyAPI
             if (loginResult.Success)
             {
                 Sid = loginResult.Data.Sid;
-
-                if (!string.IsNullOrWhiteSpace(deviceId) && !string.IsNullOrWhiteSpace(otpCode))
-                {
-                    loginResult.Data.DeviceId = deviceId;
-                }
             }
 
             if (!loginResult.Success)
