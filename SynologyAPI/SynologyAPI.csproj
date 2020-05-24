@@ -2,6 +2,10 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>1.0.0.0</Version>
+    <Description>.Net Standard 2.0 API to access Video Station API hosted on a Synology NAS.</Description>
+    <RepositoryUrl>https://github.com/kemeril/CSharpSynologyAPI</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/kemeril/CSharpSynologyAPI</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

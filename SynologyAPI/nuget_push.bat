@@ -1,0 +1,1 @@
+dotnet nuget push "bin/Release/SynologyAPI.1.0.0.0.nupkg" --source "github-kemeril"
