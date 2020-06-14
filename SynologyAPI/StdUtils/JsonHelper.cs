@@ -1,13 +1,13 @@
 ﻿using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
-using Newtonsoft.Json;
+//using Newtonsoft.Json;
 
 namespace StdUtils
 {
     public static class JsonHelper
     {
-        private static string ToJson_MS<T>(T instance)
+        public static string ToJson<T>(T instance)
         {
             var settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
             var serializer = new DataContractJsonSerializer(typeof(T), settings);
@@ -19,7 +19,7 @@ namespace StdUtils
             }
         }
 
-        private static T FromJson_MS<T>(string json)
+        public static T FromJson<T>(string json)
         {
             var settings = new DataContractJsonSerializerSettings { UseSimpleDictionaryFormat = true };
             var serializer = new DataContractJsonSerializer(typeof(T), settings);
@@ -29,14 +29,14 @@ namespace StdUtils
             }
         }
 
-        public static string ToJson(object instance)
-        {
-            return JsonConvert.SerializeObject(instance);
-        }
+        //public static string ToJson_Newtonsoft(object instance)
+        //{
+        //    return JsonConvert.SerializeObject(instance);
+        //}
 
-        public static T FromJson<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json);
-        }
+        //public static T FromJson_Newtonsoft<T>(string json)
+        //{
+        //    return JsonConvert.DeserializeObject<T>(json);
+        //}
     }
 }

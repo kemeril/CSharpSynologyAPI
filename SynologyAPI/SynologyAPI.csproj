@@ -8,9 +8,4 @@
     <PackageProjectUrl>https://github.com/kemeril/CSharpSynologyAPI</PackageProjectUrl>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\StdUtils\StdUtils.csproj" />
-    <ProjectReference Include="..\SynologyRestDAL\SynologyRestDAL.csproj" />
-  </ItemGroup>
-
 </Project>

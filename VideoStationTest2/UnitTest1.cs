@@ -20,13 +20,14 @@ namespace VideoStationTest2
         {
             const string username = "video.station.dev";
             const string password = "C1E908Vw18u474p99tsrFNqo6kEj7c";
+            const string DeviceName = "SM-T580 - DS video";
 
             var proxy = VideoStationFactory.GetDefaultProxy() ?? VideoStationFactory.CreateProxy("");
             VideoStation = new VideoStation();
 
             try
             {
-                var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, null, DeviceId, proxy).GetAwaiter().GetResult();
+                var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, null, DeviceId, DeviceName, null, proxy).GetAwaiter().GetResult();
                 Sid = loginInfo.Sid;
             }
             catch (SynoRequestException e)

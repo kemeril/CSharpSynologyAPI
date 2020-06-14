@@ -190,17 +190,9 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\StdUtils\StdUtils.csproj">
-      <Project>{7a805454-4a33-4d26-87f2-387b4e310d96}</Project>
-      <Name>StdUtils</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SynologyAPI\SynologyAPI.csproj">
       <Project>{503587ba-a352-486e-a653-e7565e5b78bf}</Project>
       <Name>SynologyAPI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SynologyRestDAL\SynologyRestDAL.csproj">
-      <Project>{820CD773-C147-4880-B09D-CBDE1CE87952}</Project>
-      <Name>SynologyRestDAL</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />
