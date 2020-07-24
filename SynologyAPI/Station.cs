@@ -166,12 +166,15 @@ namespace SynologyAPI
         /// <summary>
         /// Logins to the Synology NAS.
         /// Support 2-way authentication.
+        /// Login with param combinations:
+        /// 1.) username, password; If the error code is 403 the OTP_CODE is asked. the suer has to login with the 2nd way. DeviceId is anything can identify the device such as an GUID without hyphen characters. 
+        /// 2.) username, password, otpCode, deviceId; If the error code is 403 then the OTP_CODE is failed a new one asked again.
+        /// 3.) deviceId; the did value returned by the 2nd login method. No username or other params required.
         /// </summary>
-        /// <param name="url">THe VideoStation base url. Required.</param>
-        /// <param name="username">The username. Required.</param>
-        /// <param name="password">The password. Required.</param>
-        /// <param name="otpCode">
-        /// 6-digit otp code. Optional. Available DSM 3 and onward.
+        /// <param name="baseUri">THe VideoStation base uri. Required.</param>
+        /// <param name="username">The username. Optional.</param>
+        /// <param name="password">The password. Optional.</param>
+        /// <param name="otpCode">6-digit otp code. Optional. Available DSM 3 and onward.
         /// First try to login with optCode left null or empty string.
         /// If login has failed with error code 403 ask user for 6-digit optCode and try to login again but pass the optCode as well.
         /// 
@@ -183,34 +186,19 @@ namespace SynologyAPI
         /// <param name="proxy">Optional.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException">
-        /// username
-        /// or
-        /// password
-        /// </exception>
-        /// <exception cref="System.ArgumentException">
-        /// username cannot be empty! - username
-        /// or
-        /// password cannot be empty! - password
-        /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        public async Task<LoginInfo> LoginAsync(Uri url, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null,
+        public async Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null,
              IWebProxy proxy = null, CancellationToken cancellationToken = default)
         {
-            if (url == null) throw new ArgumentNullException(nameof(url));
+            if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
 
-            if (username == null) throw new ArgumentNullException(nameof(username));
-            if (string.IsNullOrEmpty(username)) throw new ArgumentException("username cannot be empty!", nameof(username));
-
-            if (password == null) throw new ArgumentNullException(nameof(password));
-            if (string.IsNullOrEmpty(password)) throw new ArgumentException("password cannot be empty!", nameof(password));
 
             if (!string.IsNullOrWhiteSpace(otpCode) && otpCode.Length != 6)
             {
                 throw new ArgumentException("otpCode is optional but if it is passed it has to be 6-digits length!", nameof(otpCode));
             }
 
-            BaseUrl = url;
+            BaseUrl = baseUri;
 
             if (proxy != null)
             {
@@ -219,11 +207,19 @@ namespace SynologyAPI
 
             var param = new ReqParams
             {
-                {"account", username},
-                {"passwd", password},
                 {"session",  GetSessionName()},
                 {"format", "sid"}
             };
+
+            if (!string.IsNullOrWhiteSpace(username))
+            {
+                param.Add("account", username);
+            }
+
+            if (!string.IsNullOrWhiteSpace(password))
+            {
+                param.Add("passwd", password);
+            }
 
             if (!string.IsNullOrWhiteSpace(otpCode))
             {
