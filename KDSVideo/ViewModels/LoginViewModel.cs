@@ -17,18 +17,18 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, ILoginDataHandler loginDataHandler,  IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler historicalloginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
-            _loginDataHandler = loginDataHandler ?? throw new ArgumentNullException(nameof(loginDataHandler));
+            _historicalLoginDataHandler = historicalloginDataHandler ?? throw new ArgumentNullException(nameof(historicalloginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
             LoginCommand = new RelayCommand(Login, CanLogin);
 
-            var lastLoginData = _loginDataHandler.GetLast();
+            var lastLoginData = _historicalLoginDataHandler.GetLatest();
             if (lastLoginData != null)
             {
                 Host = lastLoginData.Host ?? string.Empty;
@@ -61,7 +61,7 @@ namespace KDSVideo.ViewModels
                     var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, null, _deviceId, DeviceName, null, _webProxy, cts.Token);
                     if (RememberMe)
                     {
-                        _loginDataHandler.AddOrUpdate(new LoginData{ Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId ?? _deviceId });
+                        _historicalLoginDataHandler.AddOrUpdate(new HistoricalLoginData { Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId ?? _deviceId });
                     }
                 }
                 finally
@@ -133,7 +133,7 @@ namespace KDSVideo.ViewModels
                     var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, deviceId: _deviceId, DeviceName, null, _webProxy, cts.Token);
                     if (TrustThisDevice)
                     {
-                        _loginDataHandler.AddOrUpdate(new LoginData { Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId });
+                        _historicalLoginDataHandler.AddOrUpdate(new HistoricalLoginData { Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId });
                         _deviceId = loginInfo.DeviceId;
                     }
                 }
@@ -155,7 +155,7 @@ namespace KDSVideo.ViewModels
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
-        private readonly ILoginDataHandler _loginDataHandler;
+        private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
         private readonly IVideoStation _videoStation;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
