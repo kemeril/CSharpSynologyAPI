@@ -20,7 +20,6 @@ namespace KDSVideo.ViewModels
         public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler historicalLoginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-            _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
             _historicalLoginDataHandler = historicalLoginDataHandler ?? throw new ArgumentNullException(nameof(historicalLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
@@ -40,7 +39,7 @@ namespace KDSVideo.ViewModels
 
             if (string.IsNullOrWhiteSpace(_deviceId))
             {
-                _deviceId = _deviceIdProvider.GetDeviceId(); // Must have a default deviceId value!
+                _deviceId = deviceIdProvider.GetDeviceId(); // Must have a default deviceId value!
             }
         }
 
@@ -153,7 +152,6 @@ namespace KDSVideo.ViewModels
         }
 
         private readonly INavigationService _navigationService;
-        private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
         private readonly IVideoStation _videoStation;
