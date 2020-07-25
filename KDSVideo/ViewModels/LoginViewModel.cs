@@ -17,12 +17,12 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler historicalloginDataHandler,  IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler historicalLoginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
-            _historicalLoginDataHandler = historicalloginDataHandler ?? throw new ArgumentNullException(nameof(historicalloginDataHandler));
+            _historicalLoginDataHandler = historicalLoginDataHandler ?? throw new ArgumentNullException(nameof(historicalLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
