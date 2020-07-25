@@ -11,7 +11,7 @@
     <Page.Resources>
         <converters:BoolToObjectConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
     </Page.Resources>
-    <Grid Background="#FF303234">
+    <Grid Background="#FF303234" IsHitTestVisible="{Binding IsEnabledCredentialsInput}">
         <HyperlinkButton Content="Login" Margin="189,158,0,0" VerticalAlignment="Top" Command="{Binding NavigateCommand}"/>
         <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
             <Grid.RowDefinitions>

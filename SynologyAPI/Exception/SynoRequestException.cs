@@ -1,5 +1,3 @@
-using SynologyRestDAL;
-
 namespace SynologyAPI.Exception
 {
     public class SynoRequestException : System.Exception

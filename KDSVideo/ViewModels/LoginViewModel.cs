@@ -10,7 +10,6 @@ using GalaSoft.MvvmLight.Views;
 using KDSVideo.Infrastructure;
 using KDSVideo.Views;
 using SynologyAPI;
-using SynologyAPI.Exception;
 using SynologyRestDAL;
 
 namespace KDSVideo.ViewModels
@@ -20,6 +19,7 @@ namespace KDSVideo.ViewModels
         public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler historicalLoginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+            _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
             _historicalLoginDataHandler = historicalLoginDataHandler ?? throw new ArgumentNullException(nameof(historicalLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
@@ -33,58 +33,121 @@ namespace KDSVideo.ViewModels
                 Host = lastLoginData.Host ?? string.Empty;
                 Account = lastLoginData.Account ?? string.Empty;
                 Password = lastLoginData.Password ?? string.Empty;
-                _deviceId = lastLoginData.DeviceId ?? string.Empty;
                 RememberMe = true;
             }
+        }
 
-            if (string.IsNullOrWhiteSpace(_deviceId))
+        private async Task<LoginResult> LoginAsync(string host, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default)
+        {
+            try
             {
-                _deviceId = deviceIdProvider.GetDeviceId(); // Must have a default deviceId value!
+                _webProxy = _networkService.GetProxy();
+                var baseUri = _networkService.GetHostUri(host);
+                if (baseUri == null)
+                {
+                    throw new LoginException(ApplicationLevelErrorCodes.InvalidHost);
+                }
+
+                var loginInfo = await _videoStation.LoginAsync(baseUri, username, password, otpCode, deviceId, deviceName, cipherText, proxy, cancellationToken);
+                return new LoginResult(loginInfo);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceInformation(ex.ToString());
+
+                switch (ex)
+                {
+                    case OperationCanceledException _:
+                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.OperationTimeOut));
+                    case WebException webException when webException.Response == null:
+                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished));
+                    default:
+                        return new LoginResult(ex);
+                }
+            }
+        }
+
+        private void SaveHistoricalLoginData(string deviceId)
+        {
+            if (!string.IsNullOrWhiteSpace(Account))
+            {
+                _historicalLoginDataHandler.AddOrUpdate(RememberMe
+                    ? new HistoricalLoginData
+                    {
+                        Host = Host,
+                        Account = Account,
+                        Password = Password,
+                        DeviceId = deviceId
+                    }
+                    : new HistoricalLoginData
+                        { Host = Host, Account = Account, Password = string.Empty, DeviceId = string.Empty });
             }
         }
 
         private async void Login()
         {
+            ShowProgressIndicator = true;
+            var deviceId = _historicalLoginDataHandler.Get(Host, Account, Password)?.DeviceId;
+            var cts = new CancellationTokenSource(_timeout);
+            var loginResult = await LoginAsync(Host, Account, Password, null, deviceId, DeviceName, null, _webProxy, cts.Token);
+            if (loginResult.Success)
+            {
+                SaveHistoricalLoginData(deviceId);
+                ShowProgressIndicator = false;
+                _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
+                return;
+            }
+
+            IsEnabledCredentialsInput = false;
+            ShowProgressIndicator = false;
+
             try
             {
-                _baseUri = _networkService.GetHostUri(Host);
-                if (_baseUri == null)
+                for (;;)
                 {
-                    return;
-                }
-                _webProxy = _networkService.GetProxy();
-                var cts = new CancellationTokenSource(_timeout);
-                ShowProgressIndicator = true;
-                try
-                {
-                    var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, null, _deviceId, DeviceName, null, _webProxy, cts.Token);
-                    if (RememberMe)
+                    if (loginResult.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified ||
+                        loginResult.ErrorCode == ErrorCodes.OneTimePasswordAuthenticateFailed)
                     {
-                        _historicalLoginDataHandler.AddOrUpdate(new HistoricalLoginData { Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId ?? _deviceId });
+                        OtpCode = string.Empty;
+                        TrustThisDevice = false;
+                        var otpDialog = new LoginDialogOtpRequestDialog();
+                        var dialogResult = await otpDialog.ShowAsync();
+                        if (dialogResult == ContentDialogResult.Primary
+                            && !string.IsNullOrWhiteSpace(OtpCode) && OtpCode.Length == 6)
+                        {
+                            ShowProgressIndicator = true;
+                            cts = new CancellationTokenSource(_timeout);
+                            loginResult = await LoginAsync(Host, Account, Password, OtpCode,
+                                _deviceIdProvider.GetDeviceId(), DeviceName, null, _webProxy, cts.Token);
+                            ShowProgressIndicator = false;
+                            if (loginResult.Success)
+                            {
+                                SaveHistoricalLoginData(TrustThisDevice
+                                    ? loginResult.LoginInfo.DeviceId
+                                    : string.Empty);
+                                _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        if (!string.IsNullOrWhiteSpace(loginResult.ErrorMessage))
+                        {
+                            // TODO: Display error message to the user
+                        }
+
+                        break;
                     }
                 }
-                finally
-                {
-                    ShowProgressIndicator = false;
-                }
-                _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
             }
-            catch (SynoRequestException e)
+            finally
             {
-                Trace.TraceInformation(e.ToString());
-                if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
-                {
-                    var loginSuccess = await LoginDialogOtpRequestDialogShowAsync();
-                    if (loginSuccess)
-                    {
-                        _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                // ignored (because of OperationCanceledException or other exception)
-                Trace.TraceInformation(e.ToString());
+                IsEnabledCredentialsInput = true;
             }
         }
 
@@ -92,66 +155,8 @@ namespace KDSVideo.ViewModels
             !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) &&
             !string.IsNullOrWhiteSpace(Password);
 
-        private async Task<bool> LoginDialogOtpRequestDialogShowAsync()
-        {
-            do
-            {
-                OtpCode = string.Empty;
-                TrustThisDevice = false;
-                var otpDialog = new LoginDialogOtpRequestDialog();
-                var dialogResult = await otpDialog.ShowAsync();
-                if (dialogResult == ContentDialogResult.Primary)
-                {
-                    var loginSuccess = await Login2FA();
-                    if (loginSuccess)
-                    {
-                        return true;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            } while (true);
-        }
-
-        // ReSharper disable once InconsistentNaming
-        private async Task<bool> Login2FA()
-        {
-            if (string.IsNullOrWhiteSpace(OtpCode) || OtpCode.Length != 6)
-            {
-                return false;
-            }
-
-            try
-            {
-                ShowProgressIndicator = true;
-                var cts = new CancellationTokenSource(_timeout);
-                try
-                {
-                    var loginInfo = await _videoStation.LoginAsync(_baseUri, Account, Password, OtpCode, deviceId: _deviceId, DeviceName, null, _webProxy, cts.Token);
-                    if (TrustThisDevice)
-                    {
-                        _historicalLoginDataHandler.AddOrUpdate(new HistoricalLoginData { Host = Host, Account = Account, Password = Password, DeviceId = loginInfo.DeviceId });
-                        _deviceId = loginInfo.DeviceId;
-                    }
-                }
-                finally
-                {
-                    ShowProgressIndicator = false;
-                }
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                // ignored (because of OperationCanceledException, SynoRequestException or other exception)
-                Trace.TraceInformation(e.ToString());
-                return false;
-            }
-        }
-
         private readonly INavigationService _navigationService;
+        private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
         private readonly IVideoStation _videoStation;
@@ -160,8 +165,6 @@ namespace KDSVideo.ViewModels
         private const string DeviceName = "SM-T580 - DS video";
 
         private IWebProxy _webProxy;
-        private Uri _baseUri;
-        private string _deviceId = string.Empty;
         private string _host = string.Empty;
         private string _account = string.Empty;
         private string _password = string.Empty;
@@ -170,6 +173,7 @@ namespace KDSVideo.ViewModels
         private bool _rememberMe;
         private bool _trustThisDevice;
         private bool _showProgressIndicator;
+        private bool _isEnabledCredentialsInput = true;
 
         public RelayCommand NavigateCommand { get; }
 
@@ -245,6 +249,16 @@ namespace KDSVideo.ViewModels
             {
                 _showProgressIndicator = value;
                 RaisePropertyChanged(nameof(ShowProgressIndicator));
+            }
+        }
+
+        public bool IsEnabledCredentialsInput
+        {
+            get => _isEnabledCredentialsInput;
+            private set
+            {
+                _isEnabledCredentialsInput = value;
+                RaisePropertyChanged(nameof(IsEnabledCredentialsInput));
             }
         }
     }

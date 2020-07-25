@@ -20,6 +20,29 @@ namespace KDSVideo.Infrastructure
 
         public HistoricalLoginData GetLatest() => GetAll().FirstOrDefault();
 
+        public HistoricalLoginData Get(string host, string account, string password)
+        {
+            // Check for mandatory parameters
+            if (string.IsNullOrWhiteSpace(host))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(host));
+            }
+            if (string.IsNullOrWhiteSpace(account))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
+            }
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(password));
+            }
+
+            // Get data
+            var all = GetAll();
+            return all.FirstOrDefault(it => host.Equals(it.Host, StringComparison.InvariantCultureIgnoreCase)
+                                            && account.Equals(it.Account)
+                                            && password.Equals(it.Password));
+        }
+
         public void AddOrUpdate(HistoricalLoginData historicalLoginData)
         {
             // Check for mandatory parameters
@@ -51,7 +74,7 @@ namespace KDSVideo.Infrastructure
             var all = GetAll();
             for (var i = 0; i < all.Count; i++)
             {
-                if (all[i].Host == historicalLoginData.Host && all[i].Account == historicalLoginData.Account)
+                if (historicalLoginData.Host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && historicalLoginData.Account.Equals(all[i].Account))
                 {
                     all.RemoveAt(i);
                     break;
