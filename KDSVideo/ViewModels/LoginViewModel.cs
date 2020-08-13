@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
@@ -156,7 +157,22 @@ namespace KDSVideo.ViewModels
         }
 
         private bool CanLogin() =>
-            !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) && !string.IsNullOrWhiteSpace(Password);
+            !string.IsNullOrWhiteSpace(Host) && AccountIsValid() && PasswordIsValid();
+
+        //  123456789abc
+        //  \^$.|?*+()[{
+        private bool AccountIsValid() =>
+            !(string.IsNullOrWhiteSpace(Account)
+              || Account.StartsWith(" ", StringComparison.Ordinal)
+              || Account.StartsWith("-", StringComparison.Ordinal)
+              || Account.EndsWith(" ", StringComparison.Ordinal)
+              || Account.Length >= 64
+              || !new Regex("^[-_\\.\\S\\da-zA-Z]*$").Match(Account).Success);
+
+        private bool PasswordIsValid() =>
+            !(string.IsNullOrWhiteSpace(Password)
+              || Password.Length >= 127
+              || !new Regex("^[~`!@#\\$%\\^&\\*\\(\\)-_=\\+\\[\\{]}\\|;:'\"<>/\\?,\\.\\S\\da-zA-Z]*$").Match(Password).Success);
 
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
