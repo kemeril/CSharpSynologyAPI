@@ -9,18 +9,20 @@ namespace KDSVideo.Infrastructure
     public class TrustedLoginDataHandler : ITrustedLoginDataHandler
     {
         private const string TrustedLoginDataKey = nameof(TrustedLoginDataKey);
+        private const int MaxItemStorage = 1000;
 
-        public IList<TrustedLoginData> GetAll()
+        private IList<TrustedLoginData> GetAll()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            return settingValues.TryGetValue(TrustedLoginDataKey, out var listObject)
+
+            if (!settingValues.TryGetValue(TrustedLoginDataKey, out var listObject)) return null;
+
+            return listObject != null && !string.IsNullOrWhiteSpace((string)listObject)
                 ? JsonHelper.FromJson<List<TrustedLoginData>>((string) listObject)
                 : new List<TrustedLoginData>();
         }
 
-        public TrustedLoginData GetLatest() => GetAll().FirstOrDefault();
-
-        public TrustedLoginData Get(string host, string account, string password)
+        public string GetDeviceId(string host, string account, string password)
         {
             // Check for mandatory parameters
             if (string.IsNullOrWhiteSpace(host))
@@ -31,57 +33,49 @@ namespace KDSVideo.Infrastructure
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
             }
-            if (string.IsNullOrWhiteSpace(password))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(password));
-            }
 
             // Get data
             var all = GetAll();
+
             return all.FirstOrDefault(it => host.Equals(it.Host, StringComparison.InvariantCultureIgnoreCase)
                                             && account.Equals(it.Account)
-                                            && password.Equals(it.Password));
+                                            && (password ?? string.Empty).Equals(it.Password))?.DeviceId;
         }
 
-        public void AddOrUpdate(TrustedLoginData trustedLoginData)
+        public void AddOrUpdate(string host, string account, string password, string deviceId)
         {
             // Check for mandatory parameters
-            if (trustedLoginData == null)
+            if (string.IsNullOrWhiteSpace(host))
             {
-                throw new ArgumentNullException(nameof(trustedLoginData));
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(host));
             }
-            if (string.IsNullOrWhiteSpace(trustedLoginData.Host))
+            if (string.IsNullOrWhiteSpace(account))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(trustedLoginData.Host));
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
             }
-            if (string.IsNullOrWhiteSpace(trustedLoginData.Account))
+            if (string.IsNullOrWhiteSpace(deviceId))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(trustedLoginData.Account));
-            }
-
-            // Fix optional parameters
-            trustedLoginData = trustedLoginData.Clone();
-            if (trustedLoginData.Password == null)
-            {
-                trustedLoginData.Password = string.Empty;
-            }
-            if (trustedLoginData.DeviceId == null)
-            {
-                trustedLoginData.DeviceId = string.Empty;
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceId));
             }
 
             // Save data
             var all = GetAll();
             for (var i = 0; i < all.Count; i++)
             {
-                if (trustedLoginData.Host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && trustedLoginData.Account.Equals(all[i].Account))
+                if (host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && account.Equals(all[i].Account))
                 {
                     all.RemoveAt(i);
                     break;
                 }
             }
-            all.Insert(0, trustedLoginData);
-            all = all.Take(20).ToList();
+            all.Insert(0, new TrustedLoginData
+            {
+                Host = host,
+                Account = account,
+                Password = password ?? string.Empty,
+                DeviceId = deviceId
+            });
+            all = all.Take(MaxItemStorage).ToList();
 
             var json = JsonHelper.ToJson(all);
             var settingValues = ApplicationData.Current.LocalSettings.Values;

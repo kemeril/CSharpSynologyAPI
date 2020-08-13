@@ -119,7 +119,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Infrastructure\HistoricalLoginData.cs" />
+    <Compile Include="Infrastructure\HistoricalLoginDataHandler.cs" />
     <Compile Include="Infrastructure\ICloneable.cs" />
+    <Compile Include="Infrastructure\IHistoricalLoginDataHandler.cs" />
     <Compile Include="Infrastructure\ITrustedLoginDataHandler.cs" />
     <Compile Include="Infrastructure\TrustedLoginDataHandler.cs" />
     <Compile Include="Infrastructure\DeviceIdProvider.cs" />

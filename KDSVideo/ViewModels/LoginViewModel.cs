@@ -16,18 +16,19 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, ITrustedLoginDataHandler trustedlLoginDataHandler,  IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler lastLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
-            _trustedLoginDataHandler = trustedlLoginDataHandler ?? throw new ArgumentNullException(nameof(trustedlLoginDataHandler));
+            _historicalLoginDataHandler = lastLoginDataHandler ?? throw new ArgumentNullException(nameof(lastLoginDataHandler));
+            _trustedLoginDataHandler = trustedLoginDataHandler ?? throw new ArgumentNullException(nameof(trustedLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
             LoginCommand = new RelayCommand(Login, CanLogin);
 
-            var lastLoginData = _trustedLoginDataHandler.GetLatest();
+            var lastLoginData = _historicalLoginDataHandler.GetLatest();
             if (lastLoginData != null)
             {
                 Host = lastLoginData.Host ?? string.Empty;
@@ -67,32 +68,36 @@ namespace KDSVideo.ViewModels
             }
         }
 
+        private void SaveHistoricalLoginData()
+        {
+            if (!RememberMe || string.IsNullOrWhiteSpace(Host) || string.IsNullOrWhiteSpace(Account))
+            {
+                return;
+            }
+
+            _historicalLoginDataHandler.AddOrUpdate(Host, Account, Password);
+        }
+
         private void SaveTrustedLoginData(string deviceId)
         {
-            if (!string.IsNullOrWhiteSpace(Account))
+            if (!TrustThisDevice || string.IsNullOrWhiteSpace(Host) || string.IsNullOrWhiteSpace(Account) || string.IsNullOrWhiteSpace(deviceId))
             {
-                _trustedLoginDataHandler.AddOrUpdate(RememberMe
-                    ? new TrustedLoginData
-                    {
-                        Host = Host,
-                        Account = Account,
-                        Password = Password,
-                        DeviceId = deviceId
-                    }
-                    : new TrustedLoginData
-                        { Host = Host, Account = Account, Password = string.Empty, DeviceId = string.Empty });
+                return;
             }
+            
+            _trustedLoginDataHandler.AddOrUpdate(Host, Account, Password, deviceId);
         }
 
         private async void Login()
         {
             ShowProgressIndicator = true;
-            var deviceId = _trustedLoginDataHandler.Get(Host, Account, Password)?.DeviceId;
+            var deviceId = _trustedLoginDataHandler.GetDeviceId(Host, Account, Password);
             var cts = new CancellationTokenSource(_timeout);
             var loginResult = await LoginAsync(Host, Account, Password, null, deviceId, DeviceName, null, _webProxy, cts.Token);
             if (loginResult.Success)
             {
-                SaveTrustedLoginData(deviceId);
+                SaveHistoricalLoginData();
+                //SaveTrustedLoginData(deviceId);
                 ShowProgressIndicator = false;
                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
                 return;
@@ -122,9 +127,8 @@ namespace KDSVideo.ViewModels
                             ShowProgressIndicator = false;
                             if (loginResult.Success)
                             {
-                                SaveTrustedLoginData(TrustThisDevice
-                                    ? loginResult.LoginInfo.DeviceId
-                                    : string.Empty);
+                                SaveHistoricalLoginData();
+                                SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
                                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
                                 return;
                             }
@@ -152,12 +156,12 @@ namespace KDSVideo.ViewModels
         }
 
         private bool CanLogin() =>
-            !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) &&
-            !string.IsNullOrWhiteSpace(Password);
+            !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account);
 
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
+        private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
         private readonly ITrustedLoginDataHandler _trustedLoginDataHandler;
         private readonly IVideoStation _videoStation;
 
