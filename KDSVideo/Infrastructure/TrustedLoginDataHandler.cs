@@ -33,13 +33,17 @@ namespace KDSVideo.Infrastructure
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
             }
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(password));
+            }
 
             // Get data
             var all = GetAll();
 
             return all.FirstOrDefault(it => host.Equals(it.Host, StringComparison.InvariantCultureIgnoreCase)
                                             && account.Equals(it.Account)
-                                            && (password ?? string.Empty).Equals(it.Password))?.DeviceId;
+                                            && password.Equals(it.Password))?.DeviceId;
         }
 
         public void AddOrUpdate(string host, string account, string password, string deviceId)
@@ -52,6 +56,10 @@ namespace KDSVideo.Infrastructure
             if (string.IsNullOrWhiteSpace(account))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
+            }
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(password));
             }
             if (string.IsNullOrWhiteSpace(deviceId))
             {
@@ -72,7 +80,7 @@ namespace KDSVideo.Infrastructure
             {
                 Host = host,
                 Account = account,
-                Password = password ?? string.Empty,
+                Password = password,
                 DeviceId = deviceId
             });
             all = all.Take(MaxItemStorage).ToList();

@@ -35,6 +35,10 @@ namespace KDSVideo.Infrastructure
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
             }
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(password));
+            }
 
             // Save data
             var all = GetAll();

@@ -97,7 +97,7 @@ namespace KDSVideo.ViewModels
             if (loginResult.Success)
             {
                 SaveHistoricalLoginData();
-                //SaveTrustedLoginData(deviceId);
+                SaveTrustedLoginData(deviceId);
                 ShowProgressIndicator = false;
                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
                 return;
@@ -156,7 +156,7 @@ namespace KDSVideo.ViewModels
         }
 
         private bool CanLogin() =>
-            !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account);
+            !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) && !string.IsNullOrWhiteSpace(Password);
 
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
@@ -166,7 +166,7 @@ namespace KDSVideo.ViewModels
         private readonly IVideoStation _videoStation;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        private const string DeviceName = "SM-T580 - DS video";
+        private const string DeviceName = "UWP - DS video";
 
         private IWebProxy _webProxy;
         private string _host = string.Empty;
