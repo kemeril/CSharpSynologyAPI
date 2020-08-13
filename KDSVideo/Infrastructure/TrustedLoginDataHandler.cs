@@ -8,12 +8,12 @@ namespace KDSVideo.Infrastructure
 {
     public class TrustedLoginDataHandler : ITrustedLoginDataHandler
     {
-        private const string LoginDataKey = nameof(LoginDataKey);
+        private const string TrustedLoginDataKey = nameof(TrustedLoginDataKey);
 
         public IList<TrustedLoginData> GetAll()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            return settingValues.TryGetValue(LoginDataKey, out var listObject)
+            return settingValues.TryGetValue(TrustedLoginDataKey, out var listObject)
                 ? JsonHelper.FromJson<List<TrustedLoginData>>((string) listObject)
                 : new List<TrustedLoginData>();
         }
@@ -85,7 +85,7 @@ namespace KDSVideo.Infrastructure
 
             var json = JsonHelper.ToJson(all);
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            settingValues[LoginDataKey] = json;
+            settingValues[TrustedLoginDataKey] = json;
         }
     }
 }
