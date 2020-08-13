@@ -25,7 +25,7 @@ namespace KDSVideo.ViewModels
 
             //Register your services used here
             SimpleIoc.Default.Register<IDeviceIdProvider>(() => new DeviceIdProvider());
-            SimpleIoc.Default.Register<IHistoricalLoginDataHandler>(() => new HistoricalLoginDataHandler());
+            SimpleIoc.Default.Register<ITrustedLoginDataHandler>(() => new TrustedLoginDataHandler());
             SimpleIoc.Default.Register<INetworkService>(() => new NetworkService());
             SimpleIoc.Default.Register<IVideoStation>(() => new VideoStation());
             SimpleIoc.Default.Register<INavigationService>(() => navigationService);

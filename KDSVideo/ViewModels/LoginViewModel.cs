@@ -16,18 +16,18 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler historicalLoginDataHandler,  IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, ITrustedLoginDataHandler trustedlLoginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
-            _historicalLoginDataHandler = historicalLoginDataHandler ?? throw new ArgumentNullException(nameof(historicalLoginDataHandler));
+            _trustedLoginDataHandler = trustedlLoginDataHandler ?? throw new ArgumentNullException(nameof(trustedlLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
             LoginCommand = new RelayCommand(Login, CanLogin);
 
-            var lastLoginData = _historicalLoginDataHandler.GetLatest();
+            var lastLoginData = _trustedLoginDataHandler.GetLatest();
             if (lastLoginData != null)
             {
                 Host = lastLoginData.Host ?? string.Empty;
@@ -67,19 +67,19 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private void SaveHistoricalLoginData(string deviceId)
+        private void SaveTrustedLoginData(string deviceId)
         {
             if (!string.IsNullOrWhiteSpace(Account))
             {
-                _historicalLoginDataHandler.AddOrUpdate(RememberMe
-                    ? new HistoricalLoginData
+                _trustedLoginDataHandler.AddOrUpdate(RememberMe
+                    ? new TrustedLoginData
                     {
                         Host = Host,
                         Account = Account,
                         Password = Password,
                         DeviceId = deviceId
                     }
-                    : new HistoricalLoginData
+                    : new TrustedLoginData
                         { Host = Host, Account = Account, Password = string.Empty, DeviceId = string.Empty });
             }
         }
@@ -87,12 +87,12 @@ namespace KDSVideo.ViewModels
         private async void Login()
         {
             ShowProgressIndicator = true;
-            var deviceId = _historicalLoginDataHandler.Get(Host, Account, Password)?.DeviceId;
+            var deviceId = _trustedLoginDataHandler.Get(Host, Account, Password)?.DeviceId;
             var cts = new CancellationTokenSource(_timeout);
             var loginResult = await LoginAsync(Host, Account, Password, null, deviceId, DeviceName, null, _webProxy, cts.Token);
             if (loginResult.Success)
             {
-                SaveHistoricalLoginData(deviceId);
+                SaveTrustedLoginData(deviceId);
                 ShowProgressIndicator = false;
                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
                 return;
@@ -122,7 +122,7 @@ namespace KDSVideo.ViewModels
                             ShowProgressIndicator = false;
                             if (loginResult.Success)
                             {
-                                SaveHistoricalLoginData(TrustThisDevice
+                                SaveTrustedLoginData(TrustThisDevice
                                     ? loginResult.LoginInfo.DeviceId
                                     : string.Empty);
                                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
@@ -158,7 +158,7 @@ namespace KDSVideo.ViewModels
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
-        private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
+        private readonly ITrustedLoginDataHandler _trustedLoginDataHandler;
         private readonly IVideoStation _videoStation;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);

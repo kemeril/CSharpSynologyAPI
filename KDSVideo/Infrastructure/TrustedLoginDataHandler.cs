@@ -6,21 +6,21 @@ using StdUtils;
 
 namespace KDSVideo.Infrastructure
 {
-    public class HistoricalLoginDataHandler : IHistoricalLoginDataHandler
+    public class TrustedLoginDataHandler : ITrustedLoginDataHandler
     {
         private const string LoginDataKey = nameof(LoginDataKey);
 
-        public IList<HistoricalLoginData> GetAll()
+        public IList<TrustedLoginData> GetAll()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
             return settingValues.TryGetValue(LoginDataKey, out var listObject)
-                ? JsonHelper.FromJson<List<HistoricalLoginData>>((string) listObject)
-                : new List<HistoricalLoginData>();
+                ? JsonHelper.FromJson<List<TrustedLoginData>>((string) listObject)
+                : new List<TrustedLoginData>();
         }
 
-        public HistoricalLoginData GetLatest() => GetAll().FirstOrDefault();
+        public TrustedLoginData GetLatest() => GetAll().FirstOrDefault();
 
-        public HistoricalLoginData Get(string host, string account, string password)
+        public TrustedLoginData Get(string host, string account, string password)
         {
             // Check for mandatory parameters
             if (string.IsNullOrWhiteSpace(host))
@@ -43,44 +43,44 @@ namespace KDSVideo.Infrastructure
                                             && password.Equals(it.Password));
         }
 
-        public void AddOrUpdate(HistoricalLoginData historicalLoginData)
+        public void AddOrUpdate(TrustedLoginData trustedLoginData)
         {
             // Check for mandatory parameters
-            if (historicalLoginData == null)
+            if (trustedLoginData == null)
             {
-                throw new ArgumentNullException(nameof(historicalLoginData));
+                throw new ArgumentNullException(nameof(trustedLoginData));
             }
-            if (string.IsNullOrWhiteSpace(historicalLoginData.Host))
+            if (string.IsNullOrWhiteSpace(trustedLoginData.Host))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(historicalLoginData.Host));
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(trustedLoginData.Host));
             }
-            if (string.IsNullOrWhiteSpace(historicalLoginData.Account))
+            if (string.IsNullOrWhiteSpace(trustedLoginData.Account))
             {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(historicalLoginData.Account));
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(trustedLoginData.Account));
             }
 
             // Fix optional parameters
-            historicalLoginData = historicalLoginData.Clone();
-            if (historicalLoginData.Password == null)
+            trustedLoginData = trustedLoginData.Clone();
+            if (trustedLoginData.Password == null)
             {
-                historicalLoginData.Password = string.Empty;
+                trustedLoginData.Password = string.Empty;
             }
-            if (historicalLoginData.DeviceId == null)
+            if (trustedLoginData.DeviceId == null)
             {
-                historicalLoginData.DeviceId = string.Empty;
+                trustedLoginData.DeviceId = string.Empty;
             }
 
             // Save data
             var all = GetAll();
             for (var i = 0; i < all.Count; i++)
             {
-                if (historicalLoginData.Host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && historicalLoginData.Account.Equals(all[i].Account))
+                if (trustedLoginData.Host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && trustedLoginData.Account.Equals(all[i].Account))
                 {
                     all.RemoveAt(i);
                     break;
                 }
             }
-            all.Insert(0, historicalLoginData);
+            all.Insert(0, trustedLoginData);
             all = all.Take(20).ToList();
 
             var json = JsonHelper.ToJson(all);

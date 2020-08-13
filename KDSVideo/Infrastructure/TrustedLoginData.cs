@@ -3,7 +3,7 @@
 namespace KDSVideo.Infrastructure
 {
     [DataContract]
-    public class HistoricalLoginData : ICloneable<HistoricalLoginData>
+    public class TrustedLoginData : ICloneable<TrustedLoginData>
     {
         [DataMember(Name = "host")]
         public string Host { get; set; }
@@ -17,8 +17,8 @@ namespace KDSVideo.Infrastructure
         [DataMember(Name = "did")]
         public string DeviceId { get; set; }
 
-        public HistoricalLoginData Clone() =>
-            new HistoricalLoginData
+        public TrustedLoginData Clone() =>
+            new TrustedLoginData
             {
                 Host = Host,
                 Account = Account,
