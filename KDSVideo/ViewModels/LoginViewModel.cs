@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
@@ -156,23 +156,29 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private bool CanLogin() =>
-            !string.IsNullOrWhiteSpace(Host) && AccountIsValid() && PasswordIsValid();
+        private bool HostIsValid()
+        {
+            var host = (Host ?? string.Empty).Trim();
+            return host.Length <= 255 && !string.IsNullOrWhiteSpace(host)
+                && !host.Any(char.IsWhiteSpace) && host.All(c => c != ' ');
+        }
 
-        //  123456789abc
-        //  \^$.|?*+()[{
-        private bool AccountIsValid() =>
-            !(string.IsNullOrWhiteSpace(Account)
-              || Account.StartsWith(" ", StringComparison.Ordinal)
-              || Account.StartsWith("-", StringComparison.Ordinal)
-              || Account.EndsWith(" ", StringComparison.Ordinal)
-              || Account.Length >= 64
-              || !new Regex("^[-_\\.\\S\\da-zA-Z]*$").Match(Account).Success);
+        private bool AccountIsValid()
+        {
+            var account = (Account ?? string.Empty).Trim();
+            return account.Length <= 64 && !string.IsNullOrWhiteSpace(account)
+                && !account.Any(char.IsWhiteSpace) && account.All(c => c != ' ');
+        }
 
-        private bool PasswordIsValid() =>
-            !(string.IsNullOrWhiteSpace(Password)
-              || Password.Length >= 127
-              || !new Regex("^[~`!@#\\$%\\^&\\*\\(\\)-_=\\+\\[\\{]}\\|;:'\"<>/\\?,\\.\\S\\da-zA-Z]*$").Match(Password).Success);
+        private bool PasswordIsValid()
+        {
+            // Remark: Space character is allowed in the password!
+            var password = Password ?? string.Empty;
+            return password.Length <= 127 && !string.IsNullOrWhiteSpace(password)
+                && !password.Any(char.IsWhiteSpace);
+        }
+
+        private bool CanLogin() => HostIsValid() && AccountIsValid() && PasswordIsValid();
 
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
@@ -182,7 +188,7 @@ namespace KDSVideo.ViewModels
         private readonly IVideoStation _videoStation;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        private const string DeviceName = "UWP - DS video";
+        private const string DeviceName = "UWP - KDS video";
 
         private IWebProxy _webProxy;
         private string _host = string.Empty;
