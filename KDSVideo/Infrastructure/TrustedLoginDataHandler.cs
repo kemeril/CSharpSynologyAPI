@@ -41,9 +41,13 @@ namespace KDSVideo.Infrastructure
             // Get data
             var all = GetAll();
 
-            return all.FirstOrDefault(it => host.Equals(it.Host, StringComparison.InvariantCultureIgnoreCase)
-                                            && account.Equals(it.Account)
-                                            && password.Equals(it.Password))?.DeviceId;
+            //return all.FirstOrDefault(trustedLoginData => IsTheSame(host, account, password, trustedLoginData))?.DeviceId;
+
+            return all.FirstOrDefault(trustedLoginData =>
+                host.Equals(trustedLoginData.Host, StringComparison.CurrentCultureIgnoreCase)
+                && account.Equals(trustedLoginData.Account, StringComparison.CurrentCultureIgnoreCase)
+                && password.Equals(trustedLoginData.Password, StringComparison.Ordinal))
+                ?.DeviceId;
         }
 
         public void AddOrUpdate(string host, string account, string password, string deviceId)
@@ -70,7 +74,8 @@ namespace KDSVideo.Infrastructure
             var all = GetAll();
             for (var i = 0; i < all.Count; i++)
             {
-                if (host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && account.Equals(all[i].Account))
+                var trustedLoginData = all[i];
+                if (host.Equals(trustedLoginData.Host, StringComparison.CurrentCultureIgnoreCase) && account.Equals(trustedLoginData.Account, StringComparison.CurrentCultureIgnoreCase))
                 {
                     all.RemoveAt(i);
                     break;
@@ -88,6 +93,36 @@ namespace KDSVideo.Infrastructure
             var json = JsonHelper.ToJson(all);
             var settingValues = ApplicationData.Current.LocalSettings.Values;
             settingValues[TrustedLoginDataKey] = json;
+        }
+
+        public void RemoveIfExist(string host, string account)
+        {
+            // Check for mandatory parameters
+            if (string.IsNullOrWhiteSpace(host))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(host));
+            }
+            if (string.IsNullOrWhiteSpace(account))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
+            }
+
+            // Update and save data
+            var all = GetAll();
+            for (var i = 0; i < all.Count; i++)
+            {
+                var trustedLoginData = all[i];
+                if (host.Equals(trustedLoginData.Host, StringComparison.CurrentCultureIgnoreCase) && account.Equals(trustedLoginData.Account, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    all.RemoveAt(i);
+
+                    var json = JsonHelper.ToJson(all);
+                    var settingValues = ApplicationData.Current.LocalSettings.Values;
+                    settingValues[TrustedLoginDataKey] = json;
+
+                    return;
+                }
+            }
         }
     }
 }

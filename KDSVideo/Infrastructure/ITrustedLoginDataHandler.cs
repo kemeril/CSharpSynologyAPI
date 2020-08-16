@@ -4,5 +4,6 @@
     {
         string GetDeviceId(string host, string account, string password);
         void AddOrUpdate(string host, string account, string password, string deviceId);
+        void RemoveIfExist(string host, string account);
     }
 }

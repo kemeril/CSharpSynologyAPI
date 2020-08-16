@@ -114,6 +114,7 @@ namespace KDSVideo.ViewModels
                     if (loginResult.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified ||
                         loginResult.ErrorCode == ErrorCodes.OneTimePasswordAuthenticateFailed)
                     {
+                        _trustedLoginDataHandler.RemoveIfExist(Host, Account);
                         OtpCode = string.Empty;
                         TrustThisDevice = false;
                         var otpDialog = new LoginDialogOtpRequestDialog();

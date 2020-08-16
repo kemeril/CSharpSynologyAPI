@@ -44,7 +44,8 @@ namespace KDSVideo.Infrastructure
             var all = GetAll();
             for (var i = 0; i < all.Count; i++)
             {
-                if (host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && account.Equals(all[i].Account))
+                var historicalLoginData = all[i];
+                if (host.Equals(historicalLoginData.Host, StringComparison.InvariantCultureIgnoreCase) && account.Equals(historicalLoginData.Account, StringComparison.InvariantCultureIgnoreCase))
                 {
                     all.RemoveAt(i);
                     break;
@@ -54,42 +55,13 @@ namespace KDSVideo.Infrastructure
             {
                 Host = host,
                 Account = account,
-                Password = password ?? string.Empty
+                Password = password
             });
             all = all.Take(MaxItemStorage).ToList();
 
             var json = JsonHelper.ToJson(all);
             var settingValues = ApplicationData.Current.LocalSettings.Values;
             settingValues[HistoricalLoginDataKey] = json;
-        }
-
-        public void Remove(string host, string account)
-        {
-            // Check for mandatory parameters
-            if (string.IsNullOrWhiteSpace(host))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(host));
-            }
-            if (string.IsNullOrWhiteSpace(account))
-            {
-                throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
-            }
-
-            // Save data
-            var all = GetAll();
-            for (var i = 0; i < all.Count; i++)
-            {
-                if (host.Equals(all[i].Host, StringComparison.InvariantCultureIgnoreCase) && account.Equals(all[i].Account))
-                {
-                    all.RemoveAt(i);
-
-                    var json = JsonHelper.ToJson(all);
-                    var settingValues = ApplicationData.Current.LocalSettings.Values;
-                    settingValues[HistoricalLoginDataKey] = json;
-
-                    break;
-                }
-            }
         }
     }
 }
