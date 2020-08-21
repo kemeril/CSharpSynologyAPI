@@ -17,25 +17,27 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IHistoricalLoginDataHandler lastLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
-            _historicalLoginDataHandler = lastLoginDataHandler ?? throw new ArgumentNullException(nameof(lastLoginDataHandler));
+            _autoLoginDataHandler = autoLoginDataHandler ?? throw new ArgumentNullException(nameof(autoLoginDataHandler));
+            _historicalLoginDataHandler = historicalLoginDataHandler ?? throw new ArgumentNullException(nameof(historicalLoginDataHandler));
             _trustedLoginDataHandler = trustedLoginDataHandler ?? throw new ArgumentNullException(nameof(trustedLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
+
             NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
 
             LoginCommand = new RelayCommand(Login, CanLogin);
 
-            var lastLoginData = _historicalLoginDataHandler.GetLatest();
-            if (lastLoginData != null)
+            var autoLoginData = _autoLoginDataHandler.Get();
+            if (autoLoginData != null)
             {
-                Host = lastLoginData.Host ?? string.Empty;
-                Account = lastLoginData.Account ?? string.Empty;
-                Password = lastLoginData.Password ?? string.Empty;
-                RememberMe = true;
+                Host = autoLoginData.Host ?? string.Empty;
+                Account = autoLoginData.Account ?? string.Empty;
+                Password = autoLoginData.Password ?? string.Empty;
+                RememberMe = string.IsNullOrWhiteSpace(Host) && string.IsNullOrWhiteSpace(Account) && string.IsNullOrWhiteSpace(Password);
             }
         }
 
@@ -69,6 +71,16 @@ namespace KDSVideo.ViewModels
             }
         }
 
+        private void SaveAutoLogin()
+        {
+            if (!RememberMe || string.IsNullOrWhiteSpace(Host) || string.IsNullOrWhiteSpace(Account))
+            {
+                return;
+            }
+
+            _autoLoginDataHandler.SetOrUpdate(Host, Account, Password);
+        }
+
         private void SaveHistoricalLoginData()
         {
             if (!RememberMe || string.IsNullOrWhiteSpace(Host) || string.IsNullOrWhiteSpace(Account))
@@ -97,6 +109,7 @@ namespace KDSVideo.ViewModels
             var loginResult = await LoginAsync(Host, Account, Password, null, deviceId, DeviceName, null, _webProxy, cts.Token);
             if (loginResult.Success)
             {
+                SaveAutoLogin();
                 SaveHistoricalLoginData();
                 SaveTrustedLoginData(deviceId);
                 ShowProgressIndicator = false;
@@ -129,6 +142,7 @@ namespace KDSVideo.ViewModels
                             ShowProgressIndicator = false;
                             if (loginResult.Success)
                             {
+                                SaveAutoLogin();
                                 SaveHistoricalLoginData();
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
                                 _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
@@ -184,6 +198,7 @@ namespace KDSVideo.ViewModels
         private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
+        private readonly IAutoLoginDataHandler _autoLoginDataHandler;
         private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
         private readonly ITrustedLoginDataHandler _trustedLoginDataHandler;
         private readonly IVideoStation _videoStation;

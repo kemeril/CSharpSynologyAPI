@@ -22,8 +22,6 @@ namespace KDSVideo.Infrastructure
                 : new List<HistoricalLoginData>();
         }
 
-        public HistoricalLoginData GetLatest() => GetAll().FirstOrDefault();
-
         public void AddOrUpdate(string host, string account, string password)
         {
             // Check for mandatory parameters

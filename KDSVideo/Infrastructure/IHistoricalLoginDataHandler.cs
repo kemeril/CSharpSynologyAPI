@@ -5,7 +5,6 @@ namespace KDSVideo.Infrastructure
     public interface IHistoricalLoginDataHandler
     {
         IList<HistoricalLoginData> GetAll();
-        HistoricalLoginData GetLatest();
         void AddOrUpdate(string host, string account, string password);
     }
 }

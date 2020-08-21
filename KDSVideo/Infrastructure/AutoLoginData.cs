@@ -3,7 +3,7 @@
 namespace KDSVideo.Infrastructure
 {
     [DataContract]
-    public class TrustedLoginData
+    public class AutoLoginData
     {
         [DataMember(Name = "host")]
         public string Host { get; set; }
@@ -13,8 +13,5 @@ namespace KDSVideo.Infrastructure
 
         [DataMember(Name = "password")]
         public string Password { get; set; }
-
-        [DataMember(Name = "did")]
-        public string DeviceId { get; set; }
     }
 }
