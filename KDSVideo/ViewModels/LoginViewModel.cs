@@ -17,6 +17,29 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase
     {
+        private const string DeviceName = "UWP - KDS video";
+
+        private readonly INavigationService _navigationService;
+        private readonly IDeviceIdProvider _deviceIdProvider;
+        private readonly INetworkService _networkService;
+        private readonly IAutoLoginDataHandler _autoLoginDataHandler;
+        private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
+        private readonly ITrustedLoginDataHandler _trustedLoginDataHandler;
+        private readonly IVideoStation _videoStation;
+
+        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
+        private IWebProxy _webProxy;
+
+        private string _host = string.Empty;
+        private string _account = string.Empty;
+        private string _password = string.Empty;
+        private string _otpCode = string.Empty;
+
+        private bool _rememberMe;
+        private bool _trustThisDevice;
+        private bool _showProgressIndicator;
+        private bool _isEnabledCredentialsInput = true;
+
         public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
@@ -37,7 +60,7 @@ namespace KDSVideo.ViewModels
                 Host = autoLoginData.Host ?? string.Empty;
                 Account = autoLoginData.Account ?? string.Empty;
                 Password = autoLoginData.Password ?? string.Empty;
-                RememberMe = string.IsNullOrWhiteSpace(Host) && string.IsNullOrWhiteSpace(Account) && string.IsNullOrWhiteSpace(Password);
+                RememberMe = !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) && !string.IsNullOrWhiteSpace(Password);
             }
         }
 
@@ -124,8 +147,7 @@ namespace KDSVideo.ViewModels
             {
                 for (;;)
                 {
-                    if (loginResult.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified ||
-                        loginResult.ErrorCode == ErrorCodes.OneTimePasswordAuthenticateFailed)
+                    if (loginResult.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified || loginResult.ErrorCode == ErrorCodes.OneTimePasswordAuthenticateFailed)
                     {
                         _trustedLoginDataHandler.RemoveIfExist(Host, Account);
                         OtpCode = string.Empty;
@@ -137,8 +159,7 @@ namespace KDSVideo.ViewModels
                         {
                             ShowProgressIndicator = true;
                             cts = new CancellationTokenSource(_timeout);
-                            loginResult = await LoginAsync(Host, Account, Password, OtpCode,
-                                _deviceIdProvider.GetDeviceId(), DeviceName, null, _webProxy, cts.Token);
+                            loginResult = await LoginAsync(Host, Account, Password, OtpCode, _deviceIdProvider.GetDeviceId(), DeviceName, null, _webProxy, cts.Token);
                             ShowProgressIndicator = false;
                             if (loginResult.Success)
                             {
@@ -195,28 +216,6 @@ namespace KDSVideo.ViewModels
 
         private bool CanLogin() => HostIsValid() && AccountIsValid() && PasswordIsValid();
 
-        private readonly INavigationService _navigationService;
-        private readonly IDeviceIdProvider _deviceIdProvider;
-        private readonly INetworkService _networkService;
-        private readonly IAutoLoginDataHandler _autoLoginDataHandler;
-        private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
-        private readonly ITrustedLoginDataHandler _trustedLoginDataHandler;
-        private readonly IVideoStation _videoStation;
-
-        private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        private const string DeviceName = "UWP - KDS video";
-
-        private IWebProxy _webProxy;
-        private string _host = string.Empty;
-        private string _account = string.Empty;
-        private string _password = string.Empty;
-        private string _otpCode = string.Empty;
-
-        private bool _rememberMe;
-        private bool _trustThisDevice;
-        private bool _showProgressIndicator;
-        private bool _isEnabledCredentialsInput = true;
-
         public RelayCommand NavigateCommand { get; }
 
         public RelayCommand LoginCommand { get; }
@@ -226,8 +225,7 @@ namespace KDSVideo.ViewModels
             get => _host ?? string.Empty;
             set
             {
-                _host = value ?? string.Empty;
-                RaisePropertyChanged(nameof(Host));
+                Set(nameof(Host), ref _host, value ?? string.Empty);
                 LoginCommand.RaiseCanExecuteChanged();
             }
         }
@@ -237,8 +235,7 @@ namespace KDSVideo.ViewModels
             get => _account ?? string.Empty;
             set
             {
-                _account = value ?? string.Empty;
-                RaisePropertyChanged(nameof(Account));
+                Set(nameof(Account), ref _account, value ?? string.Empty);
                 LoginCommand.RaiseCanExecuteChanged();
             }
         }
@@ -248,8 +245,7 @@ namespace KDSVideo.ViewModels
             get => _password ?? string.Empty;
             set
             {
-                _password = value ?? string.Empty;
-                RaisePropertyChanged(nameof(Password));
+                Set(nameof(Password), ref _password, value ?? string.Empty);
                 LoginCommand.RaiseCanExecuteChanged();
             }
         }
@@ -257,51 +253,31 @@ namespace KDSVideo.ViewModels
         public string OtpCode
         {
             get => _otpCode;
-            set
-            {
-                _otpCode = value ?? string.Empty;
-                RaisePropertyChanged(nameof(OtpCode));
-            }
+            set => Set(nameof(OtpCode), ref _otpCode, value ?? string.Empty);
         }
         
         public bool RememberMe
         {
             get => _rememberMe;
-            set
-            {
-                _rememberMe = value;
-                RaisePropertyChanged(nameof(RememberMe));
-            }
+            set => Set(nameof(RememberMe), ref _rememberMe, value);
         }
 
         public bool TrustThisDevice
         {
             get => _trustThisDevice;
-            set
-            {
-                _trustThisDevice = value;
-                RaisePropertyChanged(nameof(TrustThisDevice));
-            }
+            set => Set(nameof(TrustThisDevice), ref _trustThisDevice, value);
         }
 
         public bool ShowProgressIndicator
         {
             get => _showProgressIndicator;
-            set
-            {
-                _showProgressIndicator = value;
-                RaisePropertyChanged(nameof(ShowProgressIndicator));
-            }
+            set => Set(nameof(ShowProgressIndicator), ref _showProgressIndicator, value);
         }
 
         public bool IsEnabledCredentialsInput
         {
             get => _isEnabledCredentialsInput;
-            private set
-            {
-                _isEnabledCredentialsInput = value;
-                RaisePropertyChanged(nameof(IsEnabledCredentialsInput));
-            }
+            private set => Set(nameof(IsEnabledCredentialsInput), ref _isEnabledCredentialsInput, value);
         }
     }
 }
