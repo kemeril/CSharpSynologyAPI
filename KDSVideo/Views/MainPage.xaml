@@ -9,12 +9,34 @@
     DataContext="{Binding MainViewModel, Source={StaticResource Locator}}">
 
     <Grid>
-        <Button Content="Button" Margin="130,212,0,0" VerticalAlignment="Top" TabIndex="1"/>
-        <Button Margin="130,276,0,0" VerticalAlignment="Top" Command="{Binding NavigateCommand}" Style="{StaticResource NavigationBackButtonNormalStyle}" TabIndex="0">
-            <Button.KeyboardAccelerators>
-                <!--<KeyboardAccelerator  Key="GoBack" Modifiers="None"/>-->
-                <KeyboardAccelerator  Key="Left" Modifiers="Menu"/>
-            </Button.KeyboardAccelerators>
-        </Button>
+        <NavigationView x:Name="NavigationViewControl" IsBackButtonVisible="Visible" IsBackEnabled="True" SelectionFollowsFocus="Enabled"
+                        SelectionChanged="NavigationViewControl_SelectionChanged"
+                        BackRequested="NavigationViewControl_BackRequested"
+                        ProcessKeyboardAccelerators="NavigationViewControl_ProcessKeyboardAccelerators">
+            <NavigationView.KeyboardAccelerators>
+                <KeyboardAccelerator IsEnabled="True" Key="Left" Modifiers="Menu"/>
+            </NavigationView.KeyboardAccelerators>
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Playlist" Tag="PlaylistPage" />
+                <NavigationViewItem Content="Movie" Tag="MoviePage" IsSelected="True" />
+                <NavigationViewItem Content="TV Show" Tag="TVShowPage" />
+                <NavigationViewItem Content="Home Video" Tag="HomeVideoPage" />
+                <NavigationViewItem Content="TV Recording" Tag="TVRecordingPage" />
+                <NavigationViewItemSeparator/>
+                <NavigationViewItem Content="Sample1 content 3" Tag="Sample1 tag 3" />
+                <NavigationViewItem Content="Sample1 content 4" Tag="Sample1 tag 4" />
+            </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame" NavigationFailed="ContentFrame_OnNavigationFailed">
+                <Frame.ContentTransitions>
+                    <TransitionCollection>
+                        <NavigationThemeTransition>
+                            <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                <EntranceNavigationTransitionInfo/>
+                            </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                        </NavigationThemeTransition>
+                    </TransitionCollection>
+                </Frame.ContentTransitions>
+            </Frame>
+        </NavigationView>
     </Grid>
 </Page>

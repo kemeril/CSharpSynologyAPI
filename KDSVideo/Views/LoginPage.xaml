@@ -4,15 +4,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding LoginViewModel, Source={StaticResource Locator}}">
-    <Page.Resources>
-        <converters:BoolToObjectConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
-    </Page.Resources>
     <Grid Background="#FF303234" IsHitTestVisible="{Binding IsEnabledCredentialsInput}">
-        <HyperlinkButton Content="Login" Margin="189,158,0,0" VerticalAlignment="Top" Command="{Binding NavigateCommand}"/>
         <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
             <Grid.RowDefinitions>
                 <RowDefinition/>
