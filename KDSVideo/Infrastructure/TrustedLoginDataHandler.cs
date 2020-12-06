@@ -15,10 +15,13 @@ namespace KDSVideo.Infrastructure
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
 
-            if (!settingValues.TryGetValue(TrustedLoginDataKey, out var listObject)) return null;
+            if (!settingValues.TryGetValue(TrustedLoginDataKey, out var listObject))
+            {
+                return new List<TrustedLoginData>();
+            }
 
             return listObject != null && !string.IsNullOrWhiteSpace((string)listObject)
-                ? JsonHelper.FromJson<List<TrustedLoginData>>((string) listObject)
+                ? JsonHelper.FromJson<List<TrustedLoginData>>((string) listObject) ?? new List<TrustedLoginData>()
                 : new List<TrustedLoginData>();
         }
 
@@ -109,6 +112,7 @@ namespace KDSVideo.Infrastructure
 
             // Update and save data
             var all = GetAll();
+
             for (var i = 0; i < all.Count; i++)
             {
                 var trustedLoginData = all[i];

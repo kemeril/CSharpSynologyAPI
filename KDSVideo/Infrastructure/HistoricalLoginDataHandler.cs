@@ -15,10 +15,13 @@ namespace KDSVideo.Infrastructure
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
 
-            if (!settingValues.TryGetValue(HistoricalLoginDataKey, out var listObject)) return null;
+            if (!settingValues.TryGetValue(HistoricalLoginDataKey, out var listObject))
+            {
+                return new List<HistoricalLoginData>();
+            }
 
             return listObject != null && !string.IsNullOrWhiteSpace((string)listObject)
-                ? JsonHelper.FromJson<List<HistoricalLoginData>>((string)listObject)
+                ? JsonHelper.FromJson<List<HistoricalLoginData>>((string)listObject) ?? new List<HistoricalLoginData>()
                 : new List<HistoricalLoginData>();
         }
 
