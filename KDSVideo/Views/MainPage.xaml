@@ -18,7 +18,11 @@
             </NavigationView.KeyboardAccelerators>
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="Playlist" Tag="PlaylistPage" />
-                <NavigationViewItem Content="Movie" Tag="MoviePage" IsSelected="True" />
+                <NavigationViewItem Content="Movie" Tag="MoviePage" IsSelected="True">
+                    <NavigationViewItem.Icon>
+                        <PathIcon Foreground="LightGray" Data="F1 M 1.2,0.200003L 16.9812,0.200003C 17.5335,0.200003 17.9812,0.647715 17.9812,1.2L 17.9812,12.0063C 17.9812,12.5586 17.5335,13.0063 16.9812,13.0063L 1.2,13.0063C 0.647715,13.0063 0.2,12.5586 0.2,12.0063L 0.2,1.2C 0.2,0.647715 0.647715,0.200003 1.2,0.200003 Z M 6.09902,10.0845L 12.0749,6.6001L 6.09059,3.1314L 6.09902,10.0845 Z M 1.05913,1.11576L 1.05913,3.11576L 3.08991,3.11576L 3.08991,1.11576L 1.05913,1.11576 Z M 1.05913,4.11574L 1.05913,6.1157L 3.08991,6.1157L 3.08991,4.11574L 1.05913,4.11574 Z M 1.05914,7.14696L 1.05914,9.14696L 3.08992,9.14696L 3.08992,7.14696L 1.05914,7.14696 Z M 1.05914,10.1157L 1.05914,12.1157L 3.08992,12.1157L 3.08992,10.1157L 1.05914,10.1157 Z M 15.0908,1.11571L 15.0908,3.11571L 17.1216,3.11571L 17.1216,1.11571L 15.0908,1.11571 Z M 15.0908,4.11569L 15.0908,6.11568L 17.1216,6.11568L 17.1216,4.11569L 15.0908,4.11569 Z M 15.0908,7.14693L 15.0908,9.14693L 17.1216,9.14693L 17.1216,7.14693L 15.0908,7.14693 Z M 15.0908,10.1157L 15.0908,12.1157L 17.1216,12.1157L 17.1216,10.1157L 15.0908,10.1157 Z "/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
                 <NavigationViewItem Content="TV Show" Tag="TVShowPage" />
                 <NavigationViewItem Content="Home Video" Tag="HomeVideoPage" />
                 <NavigationViewItem Content="TV Recording" Tag="TVRecordingPage" />
