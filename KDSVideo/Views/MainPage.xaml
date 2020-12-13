@@ -4,19 +4,49 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:KDSVideo.UIHelpers"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:navcontrols="using:Windows.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding MainViewModel, Source={StaticResource Locator}}">
+    <Page.Resources>
+        <!-- NavigationView resources -->
+        <DataTemplate x:Key="NavigationViewSeparatorTemplate" x:DataType="local:NavigationMenuSeparator">
+            <NavigationViewItemSeparator />
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewHeaderTemplate" x:DataType="local:NavigationMenuHeader">
+            <NavigationViewItemHeader Content="{x:Bind Name}"/>
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewItemTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+        <local:NavigationViewItemTemplateSelector x:Key="NavigationViewItemTemplateSelector"
+            SeparatorTemplate="{StaticResource NavigationViewSeparatorTemplate}"
+            HeaderTemplate="{StaticResource NavigationViewHeaderTemplate}"
+            ItemTemplate="{StaticResource NavigationViewItemTemplate}"/>
+    </Page.Resources>
 
     <Grid>
-        <NavigationView x:Name="NavigationViewControl" IsBackButtonVisible="Visible" IsBackEnabled="True" SelectionFollowsFocus="Enabled"
-                        SelectionChanged="NavigationViewControl_SelectionChanged"
-                        BackRequested="NavigationViewControl_BackRequested"
-                        ProcessKeyboardAccelerators="NavigationViewControl_ProcessKeyboardAccelerators">
+        <NavigationView x:Name="NavigationViewControl"
+                        IsBackButtonVisible="{Binding IsBackButtonVisible}"
+                        PaneDisplayMode="{Binding PaneDisplayMode}"
+                        IsBackEnabled="{Binding IsNavigationVisible}"
+                        IsPaneVisible="{Binding IsNavigationVisible}"
+                        IsPaneOpen="{Binding IsNavigationVisible}"
+                        IsPaneToggleButtonVisible="{Binding IsNavigationVisible}"
+                        IsSettingsVisible="True"
+                        KeyboardAcceleratorPlacementMode="Hidden"
+                        MenuItemTemplateSelector="{StaticResource NavigationViewItemTemplateSelector}"
+                        MenuItemsSource="{Binding Libraries}">
             <NavigationView.KeyboardAccelerators>
                 <KeyboardAccelerator IsEnabled="True" Key="Left" Modifiers="Menu"/>
             </NavigationView.KeyboardAccelerators>
-            <NavigationView.MenuItems>
+            <!--<NavigationView.MenuItems>
                 <NavigationViewItem Content="Playlist" Tag="PlaylistPage" />
                 <NavigationViewItem Content="Movie" Tag="MoviePage" IsSelected="True">
                     <NavigationViewItem.Icon>
@@ -29,8 +59,8 @@
                 <NavigationViewItemSeparator/>
                 <NavigationViewItem Content="Sample1 content 3" Tag="Sample1 tag 3" />
                 <NavigationViewItem Content="Sample1 content 4" Tag="Sample1 tag 4" />
-            </NavigationView.MenuItems>
-            <Frame x:Name="ContentFrame" NavigationFailed="ContentFrame_OnNavigationFailed">
+            </NavigationView.MenuItems>-->
+            <Frame x:Name="ContentFrame">
                 <Frame.ContentTransitions>
                     <TransitionCollection>
                         <NavigationThemeTransition>

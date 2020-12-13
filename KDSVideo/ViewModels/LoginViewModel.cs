@@ -1,17 +1,18 @@
-﻿using System;
+﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
+using KDSVideo.Infrastructure;
+using KDSVideo.Messages;
+using KDSVideo.Views;
+using SynologyAPI;
+using SynologyRestDAL;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Views;
-using KDSVideo.Infrastructure;
-using KDSVideo.Views;
-using SynologyAPI;
-using SynologyRestDAL;
 
 namespace KDSVideo.ViewModels
 {
@@ -19,13 +20,14 @@ namespace KDSVideo.ViewModels
     {
         private const string DeviceName = "UWP - KDS video";
 
-        private readonly INavigationService _navigationService;
+        private readonly INavigationServiceEx _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IAutoLoginDataHandler _autoLoginDataHandler;
         private readonly IHistoricalLoginDataHandler _historicalLoginDataHandler;
         private readonly ITrustedLoginDataHandler _trustedLoginDataHandler;
         private readonly IVideoStation _videoStation;
+        private readonly IMessenger _messenger;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
         private IWebProxy _webProxy;
@@ -40,7 +42,7 @@ namespace KDSVideo.ViewModels
         private bool _showProgressIndicator;
         private bool _isEnabledCredentialsInput = true;
 
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation)
+        public LoginViewModel(INavigationServiceEx navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
@@ -49,8 +51,7 @@ namespace KDSVideo.ViewModels
             _historicalLoginDataHandler = historicalLoginDataHandler ?? throw new ArgumentNullException(nameof(historicalLoginDataHandler));
             _trustedLoginDataHandler = trustedLoginDataHandler ?? throw new ArgumentNullException(nameof(trustedLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
-
-            NavigateCommand = new RelayCommand(() => _navigationService.NavigateTo(ViewModelLocator.MainPageKey));
+            _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
 
             LoginCommand = new RelayCommand(Login, CanLogin);
 
@@ -76,7 +77,15 @@ namespace KDSVideo.ViewModels
                 }
 
                 var loginInfo = await _videoStation.LoginAsync(baseUri, username, password, otpCode, deviceId, deviceName, cipherText, proxy, cancellationToken);
-                return new LoginResult(loginInfo);
+                var librariesInfo = await _videoStation.LibraryListAsync(0, -1, cancellationToken);
+                var libraries = librariesInfo.Libraries.ToList().AsReadOnly();
+                if (librariesInfo.Libraries.Any())
+                {
+                    return new LoginResult(loginInfo, libraries);
+                }
+
+                throw new LoginException(ApplicationLevelErrorCodes.NoVideoLibraries);
+               
             }
             catch (Exception ex)
             {
@@ -84,6 +93,8 @@ namespace KDSVideo.ViewModels
 
                 switch (ex)
                 {
+                    case LoginException _:
+                        return new LoginResult(ex);
                     case OperationCanceledException _:
                         return new LoginResult(new LoginException(ApplicationLevelErrorCodes.OperationTimeOut));
                     case WebException webException when webException.Response == null:
@@ -130,13 +141,14 @@ namespace KDSVideo.ViewModels
             var deviceId = _trustedLoginDataHandler.GetDeviceId(Host, Account, Password);
             var cts = new CancellationTokenSource(_timeout);
             var loginResult = await LoginAsync(Host, Account, Password, null, deviceId, DeviceName, null, _webProxy, cts.Token);
+
             if (loginResult.Success)
             {
                 SaveAutoLogin();
                 SaveHistoricalLoginData();
                 SaveTrustedLoginData(deviceId);
                 ShowProgressIndicator = false;
-                _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
+                _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
                 return;
             }
 
@@ -166,7 +178,7 @@ namespace KDSVideo.ViewModels
                                 SaveAutoLogin();
                                 SaveHistoricalLoginData();
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
-                                _navigationService.NavigateTo(ViewModelLocator.MainPageKey);
+                                _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
                                 return;
                             }
                         }
@@ -215,8 +227,6 @@ namespace KDSVideo.ViewModels
         }
 
         private bool CanLogin() => HostIsValid() && AccountIsValid() && PasswordIsValid();
-
-        public RelayCommand NavigateCommand { get; }
 
         public RelayCommand LoginCommand { get; }
 

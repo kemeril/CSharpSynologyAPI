@@ -1,11 +1,11 @@
-﻿using System;
+﻿using CommonServiceLocator;
+using KDSVideo.Infrastructure;
+using KDSVideo.Views;
+using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Navigation;
 
 namespace KDSVideo
 {
@@ -14,6 +14,8 @@ namespace KDSVideo
     /// </summary>
     sealed partial class App : Application
     {
+        private readonly IServiceLocator _serviceLocator;
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -21,6 +23,7 @@ namespace KDSVideo
         public App()
         {
             InitializeComponent();
+            _serviceLocator = ServiceLocatorBuilder.Build();
             Suspending += OnSuspending;
         }
 
@@ -32,50 +35,35 @@ namespace KDSVideo
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             Windows.UI.Core.SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
-            Frame rootFrame = Window.Current.Content as Frame;
+            var navigationService = _serviceLocator.GetInstance<INavigationServiceEx>();
 
-            // Do not repeat app initialization when the Window already has content,
-            // just ensure that the window is active
-            if (rootFrame == null)
+            var mainPage = Window.Current.Content as MainPage;
+            if (mainPage == null)
             {
-                // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
-
-                rootFrame.NavigationFailed += OnNavigationFailed;
+                mainPage = new MainPage();
+                var rootFrame = mainPage.NavigationFrame;
+                InitNavigationFrame(rootFrame);
+                navigationService.CurrentFrame = rootFrame;
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
                     //TODO: Load state from previously suspended application
                 }
 
-                // Place the frame in the current Window
-                Window.Current.Content = rootFrame;
+                Window.Current.Content = mainPage;
             }
-
-            rootFrame.PointerPressed += On_PointerPressed;
 
             if (e.PrelaunchActivated == false)
             {
-                if (rootFrame.Content == null)
+                if (navigationService.CurrentFrame.Content == null)
                 {
-                    // When the navigation stack isn't restored navigate to the first page,
-                    // configuring the new page by passing required information as a navigation
-                    // parameter
-                    rootFrame.Navigate(typeof(Views.LoginPage), e.Arguments);
+                    // Set initial navigation page
+                    navigationService.NavigateTo(PageNavigationKey.LoginPage);
                 }
+
                 // Ensure the current window is active
                 Window.Current.Activate();
             }
-        }
-
-        /// <summary>
-        /// Invoked when Navigation to a certain page fails
-        /// </summary>
-        /// <param name="sender">The Frame which failed navigation</param>
-        /// <param name="e">Details about the navigation failure</param>
-        void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
-        {
-            throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
         }
 
         /// <summary>
@@ -92,30 +80,39 @@ namespace KDSVideo
             deferral.Complete();
         }
 
+        private void InitNavigationFrame(Frame frame)
+        {
+            if (frame != null)
+            {
+                frame.Navigating += (sender, args) => {};
+                frame.Navigated += (sender, args) => {};
+                frame.NavigationFailed += (sender, args) => throw new Exception("Failed to load Page " + args.SourcePageType.FullName);
+            }
+        }
+
         private void App_BackRequested(object sender, Windows.UI.Core.BackRequestedEventArgs e)
         {
-            e.Handled = On_BackRequested();
+            //e.Handled = On_BackRequested();
         }
 
-        private void On_PointerPressed(object sender, PointerRoutedEventArgs e)
-        {
-            bool isXButton1Pressed =
-                e.GetCurrentPoint(sender as UIElement).Properties.PointerUpdateKind == PointerUpdateKind.XButton1Pressed;
+        //private void On_PointerPressed(object sender, PointerRoutedEventArgs e)
+        //{
+        //    bool isXButton1Pressed = e.GetCurrentPoint(sender as UIElement).Properties.PointerUpdateKind == PointerUpdateKind.XButton1Pressed;
 
-            if (isXButton1Pressed)
-            {
-                e.Handled = On_BackRequested();
-            }
-        }
+        //    if (isXButton1Pressed)
+        //    {
+        //        e.Handled = On_BackRequested();
+        //    }
+        //}
 
-        private bool On_BackRequested()
-        {
-            if (Window.Current.Content is Frame rootFrame && rootFrame.CanGoBack)
-            {
-                rootFrame.GoBack();
-                return true;
-            }
-            return false;
-        }
+        //private bool On_BackRequested()
+        //{
+        //    if (Window.Current.Content is Frame rootFrame && rootFrame.CanGoBack)
+        //    {
+        //        rootFrame.GoBack();
+        //        return true;
+        //    }
+        //    return false;
+        //}
     }
 }

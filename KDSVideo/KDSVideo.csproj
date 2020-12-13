@@ -121,6 +121,10 @@
     </Compile>
     <Compile Include="Infrastructure\AutoLoginData.cs" />
     <Compile Include="Infrastructure\AutoLoginDataHandler.cs" />
+    <Compile Include="Infrastructure\INavigationServiceEx.cs" />
+    <Compile Include="Infrastructure\PageNavigationKey.cs" />
+    <Compile Include="Infrastructure\ServiceLocatorBuilder.cs" />
+    <Compile Include="Infrastructure\NavigationServiceEx.cs" />
     <Compile Include="Infrastructure\HistoricalLoginData.cs" />
     <Compile Include="Infrastructure\HistoricalLoginDataHandler.cs" />
     <Compile Include="Infrastructure\IAutoLoginDataHandler.cs" />
@@ -132,7 +136,9 @@
     <Compile Include="Infrastructure\INetworkService.cs" />
     <Compile Include="Infrastructure\TrustedLoginData.cs" />
     <Compile Include="Infrastructure\NetworkService.cs" />
+    <Compile Include="Messages\LoginMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UIHelpers\NavigationViewItemTemplateSelector.cs" />
     <Compile Include="ViewModels\ApplicationLevelErrorCodes.cs" />
     <Compile Include="ViewModels\LoginException.cs" />
     <Compile Include="ViewModels\LoginResult.cs" />
