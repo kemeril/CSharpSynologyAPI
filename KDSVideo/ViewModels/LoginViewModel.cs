@@ -13,10 +13,11 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace KDSVideo.ViewModels
 {
-    public class LoginViewModel : ViewModelBase
+    public class LoginViewModel : ViewModelBase, INavigable
     {
         private const string DeviceName = "UWP - KDS video";
 
@@ -288,6 +289,11 @@ namespace KDSVideo.ViewModels
         {
             get => _isEnabledCredentialsInput;
             private set => Set(nameof(IsEnabledCredentialsInput), ref _isEnabledCredentialsInput, value);
+        }
+
+        public void Navigated(in object sender, in NavigationEventArgs e)
+        {
+            Trace.WriteLine($"Navigated. NavigationMode:{e.NavigationMode}, Parameter:{e.Parameter}");
         }
     }
 }

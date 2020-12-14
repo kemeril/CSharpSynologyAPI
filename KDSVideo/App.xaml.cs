@@ -85,34 +85,38 @@ namespace KDSVideo
             if (frame != null)
             {
                 frame.Navigating += (sender, args) => {};
-                frame.Navigated += (sender, args) => {};
+                frame.Navigated += (sender, args) =>
+                {
+                    ((frame.Content as FrameworkElement)?.DataContext as INavigable)?.Navigated(sender, args);
+                };
+
                 frame.NavigationFailed += (sender, args) => throw new Exception("Failed to load Page " + args.SourcePageType.FullName);
+                //frame.PointerPressed += (sender, args) =>
+                //{
+                //    var isXButton1Pressed = args.GetCurrentPoint(sender as UIElement).Properties.PointerUpdateKind == PointerUpdateKind.XButton1Pressed;
+                //    if (isXButton1Pressed)
+                //    {
+                //        args.Handled = On_BackRequested();
+                //    }
+                //};
             }
         }
 
         private void App_BackRequested(object sender, Windows.UI.Core.BackRequestedEventArgs e)
         {
-            //e.Handled = On_BackRequested();
+            e.Handled = On_BackRequested();
         }
 
-        //private void On_PointerPressed(object sender, PointerRoutedEventArgs e)
-        //{
-        //    bool isXButton1Pressed = e.GetCurrentPoint(sender as UIElement).Properties.PointerUpdateKind == PointerUpdateKind.XButton1Pressed;
+        private bool On_BackRequested()
+        {
+            var navigationService = _serviceLocator.GetInstance<INavigationServiceEx>();
+            if (navigationService.CanGoBack)
+            {
+                navigationService.GoBack();
+                return true;
+            }
 
-        //    if (isXButton1Pressed)
-        //    {
-        //        e.Handled = On_BackRequested();
-        //    }
-        //}
-
-        //private bool On_BackRequested()
-        //{
-        //    if (Window.Current.Content is Frame rootFrame && rootFrame.CanGoBack)
-        //    {
-        //        rootFrame.GoBack();
-        //        return true;
-        //    }
-        //    return false;
-        //}
+            return false;
+        }
     }
 }

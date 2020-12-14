@@ -121,6 +121,7 @@
     </Compile>
     <Compile Include="Infrastructure\AutoLoginData.cs" />
     <Compile Include="Infrastructure\AutoLoginDataHandler.cs" />
+    <Compile Include="Infrastructure\INavigable.cs" />
     <Compile Include="Infrastructure\INavigationServiceEx.cs" />
     <Compile Include="Infrastructure\PageNavigationKey.cs" />
     <Compile Include="Infrastructure\ServiceLocatorBuilder.cs" />

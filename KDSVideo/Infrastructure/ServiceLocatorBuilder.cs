@@ -20,8 +20,10 @@ namespace KDSVideo.Infrastructure
 
             ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
 
-            var navigationService = new NavigationServiceEx();
-            navigationService.Configure(PageNavigationKey.LoginPage, typeof(LoginPage));
+            var navigationService = new NavigationServiceEx()
+                .Configure(PageNavigationKey.LoginPage, typeof(LoginPage))
+                .ConfigureBackNavigationTransition(NavigationServiceEx.RootPageKey, PageNavigationKey.LoginPage)
+                .ConfigureBackNavigationTransition(NavigationServiceEx.UnknownPageKey, PageNavigationKey.LoginPage);
 
             //Register your services used here
             SimpleIoc.Default.Register<IMessenger>(() => Messenger.Default);
