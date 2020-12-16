@@ -19,15 +19,15 @@ namespace KDSVideo.ViewModels
         
         private bool _disposedValue;
         private bool _isNavigationVisible;
-        private IReadOnlyCollection<NavigationItemBase> _libraries;
+        private IReadOnlyCollection<NavigationItemBase> _libraries = new List<NavigationItemBase>().AsReadOnly();
 
-        public RelayCommand NavigateCommand { get; }
+        public RelayCommand NavigateBackCommand { get; }
 
         public MainViewModel(INavigationService navigationService, IMessenger messenger)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
-            NavigateCommand = new RelayCommand(()=> _navigationService.NavigateTo(PageNavigationKey.LoginPage));
+            NavigateBackCommand = new RelayCommand(() => _navigationService.GoBack(), () => IsNavigationVisible);
             RegisterMessages();
         }
 
@@ -83,11 +83,13 @@ namespace KDSVideo.ViewModels
         private void RegisterMessages()
         {
             _messenger.Register<LoginMessage>(this, LoginMessageReceived);
+            _messenger.Register<LogoffMessage>(this, LogoffMessageReceived);
         }
 
         private void UnregisterMessages()
         {
             _messenger.Unregister<LoginMessage>(this, LoginMessageReceived);
+            _messenger.Unregister<LogoffMessage>(this, LogoffMessageReceived);
         }
 
         private void LoginMessageReceived(LoginMessage loginMessage)
@@ -95,6 +97,12 @@ namespace KDSVideo.ViewModels
             Libraries = GetLibraries(loginMessage.Libraries);
             IsNavigationVisible = true;
             _navigationService.ClearContent();
+        }
+
+        private void LogoffMessageReceived(LogoffMessage obj)
+        {
+            IsNavigationVisible = false;
+            Libraries = new List<NavigationItemBase>().AsReadOnly();
         }
 
         private IReadOnlyCollection<NavigationItemBase> GetLibraries(IEnumerable<Library> libraries)

@@ -65,17 +65,6 @@ namespace KDSVideo.Infrastructure
         bool CanGoBack { get; }
 
         /// <summary>
-        /// Gets a flag indicating if the CurrentFrame can navigate forward.
-        /// </summary>
-        bool CanGoForward { get; }
-
-        /// <summary>
-        /// Check if the CurrentFrame can navigate forward, and if yes, performs
-        /// a forward navigation.
-        /// </summary>
-        void GoForward();
-
-        /// <summary>
         /// Clear content of the CurrentFrame. 
         /// </summary>
         void ClearContent();

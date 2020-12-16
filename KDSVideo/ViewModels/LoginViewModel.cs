@@ -13,7 +13,6 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
 
 namespace KDSVideo.ViewModels
 {
@@ -21,7 +20,6 @@ namespace KDSVideo.ViewModels
     {
         private const string DeviceName = "UWP - KDS video";
 
-        private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IAutoLoginDataHandler _autoLoginDataHandler;
@@ -43,9 +41,8 @@ namespace KDSVideo.ViewModels
         private bool _showProgressIndicator;
         private bool _isEnabledCredentialsInput = true;
 
-        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
+        public LoginViewModel(IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
         {
-            _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
             _autoLoginDataHandler = autoLoginDataHandler ?? throw new ArgumentNullException(nameof(autoLoginDataHandler));
@@ -291,9 +288,9 @@ namespace KDSVideo.ViewModels
             private set => Set(nameof(IsEnabledCredentialsInput), ref _isEnabledCredentialsInput, value);
         }
 
-        public void Navigated(in object sender, in NavigationEventArgs e)
+        public void Navigated(in object sender, in KDSVideo.Infrastructure.NavigationEventArgs args)
         {
-            Trace.WriteLine($"Navigated. NavigationMode:{e.NavigationMode}, Parameter:{e.Parameter}");
+            Trace.WriteLine($"Navigated. NavigationMode:{args.NavigationMode}, Parameter:{args.Parameter}");
         }
     }
 }

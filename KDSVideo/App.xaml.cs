@@ -5,7 +5,6 @@ using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo
 {
@@ -42,7 +41,7 @@ namespace KDSVideo
             {
                 mainPage = new MainPage();
                 var rootFrame = mainPage.NavigationFrame;
-                InitNavigationFrame(rootFrame);
+                rootFrame.NavigationFailed += (sender, args) => throw new Exception("Failed to load Page " + args.SourcePageType.FullName);
                 navigationService.CurrentFrame = rootFrame;
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
@@ -78,28 +77,6 @@ namespace KDSVideo
             var deferral = e.SuspendingOperation.GetDeferral();
             //TODO: Save application state and stop any background activity
             deferral.Complete();
-        }
-
-        private void InitNavigationFrame(Frame frame)
-        {
-            if (frame != null)
-            {
-                frame.Navigating += (sender, args) => {};
-                frame.Navigated += (sender, args) =>
-                {
-                    ((frame.Content as FrameworkElement)?.DataContext as INavigable)?.Navigated(sender, args);
-                };
-
-                frame.NavigationFailed += (sender, args) => throw new Exception("Failed to load Page " + args.SourcePageType.FullName);
-                //frame.PointerPressed += (sender, args) =>
-                //{
-                //    var isXButton1Pressed = args.GetCurrentPoint(sender as UIElement).Properties.PointerUpdateKind == PointerUpdateKind.XButton1Pressed;
-                //    if (isXButton1Pressed)
-                //    {
-                //        args.Handled = On_BackRequested();
-                //    }
-                //};
-            }
         }
 
         private void App_BackRequested(object sender, Windows.UI.Core.BackRequestedEventArgs e)

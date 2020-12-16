@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace KDSVideo.Infrastructure
 {
     public class NavigationService : INavigationService
     {
-        /// <summary>
-        /// The key that is returned by the <see cref="CurrentPageKey"/> property when the current Page is the root page.
-        /// </summary>
-        public const string RootPageKey = "-- ROOT --";
-
         /// <summary>
         /// The key that is returned by the <see cref="CurrentPageKey"/> property when the current Page is not found.
         /// This can be the case when the navigation wasn't managed by this NavigationService,
@@ -25,6 +21,21 @@ namespace KDSVideo.Infrastructure
         private readonly Dictionary<string, string> _backNavigationTransitions = new Dictionary<string, string>();
 
         private Frame _currentFrame;
+
+        ///// <summary>
+        ///// Occurs when the content that is being navigated to has been found and is available from the Content property, although it may not have completed loading.
+        ///// </summary>
+        //public event NavigatedEventHandler Navigated;
+
+        /// <summary>
+        /// Occurs when a new navigation is requested.
+        /// </summary>
+        public EventHandler<NavigatingCancelEventArgs> Navigating;
+
+        /// <summary>
+        /// Occurs when the content that is being navigated to has been found and is available from the Content property, although it may not have completed loading.
+        /// </summary>
+        public EventHandler<NavigationEventArgs> Navigated;
 
         /// <summary>
         /// Gets or sets the Frame that should be use for the navigation.
@@ -39,22 +50,14 @@ namespace KDSVideo.Infrastructure
         /// <summary>
         /// Gets a flag indicating if the CurrentFrame can navigate backwards.
         /// </summary>
-        public bool CanGoBack => GetPreviousPageKey() != null;
-
-        /// <summary>
-        /// Gets a flag indicating if the CurrentFrame can navigate forward.
-        /// </summary>
-        public bool CanGoForward => false;
-
-        /// <summary>
-        /// Check if the CurrentFrame can navigate forward, and if yes, performs
-        /// a forward navigation.
-        /// </summary>
-        public void GoForward()
+        public bool CanGoBack
         {
-            if (CanGoForward)
+            get
             {
-                CurrentFrame.GoForward();
+                lock (_pagesByKey)
+                {
+                    return GetPreviousPageKey() != null;
+                }
             }
         }
 
@@ -67,32 +70,7 @@ namespace KDSVideo.Infrastructure
             {
                 lock (_pagesByKey)
                 {
-                    if (CurrentFrame == null)
-                    {
-                        return UnknownPageKey;
-                    }
-
-                    if (CurrentFrame.BackStackDepth == 0)
-                    {
-                        return RootPageKey;
-                    }
-
-                    if (CurrentFrame.Content == null)
-                    {
-                        return UnknownPageKey;
-                    }
-
-                    var currentType = CurrentFrame.Content.GetType();
-
-                    if (_pagesByKey.All(p => p.Value != currentType))
-                    {
-                        return UnknownPageKey;
-                    }
-
-                    var item = _pagesByKey.FirstOrDefault(
-                        i => i.Value == currentType);
-
-                    return item.Key;
+                    return GetCurrentPageKey();
                 }
             }
         }
@@ -103,10 +81,22 @@ namespace KDSVideo.Infrastructure
         /// </summary>
         public void GoBack()
         {
-            var previousPageKey = GetPreviousPageKey();
-            if (previousPageKey != null)
+            lock (_pagesByKey)
             {
-                NavigateTo(previousPageKey);
+                var previousPageKey = GetPreviousPageKey();
+                if (previousPageKey != null && _pagesByKey.ContainsKey(previousPageKey))
+                {
+                    var navigatingCancelEventArgs = new NavigatingCancelEventArgs(NavigationMode.Back, previousPageKey, null);
+                    Navigating?.Invoke(this, navigatingCancelEventArgs);
+                    if (!navigatingCancelEventArgs.Cancel)
+                    {
+                        lock (_pagesByKey)
+                        {
+                            CurrentFrame.Navigate(_pagesByKey[previousPageKey], null);
+                            Navigated?.Invoke(this, new NavigationEventArgs(NavigationMode.Back, previousPageKey, null));
+                        }
+                    }
+                }
             }
         }
 
@@ -146,7 +136,19 @@ namespace KDSVideo.Infrastructure
                     throw new ArgumentException($"No such page: {pageKey}. Did you forget to call NavigationService.Configure?", nameof(pageKey));
                 }
 
+                var currentPageKey = GetCurrentPageKey();
+                var navigationMode = pageKey.Equals(currentPageKey, StringComparison.Ordinal)
+                    ? NavigationMode.New
+                    : NavigationMode.Refresh;
+                var navigatingCancelEventArgs = new NavigatingCancelEventArgs(navigationMode, pageKey, parameter);
+                Navigating?.Invoke(this, navigatingCancelEventArgs);
+                if (navigatingCancelEventArgs.Cancel)
+                {
+                    return;
+                }
+
                 CurrentFrame.Navigate(_pagesByKey[pageKey], parameter);
+                Navigated?.Invoke(this, new NavigationEventArgs(navigationMode, pageKey, parameter));
             }
         }
 
@@ -157,7 +159,7 @@ namespace KDSVideo.Infrastructure
         /// <param name="pageType">The type of the page corresponding to the key.</param>
         public NavigationService Configure(string key, Type pageType)
         {
-            
+
             if (string.IsNullOrWhiteSpace(key))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(key));
@@ -203,6 +205,11 @@ namespace KDSVideo.Infrastructure
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(toPageKey));
             }
 
+            if (fromPageKey.Equals(toPageKey, StringComparison.Ordinal))
+            {
+                throw new ArgumentException("Values must not be equal.", $"{nameof(fromPageKey)}; {nameof(toPageKey)}");
+            }
+
             lock (_pagesByKey)
             {
                 if (_backNavigationTransitions.ContainsKey(fromPageKey))
@@ -246,8 +253,41 @@ namespace KDSVideo.Infrastructure
             }
         }
 
-        private string GetPreviousPageKey() => _backNavigationTransitions.TryGetValue(CurrentPageKey, out var toPageKey)
-                ? toPageKey
-                : null;
+        private string GetCurrentPageKey()
+        {
+            if (CurrentFrame?.Content == null)
+            {
+                return UnknownPageKey;
+            }
+
+            var currentType = CurrentFrame.Content.GetType();
+
+            if (_pagesByKey.All(p => p.Value != currentType))
+            {
+                return UnknownPageKey;
+            }
+
+            var item = _pagesByKey
+                .FirstOrDefault(i => i.Value == currentType);
+
+            return item.Key;
+        }
+
+        private string GetPreviousPageKey()
+        {
+            var currentPageKey = GetCurrentPageKey();
+            if (!string.IsNullOrEmpty(currentPageKey))
+            {
+                if (_backNavigationTransitions.TryGetValue(currentPageKey, out var toPageKey))
+                {
+                    if (_pagesByKey.ContainsKey(toPageKey))
+                    {
+                        return toPageKey;
+                    }
+                }
+            }
+            
+            return null;
+        }
     }
 }

@@ -1,0 +1,31 @@
+﻿using System;
+using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
+using KDSVideo.Infrastructure;
+using KDSVideo.Messages;
+
+namespace KDSVideo.ViewModels
+{
+    public class LogoffViewModel
+    {
+        public RelayCommand LogoffCommand { get; }
+
+        public LogoffViewModel(INavigationService navigationService, IMessenger messenger)
+        {
+            if (navigationService == null)
+            {
+                throw new ArgumentNullException(nameof(navigationService));
+            }
+            if (messenger == null)
+            {
+                throw new ArgumentNullException(nameof(messenger));
+            }
+            
+            LogoffCommand = new RelayCommand(() =>
+            {
+                messenger.Send(new LogoffMessage());
+                navigationService.NavigateTo(PageNavigationKey.LoginPage);
+            });
+        }
+    }
+}
