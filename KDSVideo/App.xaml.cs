@@ -35,7 +35,7 @@ namespace KDSVideo
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             Windows.UI.Core.SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
-            var navigationService = _serviceLocator.GetInstance<INavigationServiceEx>();
+            var navigationService = _serviceLocator.GetInstance<INavigationService>();
 
             var mainPage = Window.Current.Content as MainPage;
             if (mainPage == null)
@@ -109,11 +109,18 @@ namespace KDSVideo
 
         private bool On_BackRequested()
         {
-            var navigationService = _serviceLocator.GetInstance<INavigationServiceEx>();
-            if (navigationService.CanGoBack)
+            try
             {
-                navigationService.GoBack();
-                return true;
+                var navigationService = _serviceLocator.GetInstance<INavigationService>();
+                if (navigationService.CanGoBack)
+                {
+                    navigationService.GoBack();
+                    return true;
+                }
+            }
+            catch
+            {
+                // Intentional left blank
             }
 
             return false;

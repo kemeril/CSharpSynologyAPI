@@ -21,7 +21,7 @@ namespace KDSVideo.ViewModels
     {
         private const string DeviceName = "UWP - KDS video";
 
-        private readonly INavigationServiceEx _navigationService;
+        private readonly INavigationService _navigationService;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IAutoLoginDataHandler _autoLoginDataHandler;
@@ -43,7 +43,7 @@ namespace KDSVideo.ViewModels
         private bool _showProgressIndicator;
         private bool _isEnabledCredentialsInput = true;
 
-        public LoginViewModel(INavigationServiceEx navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
+        public LoginViewModel(INavigationService navigationService, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));

@@ -8,7 +8,7 @@ namespace KDSVideo.Infrastructure
     /// be performed in various frameworks such as Windows,
     /// Windows Phone, Android, iOS etc.
     /// </summary>
-    public interface INavigationServiceEx
+    public interface INavigationService
     {
         /// <summary>
         /// The key corresponding to the currently displayed page.

@@ -6,7 +6,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo.Infrastructure
 {
-    public class NavigationServiceEx : INavigationServiceEx
+    public class NavigationService : INavigationService
     {
         /// <summary>
         /// The key that is returned by the <see cref="CurrentPageKey"/> property when the current Page is the root page.
@@ -155,7 +155,7 @@ namespace KDSVideo.Infrastructure
         /// </summary>
         /// <param name="key">The key that will be used later in the <see cref="NavigateTo(string)"/> or <see cref="NavigateTo(string, object)"/> methods.</param>
         /// <param name="pageType">The type of the page corresponding to the key.</param>
-        public NavigationServiceEx Configure(string key, Type pageType)
+        public NavigationService Configure(string key, Type pageType)
         {
             
             if (string.IsNullOrWhiteSpace(key))
@@ -191,7 +191,7 @@ namespace KDSVideo.Infrastructure
         /// </summary>
         /// <param name="fromPageKey">The key that defines a page back navigation transition from.</param>
         /// <param name="toPageKey">The key that defines a page back navigation transition to.</param>
-        public NavigationServiceEx ConfigureBackNavigationTransition(string fromPageKey, string toPageKey)
+        public NavigationService ConfigureBackNavigationTransition(string fromPageKey, string toPageKey)
         {
             if (string.IsNullOrWhiteSpace(fromPageKey))
             {

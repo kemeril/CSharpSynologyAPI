@@ -14,7 +14,7 @@ namespace KDSVideo.ViewModels
 {
     public class MainViewModel : ViewModelBase, IDisposable
     {
-        private readonly INavigationServiceEx _navigationService;
+        private readonly INavigationService _navigationService;
         private readonly IMessenger _messenger;
         
         private bool _disposedValue;
@@ -23,7 +23,7 @@ namespace KDSVideo.ViewModels
 
         public RelayCommand NavigateCommand { get; }
 
-        public MainViewModel(INavigationServiceEx navigationService, IMessenger messenger)
+        public MainViewModel(INavigationService navigationService, IMessenger messenger)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
