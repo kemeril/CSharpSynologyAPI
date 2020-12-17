@@ -4,11 +4,12 @@
 
 namespace KDSVideo.Views
 {
-    public sealed partial class LogoffDialog : ContentDialog
+    public sealed partial class ErrorDialog : ContentDialog
     {
-        public LogoffDialog()
+        public ErrorDialog(string errorMessage)
         {
             this.InitializeComponent();
+            ErrorMessage.Text = errorMessage;
         }
     }
 }

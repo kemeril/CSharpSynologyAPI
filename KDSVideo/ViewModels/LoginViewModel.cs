@@ -189,7 +189,7 @@ namespace KDSVideo.ViewModels
                     {
                         if (!string.IsNullOrWhiteSpace(loginResult.ErrorMessage))
                         {
-                            // TODO: Display error message to the user
+                            await new ErrorDialog(loginResult.ErrorMessage).ShowAsync();
                         }
 
                         break;
