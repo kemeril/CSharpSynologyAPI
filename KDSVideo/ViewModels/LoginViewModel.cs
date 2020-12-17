@@ -288,7 +288,7 @@ namespace KDSVideo.ViewModels
             private set => Set(nameof(IsEnabledCredentialsInput), ref _isEnabledCredentialsInput, value);
         }
 
-        public void Navigated(in object sender, in KDSVideo.Infrastructure.NavigationEventArgs args)
+        public void Navigated(in object sender, in NavigationEventArgs args)
         {
             Trace.WriteLine($"Navigated. NavigationMode:{args.NavigationMode}, Parameter:{args.Parameter}");
         }

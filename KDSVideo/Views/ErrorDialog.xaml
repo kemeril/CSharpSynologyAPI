@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" BorderBrush="#FFFA4B4B"
     Title="Error"
-    DefaultButton="Primary"
-    PrimaryButtonText="OK">
+    DefaultButton="Close"
+    CloseButtonText="Close">
     <TextBlock Name="ErrorMessage" Text="ErrorMessage" HorizontalAlignment="Center"/>
 </ContentDialog>
