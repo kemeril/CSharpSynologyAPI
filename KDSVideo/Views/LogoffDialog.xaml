@@ -13,5 +13,5 @@
     CloseButtonText="Cancel"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
     DataContext="{Binding LogoffViewModel, Source={StaticResource Locator}}">
-    <TextBlock Text="Do you want to log off?" HorizontalAlignment="Center"/>
+    <TextBlock Text="Do you really want to log off?" HorizontalAlignment="Center"/>
 </ContentDialog>
