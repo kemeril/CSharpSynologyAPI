@@ -7,6 +7,7 @@ using KDSVideo.Views;
 using SynologyAPI;
 using SynologyRestDAL;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -40,6 +41,8 @@ namespace KDSVideo.ViewModels
         private bool _trustThisDevice;
         private bool _showProgressIndicator;
         private bool _isEnabledCredentialsInput = true;
+
+        private IReadOnlyCollection<HistoricalLoginData> _historicalLoginData = new List<HistoricalLoginData>().AsReadOnly();
 
         public LoginViewModel(IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
         {
@@ -122,6 +125,8 @@ namespace KDSVideo.ViewModels
 
             _historicalLoginDataHandler.AddOrUpdate(Host, Account, Password);
         }
+        
+        private void UpdateHistoricalLoginData() => HistoricalLoginData = _historicalLoginDataHandler.GetAll().ToList().AsReadOnly();
 
         private void SaveTrustedLoginData(string deviceId)
         {
@@ -145,6 +150,7 @@ namespace KDSVideo.ViewModels
                 SaveAutoLogin();
                 SaveHistoricalLoginData();
                 SaveTrustedLoginData(deviceId);
+                UpdateHistoricalLoginData();
                 ShowProgressIndicator = false;
                 _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
                 return;
@@ -176,6 +182,7 @@ namespace KDSVideo.ViewModels
                                 SaveAutoLogin();
                                 SaveHistoricalLoginData();
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
+                                UpdateHistoricalLoginData();
                                 _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
                                 return;
                             }
@@ -286,6 +293,12 @@ namespace KDSVideo.ViewModels
         {
             get => _isEnabledCredentialsInput;
             private set => Set(nameof(IsEnabledCredentialsInput), ref _isEnabledCredentialsInput, value);
+        }
+
+        public IReadOnlyCollection<HistoricalLoginData> HistoricalLoginData
+        {
+            get => _historicalLoginData;
+            private set => Set(nameof(HistoricalLoginData), ref _historicalLoginData, value);
         }
 
         public void Navigated(in object sender, in NavigationEventArgs args)
