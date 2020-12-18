@@ -1,6 +1,8 @@
-﻿using System;
+﻿using KDSVideo.ViewModels;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 
 namespace KDSVideo.Views
@@ -20,13 +22,11 @@ namespace KDSVideo.Views
         {
             var foreground = GetTextControlForegroundFocusedBrush();
             HostIcon.Foreground = foreground;
-            HostMoreIcon.Foreground = foreground;
         }
 
         private void Host_LostFocus(object sender, RoutedEventArgs e)
         {
             HostIcon.Foreground = Host.Foreground;
-            HostMoreIcon.Foreground = Host.Foreground;
         }
 
         private void Account_GotFocus(object sender, RoutedEventArgs e)
@@ -49,9 +49,12 @@ namespace KDSVideo.Views
             PasswordIcon.Foreground = Password.Foreground;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void LoginPage_OnProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
         {
-            Console.WriteLine("clicked");
+            if (args.Key == VirtualKey.Enter && args.Modifiers == VirtualKeyModifiers.None)
+            {
+                (DataContext as LoginViewModel)?.LoginCommand.Execute(null);
+            }
         }
     }
 }

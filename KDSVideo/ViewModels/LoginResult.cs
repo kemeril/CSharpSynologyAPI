@@ -54,6 +54,7 @@ namespace KDSVideo.ViewModels
                 {
                     // Application level error codes
                     case ApplicationLevelErrorCodes.InvalidHost: return "Invalid host.";
+                    case ApplicationLevelErrorCodes.QuickConnectIsNotSupported: return "QuickConnect connection type is not supported.";
                     case ApplicationLevelErrorCodes.OperationTimeOut: return "Operation time out.";
                     case ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished: return "A connection with the server could not be established.";
                     case ApplicationLevelErrorCodes.NoVideoLibraries: return "There is no video libraries is available for the user logged in.";

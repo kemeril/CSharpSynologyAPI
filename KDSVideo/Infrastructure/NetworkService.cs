@@ -28,7 +28,7 @@ namespace KDSVideo.Infrastructure
                 {
                     uriBuilder.Port = 5000; //Synology default port number
                 }
-                
+
                 var uri = uriBuilder.Uri;
                 
                 return uri;
@@ -36,7 +36,7 @@ namespace KDSVideo.Infrastructure
             catch (Exception e)
             {
                 Trace.TraceInformation(e.ToString());
-                return null;
+                throw;
             }
         }
 
@@ -79,9 +79,14 @@ namespace KDSVideo.Infrastructure
             switch (uriHostNameType)
             {
                 case UriHostNameType.Unknown:
+                    throw new NotSupportedException("Unknown host.");
                 case UriHostNameType.Basic:
+                    throw new NotSupportedException("Unknown host.");
                 case UriHostNameType.Dns:
-                    throw new NotSupportedException();
+                {
+                    //return false;
+                    throw new QuickConnectLoginNotSupportedException();
+                }
                 case UriHostNameType.IPv4:
                 {
                     const string pattern = @":\d";

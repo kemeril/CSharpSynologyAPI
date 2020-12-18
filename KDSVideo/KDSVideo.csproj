@@ -126,6 +126,7 @@
     <Compile Include="Infrastructure\NavigatingCancelEventArgs.cs" />
     <Compile Include="Infrastructure\NavigationEventArgs.cs" />
     <Compile Include="Infrastructure\PageNavigationKey.cs" />
+    <Compile Include="Infrastructure\QuickConnectLoginNotSupportedException.cs" />
     <Compile Include="Infrastructure\ServiceLocatorBuilder.cs" />
     <Compile Include="Infrastructure\NavigationService.cs" />
     <Compile Include="Infrastructure\HistoricalLoginData.cs" />
@@ -152,6 +153,9 @@
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\ErrorDialog.xaml.cs">
       <DependentUpon>ErrorDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LoginDialogHistoricalData.xaml.cs">
+      <DependentUpon>LoginDialogHistoricalData.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoginDialogOTPRequestDialog.xaml.cs">
       <DependentUpon>LoginDialogOTPRequestDialog.xaml</DependentUpon>
@@ -193,6 +197,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="Views\ErrorDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LoginDialogHistoricalData.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -9,5 +9,5 @@
     Title="Error"
     DefaultButton="Close"
     CloseButtonText="Close">
-    <TextBlock Name="ErrorMessage" Text="ErrorMessage" HorizontalAlignment="Center"/>
+    <TextBlock Name="ErrorMessage" Text="ErrorMessage" HorizontalAlignment="Center" MaxWidth="500" MaxHeight="400" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis"/>
 </ContentDialog>

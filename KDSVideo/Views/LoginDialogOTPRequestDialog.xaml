@@ -10,7 +10,7 @@
     DataContext="{Binding LoginViewModel, Source={StaticResource Locator}}"
     DefaultButton="Primary" PrimaryButtonText="OK"
     CloseButtonText="Cancel" Closing="ContentDialog_Closing">
-    <StackPanel Visibility="Visible">
+    <StackPanel>
         <TextBox  PlaceholderText="6-digit code" Background="#FF282A2C" BorderThickness="0" Margin="0,0,0,8"
                     Text="{Binding OtpCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="6"/>
         <CheckBox Content="Trust this device" IsChecked="{Binding TrustThisDevice, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>

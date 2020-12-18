@@ -13,6 +13,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo.ViewModels
@@ -32,6 +33,9 @@ namespace KDSVideo.ViewModels
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
         private IWebProxy _webProxy;
 
+        private RelayCommand _loginCommand;
+        private RelayCommand _selectHistoricalLoginDataCommand;
+
         private string _host = string.Empty;
         private string _account = string.Empty;
         private string _password = string.Empty;
@@ -43,6 +47,7 @@ namespace KDSVideo.ViewModels
         private bool _isEnabledCredentialsInput = true;
 
         private IReadOnlyCollection<HistoricalLoginData> _historicalLoginData = new List<HistoricalLoginData>().AsReadOnly();
+        private HistoricalLoginData _selectedHistoricalLoginData;
 
         public LoginViewModel(IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
         {
@@ -54,7 +59,8 @@ namespace KDSVideo.ViewModels
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
 
-            LoginCommand = new RelayCommand(Login, CanLogin);
+            _loginCommand = new RelayCommand(Login, CanLogin);
+            _selectHistoricalLoginDataCommand = new RelayCommand(SelectHistoricalLoginData);
 
             var autoLoginData = _autoLoginDataHandler.Get();
             if (autoLoginData != null)
@@ -74,15 +80,10 @@ namespace KDSVideo.ViewModels
             {
                 _webProxy = _networkService.GetProxy();
                 var baseUri = _networkService.GetHostUri(host);
-                if (baseUri == null)
-                {
-                    throw new LoginException(ApplicationLevelErrorCodes.InvalidHost);
-                }
-
                 var loginInfo = await _videoStation.LoginAsync(baseUri, username, password, otpCode, deviceId, deviceName, cipherText, proxy, cancellationToken);
                 var librariesInfo = await _videoStation.LibraryListAsync(0, -1, cancellationToken);
                 var libraries = librariesInfo.Libraries.ToList().AsReadOnly();
-                if (librariesInfo.Libraries.Any())
+                if (libraries.Any())
                 {
                     return new LoginResult(loginInfo, libraries);
                 }
@@ -96,6 +97,10 @@ namespace KDSVideo.ViewModels
 
                 switch (ex)
                 {
+                    case NotSupportedException _:
+                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.InvalidHost));
+                    case QuickConnectLoginNotSupportedException _:
+                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.QuickConnectIsNotSupported));
                     case LoginException _:
                         return new LoginResult(ex);
                     case OperationCanceledException _:
@@ -211,6 +216,18 @@ namespace KDSVideo.ViewModels
             }
         }
 
+        private async void SelectHistoricalLoginData()
+        {
+            SelectedHistoricalLoginData = null;
+            var loginDialogHistoricalData = new LoginDialogHistoricalData();
+            if (ContentDialogResult.Primary == await loginDialogHistoricalData.ShowAsync() && SelectedHistoricalLoginData != null)
+            {
+                Host = SelectedHistoricalLoginData.Host;
+                Account = SelectedHistoricalLoginData.Account;
+                Password = SelectedHistoricalLoginData.Password;
+            }
+        }
+
         private bool HostIsValid()
         {
             var host = (Host ?? string.Empty).Trim();
@@ -235,7 +252,9 @@ namespace KDSVideo.ViewModels
 
         private bool CanLogin() => HostIsValid() && AccountIsValid() && PasswordIsValid();
 
-        public RelayCommand LoginCommand { get; }
+        public ICommand LoginCommand => _loginCommand;
+        
+        public ICommand SelectHistoricalLoginDataCommand => _selectHistoricalLoginDataCommand;
 
         public string Host
         {
@@ -243,7 +262,7 @@ namespace KDSVideo.ViewModels
             set
             {
                 Set(nameof(Host), ref _host, value ?? string.Empty);
-                LoginCommand.RaiseCanExecuteChanged();
+                _loginCommand.RaiseCanExecuteChanged();
             }
         }
         
@@ -253,7 +272,7 @@ namespace KDSVideo.ViewModels
             set
             {
                 Set(nameof(Account), ref _account, value ?? string.Empty);
-                LoginCommand.RaiseCanExecuteChanged();
+                _loginCommand.RaiseCanExecuteChanged();
             }
         }
         
@@ -263,7 +282,7 @@ namespace KDSVideo.ViewModels
             set
             {
                 Set(nameof(Password), ref _password, value ?? string.Empty);
-                LoginCommand.RaiseCanExecuteChanged();
+                _loginCommand.RaiseCanExecuteChanged();
             }
         }
         
@@ -301,6 +320,12 @@ namespace KDSVideo.ViewModels
         {
             get => _historicalLoginData;
             private set => Set(nameof(HistoricalLoginData), ref _historicalLoginData, value);
+        }
+
+        public HistoricalLoginData SelectedHistoricalLoginData
+        {
+            get => _selectedHistoricalLoginData;
+            set => Set(nameof(SelectedHistoricalLoginData), ref _selectedHistoricalLoginData, value);
         }
 
         public void Navigated(in object sender, in NavigationEventArgs args)
