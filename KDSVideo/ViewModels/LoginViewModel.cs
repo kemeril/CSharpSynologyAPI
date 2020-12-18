@@ -64,6 +64,8 @@ namespace KDSVideo.ViewModels
                 Password = autoLoginData.Password ?? string.Empty;
                 RememberMe = !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) && !string.IsNullOrWhiteSpace(Password);
             }
+
+            ReloadHistoricalLoginData();
         }
 
         private async Task<LoginResult> LoginAsync(string host, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default)
@@ -126,7 +128,7 @@ namespace KDSVideo.ViewModels
             _historicalLoginDataHandler.AddOrUpdate(Host, Account, Password);
         }
         
-        private void UpdateHistoricalLoginData() => HistoricalLoginData = _historicalLoginDataHandler.GetAll().ToList().AsReadOnly();
+        private void ReloadHistoricalLoginData() => HistoricalLoginData = _historicalLoginDataHandler.GetAll().ToList().AsReadOnly();
 
         private void SaveTrustedLoginData(string deviceId)
         {
@@ -150,7 +152,7 @@ namespace KDSVideo.ViewModels
                 SaveAutoLogin();
                 SaveHistoricalLoginData();
                 SaveTrustedLoginData(deviceId);
-                UpdateHistoricalLoginData();
+                ReloadHistoricalLoginData();
                 ShowProgressIndicator = false;
                 _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
                 return;
@@ -182,7 +184,7 @@ namespace KDSVideo.ViewModels
                                 SaveAutoLogin();
                                 SaveHistoricalLoginData();
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
-                                UpdateHistoricalLoginData();
+                                ReloadHistoricalLoginData();
                                 _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
                                 return;
                             }
