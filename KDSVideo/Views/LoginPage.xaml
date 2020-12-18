@@ -25,7 +25,7 @@
             <TextBlock Text="KDS Video" Foreground="#FFFA4B4B" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,24" Grid.ColumnSpan="3" Grid.Row="0" FontSize="24"/>
 
             <TextBox x:Name="Host"
-                     Text="{Binding Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Text="{Binding Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="255"
                      Grid.Row="1" Padding="40,5,30,0" Margin="0,0,0,10" BorderThickness="0"
                      PlaceholderText="IP Address or QuickConnect ID" Background="#FF282A2C" GotFocus="Host_GotFocus" LostFocus="Host_LostFocus" />
             <FontIcon x:Name="HostIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE965;"  Grid.Row="1" Margin="8,0,0,10" HorizontalAlignment="Left"/>
@@ -34,14 +34,14 @@
                  Width="36" Height="31" Command="{Binding SelectHistoricalLoginDataCommand}"/>
 
             <TextBox x:Name="Account"
-                     Text="{Binding Account, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Text="{Binding Account, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="64"
                      Grid.Row="2" Padding="40,5,40,0" Margin="0,0,0,10" BorderThickness="0"
                      PlaceholderText="Account" Background="#FF282A2C"
                      GotFocus="Account_GotFocus" LostFocus="Account_LostFocus" />
             <FontIcon x:Name="AccountIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE13D;"  Grid.Row="2" Margin="8,0,0,10" HorizontalAlignment="Left" />
 
             <PasswordBox x:Name="Password"
-                         Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="127"
                          Grid.Row="3" Padding="40,5,40,0" Margin="0,0,0,10" BorderThickness="0"
                          PlaceholderText="Password" Background="#FF282A2C"
                          GotFocus="Password_GotFocus" LostFocus="Password_LostFocus" />

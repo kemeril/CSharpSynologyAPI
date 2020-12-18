@@ -18,7 +18,7 @@
         <ListView.ItemTemplate>
             <DataTemplate x:DataType="infrastructure:HistoricalLoginData">
                 <StackPanel AutomationProperties.Name="Host" Margin="0,6">
-                    <TextBlock Text="{Binding Host}" Margin="0,0,0,2"/>
+                    <TextBlock Text="{Binding Host}" Margin="0,0,0,2" MaxWidth="500" TextTrimming="CharacterEllipsis"/>
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{Binding Account}" Opacity="0.6"/>
                         <TextBlock Text=" / ********" Opacity="0.5"/>
