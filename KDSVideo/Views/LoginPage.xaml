@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
     DataContext="{Binding LoginViewModel, Source={StaticResource Locator}}">
@@ -49,7 +50,8 @@
         </Grid>
 
         <Grid Background="Black" Opacity="0.3" Visibility="{Binding ShowProgressIndicator, Converter={StaticResource BoolToVisibilityConverter}}">
-            <ProgressRing IsActive="{Binding ShowProgressIndicator}" />
+            <muxc:ProgressRing IsActive="{Binding ShowProgressIndicator}"
+                Width="80" Height="{Binding Width, RelativeSource={RelativeSource Mode=Self}}"/>
         </Grid>
     </Grid>
 </Page>
