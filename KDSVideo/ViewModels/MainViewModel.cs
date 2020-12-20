@@ -113,8 +113,6 @@ namespace KDSVideo.ViewModels
                 .Select(library => new NavigationCategory
                 {
                     Name = library.Title,
-                    Glyph = Symbol.Play,
-                    Tooltip = null,
                     Library = library
                 })
                 .ToArray();
@@ -123,8 +121,6 @@ namespace KDSVideo.ViewModels
                 .Select(library => new NavigationCategory
                 {
                     Name = library.Title,
-                    Glyph = Symbol.Play,
-                    Tooltip = null,
                     Library = library
                 })
                 .ToArray();

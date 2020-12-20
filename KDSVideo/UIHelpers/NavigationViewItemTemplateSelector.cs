@@ -11,8 +11,6 @@ namespace KDSVideo.UIHelpers
     public sealed class NavigationCategory : NavigationItemBase
     {
         public string Name { get; set; }
-        public string Tooltip { get; set; }
-        public Symbol Glyph { get; set; }
         public Library Library { get; set; }
     }
 
@@ -23,7 +21,6 @@ namespace KDSVideo.UIHelpers
         public string Name { get; set; }
     }
 
-    //[ContentProperty(Name = "ItemTemplate")]
     public sealed class NavigationViewItemTemplateSelector : DataTemplateSelector
     {
         public DataTemplate HeaderTemplate { get; set; }

@@ -23,15 +23,14 @@
         <DataTemplate x:Key="NavigationViewItemTemplate" x:DataType="local:NavigationCategory">
             <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind Library}">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                    <SymbolIcon Symbol="Play" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
-
         <DataTemplate x:Key="NavigationViewItemBuiltInPlayListTemplate" x:DataType="local:NavigationCategory">
             <NavigationViewItem Content="Play list" Tag="{x:Bind Library}">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                    <SymbolIcon Symbol="Play" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
@@ -45,7 +44,7 @@
         <DataTemplate x:Key="NavigationViewItemTvShowTemplate" x:DataType="local:NavigationCategory">
             <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind Library}">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                    <SymbolIcon Symbol="Play" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
@@ -59,21 +58,21 @@
         <DataTemplate x:Key="NavigationViewItemBuiltInTvShowTemplate" x:DataType="local:NavigationCategory">
             <NavigationViewItem Content="TV Show" Tag="{x:Bind Library}">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                    <SymbolIcon Symbol="Play" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
         <DataTemplate x:Key="NavigationViewItemHomeVideoTemplate" x:DataType="local:NavigationCategory">
             <NavigationViewItem Content="Home Video" Tag="{x:Bind Library}">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                    <SymbolIcon Symbol="Play" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
         <DataTemplate x:Key="NavigationViewItemTvRecordingTemplate" x:DataType="local:NavigationCategory">
             <NavigationViewItem Content="TV Recording" Tag="{x:Bind Library}">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                    <SymbolIcon Symbol="Play" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
