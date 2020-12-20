@@ -27,7 +27,7 @@
             <TextBox x:Name="Host"
                      Text="{Binding Host, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" MaxLength="255"
                      Grid.Row="1" Padding="40,5,30,0" Margin="0,0,0,10" BorderThickness="0"
-                     PlaceholderText="IP Address or QuickConnect ID" Background="#FF282A2C" GotFocus="Host_GotFocus" LostFocus="Host_LostFocus" />
+                     PlaceholderText="IP Address" Background="#FF282A2C" GotFocus="Host_GotFocus" LostFocus="Host_LostFocus" />
             <FontIcon x:Name="HostIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE965;"  Grid.Row="1" Margin="8,0,0,10" HorizontalAlignment="Left"/>
             <muxc:DropDownButton x:Name="HostDropDownButton"
                  Grid.Row="1" Margin="0,0,-36,0" HorizontalAlignment="Right" VerticalAlignment="Top"

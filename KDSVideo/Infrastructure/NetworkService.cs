@@ -7,6 +7,8 @@ namespace KDSVideo.Infrastructure
 {
     public class NetworkService : INetworkService
     {
+        private const string QUICKCONNECT_TO = "QuickConnect.to";
+
         public Uri GetHostUri(string host)
         {
             if (string.IsNullOrWhiteSpace(host))
@@ -16,15 +18,20 @@ namespace KDSVideo.Infrastructure
           
             try
             {
-                if (IsQuickConnectId(host))
+                var isQuickConnectId = IsQuickConnectId(host);
+                if (isQuickConnectId)
                 {
                     host = ConvertQuickConnectIdToHost(host);
+                    throw new QuickConnectLoginNotSupportedException();
                 }
 
                 host = CheckHostScheme(host);
 
                 var uriBuilder = new UriBuilder(host);
-                if (!DoesHostContainsPortNumber(host, uriBuilder.Uri.HostNameType))
+                
+                //TODO: Implement QuickConnectId based connection! Remark: the Synology relay server may redirect the request.
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (!isQuickConnectId && !DoesHostContainsPortNumber(host, uriBuilder.Uri.HostNameType))
                 {
                     uriBuilder.Port = 5000; //Synology default port number
                 }
@@ -44,7 +51,7 @@ namespace KDSVideo.Infrastructure
         /// A custom QuickConnect ID can include letters, numbers, and hyphens ("-"), and must start with a letter.
         /// </summary>
         /// <param name="host"></param>
-        /// <returns></returns>
+        /// <returns><c>true</c> if the host is a QuickConnect Id; otherwise <c>false</c>.</returns>
         private bool IsQuickConnectId(string host)
         {
             const string pattern = @"^[a-zA-Z][a-zA-Z0-9\-]*$";
@@ -52,10 +59,7 @@ namespace KDSVideo.Infrastructure
             return regex.IsMatch(host ?? string.Empty);
         }
 
-        private string ConvertQuickConnectIdToHost(string quickConnectId)
-        {
-            return "http://QuickConnect.to/" + quickConnectId;
-        }
+        private string ConvertQuickConnectIdToHost(string quickConnectId) => $"http://{QUICKCONNECT_TO}/{quickConnectId}/";
 
         private string CheckHostScheme(string host)
         {
@@ -73,20 +77,15 @@ namespace KDSVideo.Infrastructure
         /// </summary>
         /// <param name="host"></param>
         /// <param name="uriHostNameType"></param>
-        /// <returns></returns>
+        /// <returns><c>true</c> if the host already contains port number; otherwise <c>false</c>.</returns>
         private bool DoesHostContainsPortNumber(string host, UriHostNameType uriHostNameType)
         {
             switch (uriHostNameType)
             {
                 case UriHostNameType.Unknown:
-                    throw new NotSupportedException("Unknown host.");
                 case UriHostNameType.Basic:
                     throw new NotSupportedException("Unknown host.");
                 case UriHostNameType.Dns:
-                {
-                    //return false;
-                    throw new QuickConnectLoginNotSupportedException();
-                }
                 case UriHostNameType.IPv4:
                 {
                     const string pattern = @":\d";

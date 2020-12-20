@@ -61,7 +61,10 @@ namespace SynologyAPI
             var response = await request.GetResponseAsync(cancellationToken).ConfigureAwait(false);
 
             var responseStream = response?.GetResponseStream();
-            if (responseStream == null) return null;
+            if (responseStream == null)
+            {
+                return null;
+            }
 
             using (var reader = new StreamReader(responseStream))
             {
@@ -88,7 +91,7 @@ namespace SynologyAPI
                         Api(apiSpec.Key).
                         CgiPath(apiSpec.Value.Path).
                         Version(apiSpec.Value.MaxVersion.ToString()).
-                        Method("");
+                        Method(string.Empty);
         }
 
         public RequestBuilder CreateRequest(RequestBuilder requestBuilder, KeyValuePair<string, ApiSpec> apiSpec)
@@ -102,15 +105,14 @@ namespace SynologyAPI
         public async Task<T> PostFileAsync<T>(string apiName, string method, string fileName, Stream fileStream, string fileParam = "file", CancellationToken cancellationToken = default)
         {
             var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
-            return stationApi.Key == null ? default : 
-                JsonHelper.FromJson<T>(
+            return stationApi.Key == null
+                ? default
+                : JsonHelper.FromJson<T>(
                         _postFile(
                             CreateRequest((new RequestBuilder(Sid)).Session(Sid).Method(method), stationApi),
                             fileName,
                             fileStream,
-                            fileParam
-                       )
-            );
+                            fileParam));
         }
 
         public async Task<T> CallAsync<T>(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default)

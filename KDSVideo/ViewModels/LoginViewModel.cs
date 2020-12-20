@@ -182,16 +182,22 @@ namespace KDSVideo.ViewModels
                         {
                             ShowProgressIndicator = true;
                             cts = new CancellationTokenSource(_timeout);
-                            loginResult = await LoginAsync(Host, Account, Password, OtpCode, _deviceIdProvider.GetDeviceId(), DeviceName, null, _webProxy, cts.Token);
-                            ShowProgressIndicator = false;
+                            var newDeviceId = _deviceIdProvider.GetDeviceId();
+                            loginResult = await LoginAsync(Host, Account, Password, OtpCode, newDeviceId, DeviceName, null, _webProxy, cts.Token);
+
                             if (loginResult.Success)
                             {
                                 SaveAutoLogin();
                                 SaveHistoricalLoginData();
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
                                 ReloadHistoricalLoginData();
+                                ShowProgressIndicator = false;
                                 _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
                                 return;
+                            }
+                            else
+                            {
+                                ShowProgressIndicator = false;
                             }
                         }
                         else
