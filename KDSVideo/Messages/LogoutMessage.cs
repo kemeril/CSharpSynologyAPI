@@ -1,6 +1,6 @@
 ﻿namespace KDSVideo.Messages
 {
-    public class LogoffMessage
+    public class LogoutMessage
     {
     }
 }

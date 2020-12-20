@@ -23,7 +23,7 @@ namespace KDSVideo.ViewModels
             
             LogoffCommand = new RelayCommand(() =>
             {
-                messenger.Send(new LogoffMessage());
+                messenger.Send(new LogoutMessage());
                 navigationService.NavigateTo(PageNavigationKey.LoginPage);
             });
         }

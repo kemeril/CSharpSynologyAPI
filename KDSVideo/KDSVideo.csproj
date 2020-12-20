@@ -141,7 +141,7 @@
     <Compile Include="Infrastructure\TrustedLoginData.cs" />
     <Compile Include="Infrastructure\NetworkService.cs" />
     <Compile Include="Messages\LoginMessage.cs" />
-    <Compile Include="Messages\LogoffMessage.cs" />
+    <Compile Include="Messages\LogoutMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UIHelpers\NavigationViewItemTemplateSelector.cs" />
     <Compile Include="ViewModels\ApplicationLevelErrorCodes.cs" />

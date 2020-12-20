@@ -18,7 +18,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo.ViewModels
 {
-    public class LoginViewModel : ViewModelBase, INavigable
+    public class LoginViewModel : ViewModelBase, IDisposable, INavigable
     {
         private const string DeviceName = "UWP - KDS video";
 
@@ -29,6 +29,8 @@ namespace KDSVideo.ViewModels
         private readonly ITrustedLoginDataHandler _trustedLoginDataHandler;
         private readonly IVideoStation _videoStation;
         private readonly IMessenger _messenger;
+
+        private bool _disposedValue;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
         private IWebProxy _webProxy;
@@ -72,6 +74,54 @@ namespace KDSVideo.ViewModels
             }
 
             ReloadHistoricalLoginData();
+
+            RegisterMessages();
+        }
+
+        ~LoginViewModel()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposedValue)
+            {
+                if (disposing)
+                {
+                    UnregisterMessages();
+                }
+
+                _disposedValue = true;
+            }
+        }
+
+        private void RegisterMessages()
+        {
+            _messenger.Register<LogoutMessage>(this, LogoutMessageReceived);
+        }
+
+        private void UnregisterMessages()
+        {
+            _messenger.Unregister<LogoutMessage>(this, LogoutMessageReceived);
+        }
+
+        private async void LogoutMessageReceived(LogoutMessage logoffMessage)
+        {
+            try
+            {
+                await _videoStation.LogoutAsync();
+            }
+            catch (Exception e)
+            {
+                Trace.Write($"Logout failed. Exception: {e}");
+            }
         }
 
         private async Task<LoginResult> LoginAsync(string host, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default)

@@ -83,29 +83,29 @@ namespace KDSVideo.ViewModels
         private void RegisterMessages()
         {
             _messenger.Register<LoginMessage>(this, LoginMessageReceived);
-            _messenger.Register<LogoffMessage>(this, LogoffMessageReceived);
+            _messenger.Register<LogoutMessage>(this, LogoutMessageReceived);
         }
 
         private void UnregisterMessages()
         {
             _messenger.Unregister<LoginMessage>(this, LoginMessageReceived);
-            _messenger.Unregister<LogoffMessage>(this, LogoffMessageReceived);
+            _messenger.Unregister<LogoutMessage>(this, LogoutMessageReceived);
         }
 
         private void LoginMessageReceived(LoginMessage loginMessage)
         {
-            Libraries = GetLibraries(loginMessage.Libraries);
+            Libraries = ConvertLibraries(loginMessage.Libraries);
             IsNavigationVisible = true;
             _navigationService.ClearContent();
         }
 
-        private void LogoffMessageReceived(LogoffMessage obj)
+        private void LogoutMessageReceived(LogoutMessage logoffMessage)
         {
             IsNavigationVisible = false;
             Libraries = new List<NavigationItemBase>().AsReadOnly();
         }
 
-        private IReadOnlyCollection<NavigationItemBase> GetLibraries(IEnumerable<Library> libraries)
+        private IReadOnlyCollection<NavigationItemBase> ConvertLibraries(IEnumerable<Library> libraries)
         {
             var tmpLibraries = libraries as Library[] ?? libraries.ToArray();
             var builtInLibraries = tmpLibraries
