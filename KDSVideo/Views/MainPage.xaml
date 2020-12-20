@@ -27,10 +27,67 @@
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
         </DataTemplate>
+
+        <DataTemplate x:Key="NavigationViewItemBuiltInPlayListTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="Play list" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewItemMovieTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <PathIcon Foreground="LightGray" Data="F1 M 1.2,0.200003L 16.9812,0.200003C 17.5335,0.200003 17.9812,0.647715 17.9812,1.2L 17.9812,12.0063C 17.9812,12.5586 17.5335,13.0063 16.9812,13.0063L 1.2,13.0063C 0.647715,13.0063 0.2,12.5586 0.2,12.0063L 0.2,1.2C 0.2,0.647715 0.647715,0.200003 1.2,0.200003 Z M 6.09902,10.0845L 12.0749,6.6001L 6.09059,3.1314L 6.09902,10.0845 Z M 1.05913,1.11576L 1.05913,3.11576L 3.08991,3.11576L 3.08991,1.11576L 1.05913,1.11576 Z M 1.05913,4.11574L 1.05913,6.1157L 3.08991,6.1157L 3.08991,4.11574L 1.05913,4.11574 Z M 1.05914,7.14696L 1.05914,9.14696L 3.08992,9.14696L 3.08992,7.14696L 1.05914,7.14696 Z M 1.05914,10.1157L 1.05914,12.1157L 3.08992,12.1157L 3.08992,10.1157L 1.05914,10.1157 Z M 15.0908,1.11571L 15.0908,3.11571L 17.1216,3.11571L 17.1216,1.11571L 15.0908,1.11571 Z M 15.0908,4.11569L 15.0908,6.11568L 17.1216,6.11568L 17.1216,4.11569L 15.0908,4.11569 Z M 15.0908,7.14693L 15.0908,9.14693L 17.1216,9.14693L 17.1216,7.14693L 15.0908,7.14693 Z M 15.0908,10.1157L 15.0908,12.1157L 17.1216,12.1157L 17.1216,10.1157L 15.0908,10.1157 Z "/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewItemTvShowTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="{x:Bind Name}" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewItemBuiltInMovieTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="Movie" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <PathIcon Foreground="LightGray" Data="F1 M 1.2,0.200003L 16.9812,0.200003C 17.5335,0.200003 17.9812,0.647715 17.9812,1.2L 17.9812,12.0063C 17.9812,12.5586 17.5335,13.0063 16.9812,13.0063L 1.2,13.0063C 0.647715,13.0063 0.2,12.5586 0.2,12.0063L 0.2,1.2C 0.2,0.647715 0.647715,0.200003 1.2,0.200003 Z M 6.09902,10.0845L 12.0749,6.6001L 6.09059,3.1314L 6.09902,10.0845 Z M 1.05913,1.11576L 1.05913,3.11576L 3.08991,3.11576L 3.08991,1.11576L 1.05913,1.11576 Z M 1.05913,4.11574L 1.05913,6.1157L 3.08991,6.1157L 3.08991,4.11574L 1.05913,4.11574 Z M 1.05914,7.14696L 1.05914,9.14696L 3.08992,9.14696L 3.08992,7.14696L 1.05914,7.14696 Z M 1.05914,10.1157L 1.05914,12.1157L 3.08992,12.1157L 3.08992,10.1157L 1.05914,10.1157 Z M 15.0908,1.11571L 15.0908,3.11571L 17.1216,3.11571L 17.1216,1.11571L 15.0908,1.11571 Z M 15.0908,4.11569L 15.0908,6.11568L 17.1216,6.11568L 17.1216,4.11569L 15.0908,4.11569 Z M 15.0908,7.14693L 15.0908,9.14693L 17.1216,9.14693L 17.1216,7.14693L 15.0908,7.14693 Z M 15.0908,10.1157L 15.0908,12.1157L 17.1216,12.1157L 17.1216,10.1157L 15.0908,10.1157 Z "/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewItemBuiltInTvShowTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="TV Show" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewItemHomeVideoTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="Home Video" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+        <DataTemplate x:Key="NavigationViewItemTvRecordingTemplate" x:DataType="local:NavigationCategory">
+            <NavigationViewItem Content="TV Recording" Tag="{x:Bind Library}">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="{x:Bind Glyph}" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </DataTemplate>
+
         <local:NavigationViewItemTemplateSelector x:Key="NavigationViewItemTemplateSelector"
             SeparatorTemplate="{StaticResource NavigationViewSeparatorTemplate}"
             HeaderTemplate="{StaticResource NavigationViewHeaderTemplate}"
-            ItemTemplate="{StaticResource NavigationViewItemTemplate}"/>
+            ItemTemplate="{StaticResource NavigationViewItemTemplate}"
+            BuiltInMovieTemplate="{StaticResource NavigationViewItemBuiltInMovieTemplate}"
+            BuiltInTvShowTemplate="{StaticResource NavigationViewItemBuiltInTvShowTemplate}"
+            MovieTemplate="{StaticResource NavigationViewItemMovieTemplate}"
+            TvShowTemplate="{StaticResource NavigationViewItemTvShowTemplate}"
+            TvRecordingTemplate="{StaticResource NavigationViewItemTvRecordingTemplate}"
+            HomeVideoTemplate="{StaticResource NavigationViewItemHomeVideoTemplate}"/>
     </Page.Resources>
 
     <Grid>
