@@ -7,5 +7,6 @@
         public const string CurrentMoviePage = nameof(CurrentMoviePage);
         public const string TvShowPage = nameof(TvShowPage);
         public const string CurrentTvShowPage = nameof(CurrentTvShowPage);
+        public const string SettingsPage = nameof(SettingsPage);
     }
 }

@@ -1,0 +1,41 @@
+﻿<Page
+    x:Class="KDSVideo.Views.NavigationViews.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    DataContext="{Binding SettingsViewModel, Source={StaticResource Locator}}">
+
+    <StackPanel Margin="20">
+        <TextBlock Text="Settings" FontSize="16" Margin="0,0,0,16"/>
+        <ScrollViewer>
+            <StackPanel>
+                <TextBlock Text="Login Information" Foreground="#FFFA4B4B" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                
+                <TextBlock Text="Version" Foreground="Gray" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding ApplicationVersion, FallbackValue=1.0.0.0}" Foreground="LightGray" Margin="0,0,0,8"/>
+
+                <TextBlock Text="Disk Station" Foreground="Gray" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Host}" Foreground="LightGray" Margin="0,0,0,8"/>
+
+                <TextBlock Text="Account" Foreground="Gray" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding Account}" Foreground="LightGray" Margin="0,0,0,8"/>
+
+                <TextBlock Text="Video Settings" Foreground="#FFFA4B4B" FontSize="14" FontWeight="SemiBold" Margin="0,8,0,8"/>
+
+                <TextBlock Text="Playback Quality" Foreground="Gray" FontWeight="SemiBold"/>
+                <ComboBox Foreground="LightGray" MinWidth="150" Margin="0,8,0,8" SelectedIndex="{Binding PlaybackQuality, Mode=TwoWay}">
+                    <x:String>No transcoding</x:String>
+                    <x:String>High Quality</x:String>
+                    <x:String>Medium Quality</x:String>
+                    <x:String>Low Quality</x:String>
+                </ComboBox>
+
+                <TextBlock Text="AC3 Passthrough" Foreground="Gray" FontWeight="SemiBold"/>
+                <ToggleSwitch OffContent="Off" OnContent="On" IsOn="{Binding Ac3PassthroughIsEnabled, Mode=TwoWay}" />
+            </StackPanel>
+        </ScrollViewer>
+    </StackPanel>
+</Page>

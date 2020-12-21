@@ -7,6 +7,7 @@ using SynologyRestDAL.Vs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using KDSVideo.UIHelpers;
 
@@ -16,18 +17,20 @@ namespace KDSVideo.ViewModels
     {
         private readonly INavigationService _navigationService;
         private readonly IMessenger _messenger;
-        
+
         private bool _disposedValue;
         private bool _isNavigationVisible;
         private IReadOnlyCollection<NavigationItemBase> _libraries = new List<NavigationItemBase>().AsReadOnly();
 
-        public RelayCommand NavigateBackCommand { get; }
+        public ICommand NavigateBackCommand { get; }
+        public ICommand NavigateToCommand { get; }
 
         public MainViewModel(INavigationService navigationService, IMessenger messenger)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
             NavigateBackCommand = new RelayCommand(() => _navigationService.GoBack(), () => IsNavigationVisible);
+            NavigateToCommand = new RelayCommand<NavigationViewItemInvokedEventArgs>(NavigateToInvoked);
             RegisterMessages();
         }
 
@@ -96,7 +99,20 @@ namespace KDSVideo.ViewModels
         {
             Libraries = ConvertLibraries(loginMessage.Libraries);
             IsNavigationVisible = true;
-            _navigationService.ClearContent();
+
+            var initialLibrary = Libraries
+                .OfType<NavigationCategory>()
+                .Cast<NavigationCategory>()
+                .FirstOrDefault();
+
+            if (initialLibrary == null)
+            {
+                _navigationService.ClearContent();
+            }
+            else
+            {
+                NavigateToLibrary(initialLibrary.Library);
+            }
         }
 
         private void LogoutMessageReceived(LogoutMessage logoffMessage)
@@ -109,10 +125,10 @@ namespace KDSVideo.ViewModels
         {
             var tmpLibraries = libraries as Library[] ?? libraries.ToArray();
             var builtInLibraries = tmpLibraries
-                .Where(library => library.Id == 0 && library.Visible)
+                .Where(library => library.Id == 0 && library.Visible && library.LibraryType == LibraryType.Movie || library.LibraryType == LibraryType.TvShow)
                 .Select(library => new NavigationCategory
                 {
-                    Name = library.Title,
+                    Name = LibraryNameConverter.GetLibraryName(library),
                     Library = library
                 })
                 .ToArray();
@@ -120,13 +136,13 @@ namespace KDSVideo.ViewModels
                 .Where(library => library.Id != 0 && library.Visible)
                 .Select(library => new NavigationCategory
                 {
-                    Name = library.Title,
+                    Name = LibraryNameConverter.GetLibraryName(library),
                     Library = library
                 })
                 .ToArray();
 
             var result = new List<NavigationItemBase>(builtInLibraries);
-            
+
             // Add separator
             if (builtInLibraries.Length > 0 && customLibraries.Length > 0)
             {
@@ -136,6 +152,49 @@ namespace KDSVideo.ViewModels
             result.AddRange(customLibraries);
 
             return result;
+        }
+
+        private void NavigateToInvoked(NavigationViewItemInvokedEventArgs args)
+        {
+            // could also use a converter on the command parameter if you don't like
+            // the idea of passing in a NavigationViewItemInvokedEventArgs
+
+            if (args == null)
+            {
+                return;
+            }
+
+            if (args.IsSettingsInvoked)
+            {
+                _navigationService.NavigateTo(PageNavigationKey.SettingsPage);
+                return;
+            }
+            
+            if (!(args.InvokedItemContainer?.Tag is Library library))
+            {
+                return;
+            }
+
+            NavigateToLibrary(library);
+        }
+
+        private void NavigateToLibrary(Library library)
+        {
+            switch (library.LibraryType)
+            {
+                case LibraryType.Movie:
+                    _navigationService.NavigateTo(PageNavigationKey.MoviePage, library);
+                    break;
+                case LibraryType.TvShow:
+                    _navigationService.NavigateTo(PageNavigationKey.TvShowPage, library);
+                    break;
+                case LibraryType.HomeVideo:
+                case LibraryType.TvRecord:
+                case LibraryType.Unknown:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

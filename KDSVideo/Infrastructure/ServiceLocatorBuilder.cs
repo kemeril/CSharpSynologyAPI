@@ -7,6 +7,8 @@ using SynologyAPI;
 using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
+using GalaSoft.MvvmLight;
+using KDSVideo.Views.NavigationViews;
 
 namespace KDSVideo.Infrastructure
 {
@@ -25,11 +27,15 @@ namespace KDSVideo.Infrastructure
 
             var navigationService = new NavigationService()
                 .Configure(PageNavigationKey.LoginPage, typeof(LoginPage))
+                .Configure(PageNavigationKey.MoviePage, typeof(MoviePage))
+                .Configure(PageNavigationKey.TvShowPage, typeof(TVShowPage))
+                .Configure(PageNavigationKey.SettingsPage, typeof(SettingsPage))
                 .ConfigureBackNavigationTransition(NavigationService.UnknownPageKey, PageNavigationKey.LoginPage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.MoviePage, PageNavigationKey.LoginPage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.CurrentMoviePage, PageNavigationKey.MoviePage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.TvShowPage, PageNavigationKey.LoginPage)
-                .ConfigureBackNavigationTransition(PageNavigationKey.CurrentTvShowPage, PageNavigationKey.TvShowPage);
+                .ConfigureBackNavigationTransition(PageNavigationKey.CurrentTvShowPage, PageNavigationKey.TvShowPage)
+                .ConfigureBackNavigationTransition(PageNavigationKey.SettingsPage, PageNavigationKey.LoginPage);
 
             navigationService.Navigating += async (sender, args) =>
             {
@@ -55,9 +61,21 @@ namespace KDSVideo.Infrastructure
             SimpleIoc.Default.Register<ITrustedLoginDataHandler>(() => new TrustedLoginDataHandler());
             SimpleIoc.Default.Register<INetworkService>(() => new NetworkService());
             SimpleIoc.Default.Register<IVideoStation>(() => new VideoStation());
+            SimpleIoc.Default.Register<IVideoSettingsDataHandler>(() => new VideoSettingsDataHandler());
             SimpleIoc.Default.Register<INavigationService>(() => navigationService);
+            
+            if (ViewModelBase.IsInDesignModeStatic)
+            {
+                SimpleIoc.Default.Register<IApplicationInfoService>(() => new Mock.ApplicationInfoService());
+            }
+            else
+            {
+                SimpleIoc.Default.Register<IApplicationInfoService>(() => new ApplicationInfoService());
+            }
+
             SimpleIoc.Default.Register<LoginViewModel>();
             SimpleIoc.Default.Register<LogoffViewModel>();
+            SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<MainViewModel>();
 
             _serviceLocator = ServiceLocator.Current;

@@ -12,7 +12,10 @@ namespace KDSVideo.Infrastructure
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
 
-            if (!settingValues.TryGetValue(AutoLoginDataHandlerKey, out var valueObject)) return null;
+            if (!settingValues.TryGetValue(AutoLoginDataHandlerKey, out var valueObject))
+            {
+                return null;
+            }
 
             return valueObject != null && !string.IsNullOrWhiteSpace((string)valueObject)
                 ? JsonHelper.FromJson<AutoLoginData>((string)valueObject)

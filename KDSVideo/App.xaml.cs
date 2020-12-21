@@ -5,6 +5,7 @@ using System;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
+using KDSVideo.ViewModels;
 
 namespace KDSVideo
 {
@@ -56,6 +57,8 @@ namespace KDSVideo
             {
                 if (navigationService.CurrentFrame.Content == null)
                 {
+                    ViewModelLocator.Init();
+                    
                     // Set initial navigation page
                     navigationService.NavigateTo(PageNavigationKey.LoginPage);
                 }

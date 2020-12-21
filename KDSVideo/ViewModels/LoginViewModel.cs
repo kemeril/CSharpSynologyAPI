@@ -210,7 +210,7 @@ namespace KDSVideo.ViewModels
                 SaveTrustedLoginData(deviceId);
                 ReloadHistoricalLoginData();
                 ShowProgressIndicator = false;
-                _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
+                _messenger.Send(new LoginMessage(Host, Account, loginResult.Libraries));
                 return;
             }
 
@@ -243,7 +243,7 @@ namespace KDSVideo.ViewModels
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
                                 ReloadHistoricalLoginData();
                                 ShowProgressIndicator = false;
-                                _messenger.Send(new LoginMessage(Account, loginResult.Libraries));
+                                _messenger.Send(new LoginMessage(Host, Account, loginResult.Libraries));
                                 return;
                             }
                             else
