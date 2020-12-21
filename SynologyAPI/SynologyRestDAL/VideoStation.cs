@@ -144,7 +144,11 @@ namespace SynologyRestDAL
                 set
                 {
                     var dateParts = value.Split('-');
-                    if (dateParts.Length < 3) return;
+                    if (dateParts.Length < 3)
+                    {
+                        return;
+                    }
+                    
                     OriginalAvailable = new DateTime(Int32.Parse(dateParts[0]), Int32.Parse(dateParts[1]),
                         Int32.Parse(dateParts[2]));
                 }
@@ -174,8 +178,7 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return
-                    string.Format(
+                return string.Format(
                         "SortTitle: {0}, Title: {1}, MetadataLocked: {2}, Id: {3}, MapperId: {4}, OriginalAvailable: {5}, OriginalAvailableSetter: {6}",
                         SortTitle, Title, MetadataLocked, Id, MapperId, OriginalAvailable, OriginalAvailableSetter);
             }

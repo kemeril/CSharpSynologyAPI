@@ -114,9 +114,10 @@ namespace KDSVideo.ViewModels
 
         private async void LogoutMessageReceived(LogoutMessage logoffMessage)
         {
+            var cts = new CancellationTokenSource(_timeout);
             try
             {
-                await _videoStation.LogoutAsync();
+                await _videoStation.LogoutAsync(cts.Token);
             }
             catch (Exception e)
             {
