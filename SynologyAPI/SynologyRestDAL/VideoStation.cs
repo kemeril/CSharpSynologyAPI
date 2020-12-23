@@ -110,7 +110,7 @@ namespace SynologyRestDAL
         public class FolderInfo : Info
         {
             [DataMember(Name = "objects")]
-            public IEnumerable<Folder> Folders { get; set; }
+            public IEnumerable<FileSystemObject> FileSystemObjects { get; set; }
         }
 
         [DataContract]
@@ -487,7 +487,7 @@ namespace SynologyRestDAL
         }
 
         [DataContract]
-        public class Folder
+        public class FileSystemObject
         {
             /// <summary>
             /// Number of files. Min value is 0.
@@ -525,7 +525,7 @@ namespace SynologyRestDAL
             /// <summary>
             /// Type.
             /// Optional.
-            /// Sample: "folder"
+            /// Sample: "folder", "file"
             /// </summary>
             [DataMember(Name = "type")]
             public string Type { get; set; }
@@ -590,10 +590,26 @@ namespace SynologyRestDAL
             /// </summary>
             public DateTime? PosterMTime
             {
-                get => !string.IsNullOrWhiteSpace(PosterMTimeSetter)
-                    ? XmlConvert.ToDateTime(PosterMTimeSetter, XmlDateTimeSerializationMode.Unspecified)
-                    : (DateTime?)null;
-                set => PosterMTimeSetter = value?.ToString("yy-MM-dd HH:mm:dd.fff", CultureInfo.InvariantCulture);
+                get
+                {
+                    if (string.IsNullOrWhiteSpace(PosterMTimeSetter))
+                    {
+                        return null;
+                    }
+                    
+                    try
+                    {
+                        var formats = new[] { "yyyy-M-d H:m:s", "yyyy-M-d H:m:s.FFFFFF" };
+                        var result = DateTime.ParseExact(PosterMTimeSetter, formats, CultureInfo.InvariantCulture, DateTimeStyles.None);
+                        return result;
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.TraceWarning($"Invalid date format received from the NAS server: {PosterMTimeSetter}. Exception: {ex}.");
+                        return null;
+                    }
+                }
+                set => PosterMTimeSetter = value?.ToString("yyyy-MM-dd HH:mm:ss.fff", CultureInfo.InvariantCulture);
             }
 
             /// <summary>

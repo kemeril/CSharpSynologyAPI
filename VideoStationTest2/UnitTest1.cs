@@ -160,6 +160,84 @@ namespace VideoStationTest2
         }
 
         [TestMethod]
+        public void Test_FolderList_Movie()
+        {
+            var result = VideoStation.LibraryListAsync().GetAwaiter().GetResult();
+            var libraries = result.Libraries.ToList();
+
+            Assert.IsTrue(libraries.Any());
+
+            var builtinMovieLibrary = libraries.FirstOrDefault(library => library.LibraryType == LibraryType.Movie && library.Id == 0);
+            Assert.IsNotNull(builtinMovieLibrary);
+
+            var folderResult = VideoStation.FolderListAsync(builtinMovieLibrary.Id, string.Empty, builtinMovieLibrary.LibraryType)
+                .GetAwaiter().GetResult();
+
+            Assert.IsTrue(folderResult.FileSystemObjects.Any());
+
+            var firstFolder = folderResult.FileSystemObjects.First();
+            var innerFolderResult = VideoStation.FolderListAsync(builtinMovieLibrary.Id, firstFolder.Id, builtinMovieLibrary.LibraryType)
+                .GetAwaiter().GetResult();
+
+            Assert.IsNotNull(innerFolderResult);
+        }
+
+        [TestMethod]
+        public void Test_FolderList_TvShow()
+        {
+            var result = VideoStation.LibraryListAsync().GetAwaiter().GetResult();
+            var libraries = result.Libraries.ToList();
+
+            Assert.IsTrue(libraries.Any());
+
+            var builtinTvShowLibrary = libraries.FirstOrDefault(library => library.LibraryType == LibraryType.TvShow && library.Id == 0);
+            Assert.IsNotNull(builtinTvShowLibrary);
+
+            var folderResult = VideoStation.FolderListAsync(builtinTvShowLibrary.Id, string.Empty, builtinTvShowLibrary.LibraryType)
+                .GetAwaiter().GetResult();
+
+            Assert.IsTrue(folderResult.FileSystemObjects.Any());
+
+            var firstFolder = folderResult.FileSystemObjects.First();
+            var innerFolderResult = VideoStation.FolderListAsync(builtinTvShowLibrary.Id, firstFolder.Id, builtinTvShowLibrary.LibraryType)
+                .GetAwaiter().GetResult();
+
+            Assert.IsNotNull(innerFolderResult);
+        }
+        
+                [TestMethod]
+        public void Test_FolderList_TvShow2()
+        {
+            var result = VideoStation.LibraryListAsync().GetAwaiter().GetResult();
+            var libraries = result.Libraries.ToList();
+
+            Assert.IsTrue(libraries.Any());
+
+            var builtinTvShowLibrary = libraries.FirstOrDefault(library => library.LibraryType == LibraryType.TvShow && library.Id == 0);
+            Assert.IsNotNull(builtinTvShowLibrary);
+
+            var folderResult = VideoStation.FolderListAsync(builtinTvShowLibrary.Id, string.Empty, builtinTvShowLibrary.LibraryType)
+                .GetAwaiter().GetResult();
+
+            Assert.IsTrue(folderResult.FileSystemObjects.Any());
+
+            var customFolder = folderResult.FileSystemObjects
+                .FirstOrDefault(folder => "/volume1/video/TV_Show/Autókereskedők".Equals(folder.Id, StringComparison.InvariantCulture));
+            Assert.IsNotNull(customFolder);
+            var innerFolderResult = VideoStation.FolderListAsync(builtinTvShowLibrary.Id, customFolder.Id, builtinTvShowLibrary.LibraryType)
+                .GetAwaiter().GetResult();
+
+            Assert.IsNotNull(innerFolderResult);
+
+            var firstInnerFolder = innerFolderResult.FileSystemObjects.FirstOrDefault();
+            Assert.IsNotNull(firstInnerFolder);
+
+            var innerInnerFolderResult = VideoStation.FolderListAsync(builtinTvShowLibrary.Id, firstInnerFolder.Id, builtinTvShowLibrary.LibraryType)
+                .GetAwaiter().GetResult();
+            Assert.IsNotNull(innerInnerFolderResult);
+        }
+
+        [TestMethod]
         public void Test_Poster_Movie()
         {
             const int libraryId = 0; //Built in library
