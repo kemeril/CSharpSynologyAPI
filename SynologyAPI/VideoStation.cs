@@ -27,6 +27,7 @@ namespace SynologyAPI
         private const string ApiSynoVideoStationSubtitle = "SYNO.VideoStation.Subtitle";
         private const string ApiSynoVideoStationAudioTrack = "SYNO.VideoStation.AudioTrack";
         private const string ApiSynoVideoStationWatchStatus = "SYNO.VideoStation.WatchStatus";
+        private const string ApiSynoVideoStationFolder = "SYNO.VideoStation.Folder";
         // ReSharper restore InconsistentNaming
 
         private const string MethodList = "list";
@@ -70,7 +71,7 @@ namespace SynologyAPI
             implementedApi.Add("SYNO.VideoStation.Movie", 1);
             implementedApi.Add(ApiSynoVideoStationSubtitle, 2);
             implementedApi.Add(ApiSynoVideoStationAudioTrack, 1);
-            implementedApi.Add("SYNO.VideoStation.Folder", 1);
+            implementedApi.Add(ApiSynoVideoStationFolder, 1);
             implementedApi.Add(ApiSynoVideoStationWatchStatus, 1);
 
             return implementedApi;
@@ -142,7 +143,7 @@ namespace SynologyAPI
         /// <param name="limit">Limit the number of the retrieved elements. It has take effect if the value is greater or equal to 0.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>Returns <see cref="TvShowsInfo"/>.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<TvShowsInfo> TvShowListAsync(int libraryId, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
             var tvShowsResult = await CallMethodAsync<TvShowsResult>(ApiSynoVideoStationTvShow, MethodList,
@@ -170,7 +171,7 @@ namespace SynologyAPI
         /// <param name="limit">Limit the number of the retrieved elements. It has take effect if the value is greater or equal to 0.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>Returns <see cref="TvEpisodesInfo"/>.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<TvEpisodesInfo> TvShowEpisodeListAsync(int libraryId, int tvShowId, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
             var tvEpisodesResult = await CallMethodAsync<TvEpisodesResult>(ApiSynoVideoStationTvShowEpisode, MethodList,
@@ -192,7 +193,7 @@ namespace SynologyAPI
         /// <param name="tvShowEpisodeId"></param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>Returns <see cref="TvEpisodeInfo"/>.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<TvEpisodeInfo> TvShowEpisodeGetInfoAsync(int tvShowEpisodeId, CancellationToken cancellationToken = default(CancellationToken))
         {
             var tvEpisodesResult = await CallMethodAsync<TvEpisodeResult>(ApiSynoVideoStation2TvShowEpisode, MethodGetInfo, new ReqParams
@@ -211,7 +212,7 @@ namespace SynologyAPI
         #region Movie
 
         /// <summary>
-        /// Get movies
+        /// Get movies.
         /// </summary>
         /// <param name="libraryId">Id of a Library. Library list can be retrieve by <see cref="LibraryListAsync"/> method. The built in libraries has 0 value such as built in Movies, TVShows, HomeVideos, TVRecordings. User added libraries has an own id value.</param>
         /// <param name="sortBy">Add sorting by <see cref="SortBy"/></param>
@@ -220,8 +221,8 @@ namespace SynologyAPI
         /// <param name="limit">Limit the number of the retrieved elements. It has take effect if the value is greater or equal to 0.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>Returns <see cref="MoviesInfo"/>.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
-        public async Task<MoviesInfo> MovieList(int libraryId, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
+        public async Task<MoviesInfo> MovieListAsync(int libraryId, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
             var movieResult = await CallMethodAsync<MovieResult>(ApiSynoVideoStationMovie, MethodList,
                 new ReqParams
@@ -237,6 +238,54 @@ namespace SynologyAPI
 
         #endregion
 
+        #region Folder
+
+        private static string LibraryTypeToString(LibraryType libraryType)
+        {
+            switch (libraryType)
+            {
+                case LibraryType.Movie: return "movie";
+                case LibraryType.TvShow: return "tvshow";
+                case LibraryType.HomeVideo: return "home_video";
+                case LibraryType.TvRecord: return "tv_record";
+                case LibraryType.Unknown:
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(libraryType), libraryType, "Unsupported LibraryType. Supported Media types are: Movie, TVShow, HomeVideo, TvRecord");
+            }
+        }
+
+        /// <summary>
+        /// Get Folders.
+        /// </summary>
+        /// <param name="libraryId">Id of a Library. Library list can be retrieve by <see cref="LibraryListAsync"/> method. The built in libraries has 0 value such as built in Movies, TVShows, HomeVideos, TVRecordings. User added libraries has an own id value.</param>
+        /// <param name="libraryType"><see cref="LibraryType"/>, according the type of the <paramref name="libraryId"/></param>
+        /// <param name="id">The id of the folder is requested. See <see cref="Folder.Id"/>. Optional. If not specified the root folder list is requested.</param>
+        /// <param name="sortBy">Add sorting by <see cref="SortBy"/></param>
+        /// <param name="sortDirection">Add sorting direction if <paramref name="sortBy"/> is not equals to <see cref="SortBy.None"/></param>
+        /// <param name="offset">Skip the given number of elements.  It has take effect if the value is greater than 0.</param>
+        /// <param name="limit">Limit the number of the retrieved elements. It has take effect if the value is greater or equal to 0.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>Returns <see cref="MoviesInfo"/>.</returns>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
+        public async Task<FolderInfo> FolderListAsync(int libraryId, string id, LibraryType libraryType, SortBy sortBy = SortBy.None, SortDirection sortDirection = SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            var folderResult = await CallMethodAsync<FolderResult>(ApiSynoVideoStationFolder, MethodList,
+                new ReqParams
+                {
+                    {"library_id", libraryId.ToString()},
+                    {"additional", Additional},
+                    {"id", id ?? string.Empty},
+                    {"type", LibraryTypeToString(libraryType)},
+                    {"preview_video", "4"}
+                }.SortBy(sortBy, sortDirection).Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
+            if (!folderResult.Success)
+                throw new SynoRequestException(ApiSynoVideoStationMovie, MethodList, folderResult.Error.Code);
+
+            return folderResult.Data;
+        }
+
+        #endregion
+
         #region Library
 
         /// <summary>
@@ -246,7 +295,7 @@ namespace SynologyAPI
         /// <param name="limit">Limit the number of the retrieved elements. It has take effect if the value is greater or equal to 0.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>Returns <see cref="LibrariesInfo"/>.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<LibrariesInfo> LibraryListAsync(int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
             var librariesResult =  await CallMethodAsync<LibrariesResult>(ApiSynoVideoStationLibrary, MethodList, new ReqParams().Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
@@ -442,7 +491,7 @@ namespace SynologyAPI
         /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The <see cref="WebRequest"/> instance for download the poster image for a media.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<WebRequest> PosterGetImageAsync(int id, MediaType mediaType, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await GetWebRequestAsync(ApiSynoVideoStationPoster, MethodGetImage, new ReqParams
@@ -463,7 +512,7 @@ namespace SynologyAPI
         /// <param name="mapperId">MapperId of the media whose backdrop image wants to be downloaded. <see cref="MetaDataItem.MapperId"/></param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The <see cref="WebRequest"/> instance for download the backdrop image for a media.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<WebRequest> BackdropGetAsync(int mapperId, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await GetWebRequestAsync(ApiSynoVideoStationBackdrop, MethodGet, new ReqParams
@@ -546,7 +595,7 @@ namespace SynologyAPI
         /// <param name="id">Id of the media whose watch status information wants to be queried. <see cref="MetaDataItem.Id"/></param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>Returns <see cref="WatchStatusInfo"/> about watch status information</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<WatchStatusInfo> WatchStatusGetInfoAsync(int id, CancellationToken cancellationToken = default(CancellationToken))
         {
             var watchStatusResult = await CallMethodAsync<WatchStatusResult>(ApiSynoVideoStationWatchStatus, MethodGetInfo,
@@ -567,7 +616,7 @@ namespace SynologyAPI
         /// <param name="id">Id of the media whose poster image wants to be downloaded. <see cref="MetaDataItem.Id"/></param>
         /// <param name="position"></param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task WatchStatusSetInfoAsync(int id, long position, CancellationToken cancellationToken = default(CancellationToken))
         {
             var result = await CallMethodAsync<Result>(ApiSynoVideoStationWatchStatus, MethodSetInfo,

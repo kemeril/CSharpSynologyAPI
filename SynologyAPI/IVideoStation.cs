@@ -57,7 +57,23 @@ namespace SynologyAPI
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>Returns <see cref="MoviesInfo"/>.</returns>
         /// <exception cref="SynoRequestException"> is throws on error</exception>
-        Task<MoviesInfo> MovieList(int libraryId, VideoStation.SortBy sortBy = VideoStation.SortBy.None, VideoStation.SortDirection sortDirection = VideoStation.SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default);
+        Task<MoviesInfo> MovieListAsync(int libraryId, VideoStation.SortBy sortBy = VideoStation.SortBy.None, VideoStation.SortDirection sortDirection = VideoStation.SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Get Folders.
+        /// </summary>
+        /// <param name="libraryId">Id of a Library. Library list can be retrieve by <see cref="LibraryListAsync"/> method. The built in libraries has 0 value such as built in Movies, TVShows, HomeVideos, TVRecordings. User added libraries has an own id value.</param>
+        /// <param name="libraryType"><see cref="LibraryType"/>, according the type of the <paramref name="libraryId"/></param>
+        /// <param name="id">The id of the folder is requested. See <see cref="Folder.Id"/>. Optional. If not specified the root folder list is requested.</param>
+        /// <param name="sortBy">Add sorting by <see cref="VideoStation.SortBy"/></param>
+        /// <param name="sortDirection">Add sorting direction if <paramref name="sortBy"/> is not equals to <see cref="VideoStation.SortBy.None"/></param>
+        /// <param name="offset">Skip the given number of elements.  It has take effect if the value is greater than 0.</param>
+        /// <param name="limit">Limit the number of the retrieved elements. It has take effect if the value is greater or equal to 0.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns>Returns <see cref="MoviesInfo"/>.</returns>
+        /// <exception cref="SynoRequestException"> is thrown on error</exception>
+        Task<FolderInfo> FolderListAsync(int libraryId, string id, LibraryType libraryType, VideoStation.SortBy sortBy = VideoStation.SortBy.None, VideoStation.SortDirection sortDirection = VideoStation.SortDirection.Ascending, int offset = 0, int limit = -1, CancellationToken cancellationToken = default);
+
 
         /// <summary>
         /// Get libraries.
@@ -86,8 +102,7 @@ namespace SynologyAPI
         /// Opening error on the server side.
         /// There is a special error code: 1204. It means that the stream tried to open in non raw format but the server not supported this mode for the video by the possible reason the applied video or audio codec cannot be transcoded or remuxed. In this case the video shall be opened in raw format with AC3PassThrough settings.
         /// </exception>
-        Task<VideoStreamResult> StreamingOpenAsync(int fileId, int audioTrackId = 0, VideoStation.VideoTranscoding format = VideoStation.VideoTranscoding.Raw, bool ac3PassThrough = true,
-            CancellationToken cancellationToken = default);
+        Task<VideoStreamResult> StreamingOpenAsync(int fileId, int audioTrackId = 0, VideoStation.VideoTranscoding format = VideoStation.VideoTranscoding.Raw, bool ac3PassThrough = true, CancellationToken cancellationToken = default);
 
         Task<VideoStreamResult> StreamingOpenAsync(int fileId, CancellationToken cancellationToken = default);
 

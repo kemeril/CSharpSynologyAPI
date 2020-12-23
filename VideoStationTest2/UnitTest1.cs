@@ -148,7 +148,7 @@ namespace VideoStationTest2
         public void Test_MovieList()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
             var files = movies[0].Additional.Files.ToList();
             var fileDescription = files[0].ToString();
@@ -163,7 +163,7 @@ namespace VideoStationTest2
         public void Test_Poster_Movie()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var posterRequest = VideoStation.PosterGetImageAsync(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
@@ -223,7 +223,7 @@ namespace VideoStationTest2
         public void Test_Backdrop_Movie_0()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var backdropRequest = VideoStation.BackdropGetAsync(movies[0].MapperId).GetAwaiter().GetResult();
@@ -256,7 +256,7 @@ namespace VideoStationTest2
         public void Test_Backdrop_Movie_1()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var backdropRequest = VideoStation.BackdropGetAsync(movies[1].MapperId).GetAwaiter().GetResult();
@@ -478,7 +478,7 @@ namespace VideoStationTest2
         public void Test_SubtitleGet_Movie()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -512,7 +512,7 @@ namespace VideoStationTest2
         public void Test_AudioTrackGet_Movie()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -532,7 +532,7 @@ namespace VideoStationTest2
         public void Test_WatchStatusGetInfo_Movie()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -549,7 +549,7 @@ namespace VideoStationTest2
         public void Test_WatchStatusSetInfo_Movie()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -567,7 +567,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_Raw_AC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -605,7 +605,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_Raw_NoAC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -665,7 +665,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_HighQuality_AC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -725,7 +725,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_HighQuality_NoAC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -785,7 +785,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_MediumQuality_AC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -845,7 +845,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_MediumQuality_NoAC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -905,7 +905,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_LowQuality_AC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();
@@ -965,7 +965,7 @@ namespace VideoStationTest2
         public void Test_Open_Movie_LowQuality_NoAC3PassThrough()
         {
             const int libraryId = 0; //Built in library
-            var result = VideoStation.MovieList(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
+            var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
             var movie = movies.FirstOrDefault();

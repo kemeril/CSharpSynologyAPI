@@ -192,8 +192,10 @@ namespace SynologyAPI
         public async Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null,
              IWebProxy proxy = null, CancellationToken cancellationToken = default)
         {
-            if (baseUri == null) throw new ArgumentNullException(nameof(baseUri));
-
+            if (baseUri == null)
+            {
+                throw new ArgumentNullException(nameof(baseUri));
+            }
 
             if (!string.IsNullOrWhiteSpace(otpCode) && otpCode.Length != 6)
             {

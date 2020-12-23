@@ -1,8 +1,11 @@
 ﻿using StdUtils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Xml;
 
 namespace SynologyRestDAL
 {
@@ -25,6 +28,11 @@ namespace SynologyRestDAL
 
         [DataContract]
         public class MovieResult : TResult<MoviesInfo>
+        {
+        }
+
+        [DataContract]
+        public class FolderResult : TResult<FolderInfo>
         {
         }
 
@@ -99,6 +107,13 @@ namespace SynologyRestDAL
         }
 
         [DataContract]
+        public class FolderInfo : Info
+        {
+            [DataMember(Name = "objects")]
+            public IEnumerable<Folder> Folders { get; set; }
+        }
+
+        [DataContract]
         public class AudioTrackInfo : Info
         {
             [DataMember(Name = "trackinfo")]
@@ -115,12 +130,21 @@ namespace SynologyRestDAL
         [DataContract]
         public abstract class MetaDataItem
         {
+            /// <summary>
+            /// Sample: "TV-PG"
+            /// </summary>
             [DataMember(Name = "certificate")]
             public string Certificate { get; set; }
 
+            /// <summary>
+            /// Sample: "Alps from Above"
+            /// </summary>
             [DataMember(Name = "sort_title")]
             public string SortTitle { get; set; }
 
+            /// <summary>
+            /// Sample: "The Alps from Above"
+            /// </summary>
             [DataMember(Name = "title")]
             public string Title { get; set; }
 
@@ -133,37 +157,52 @@ namespace SynologyRestDAL
             [DataMember(Name = "library_id")]
             public int LibraryId { get; set; }
 
+            /// <summary>
+            /// Sample: 14091
+            /// </summary>
             [DataMember(Name = "mapper_id")]
             public int MapperId { get; set; }
 
             public DateTime? OriginalAvailable { get; private set; }
 
+            /// <summary>
+            /// Sample: "2003-10-07"
+            /// </summary>
             [DataMember(Name = "original_available")]
             private string OriginalAvailableSetter
             {
                 set
                 {
-                    var dateParts = value.Split('-');
-                    if (dateParts.Length < 3)
+                    try
                     {
-                        return;
+                        var dateParts = value.Split('-');
+                        if (dateParts.Length < 3)
+                        {
+                            return;
+                        }
+                        
+                        OriginalAvailable = new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]),
+                            int.Parse(dateParts[2]));
                     }
-                    
-                    OriginalAvailable = new DateTime(Int32.Parse(dateParts[0]), Int32.Parse(dateParts[1]),
-                        Int32.Parse(dateParts[2]));
+                    catch
+                    {
+                        Trace.TraceInformation("Invalid date format:{0}", value);
+                    }
                 }
-                get
-                {
-                    return OriginalAvailable == null
-                        ? null
-                        : string.Format("{0}-{1}-{2}", OriginalAvailable.Value.Year, OriginalAvailable.Value.Month,
-                            OriginalAvailable.Value.Day);
-                }
+                get => OriginalAvailable == null
+                    ? null
+                    : $"{OriginalAvailable.Value.Year}-{OriginalAvailable.Value.Month}-{OriginalAvailable.Value.Day}";
             }
 
+            /// <summary>
+            /// Sample: 75
+            /// </summary>
             [DataMember(Name = "rating")]
             public int Rating { get; set; }
 
+            /// <summary>
+            /// Sample: "Von den Karawanken nach Graz"
+            /// </summary>
             [DataMember(Name = "tagline")]
             public string Tagline { get; set; }
 
@@ -178,9 +217,8 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return string.Format(
-                        "SortTitle: {0}, Title: {1}, MetadataLocked: {2}, Id: {3}, MapperId: {4}, OriginalAvailable: {5}, OriginalAvailableSetter: {6}",
-                        SortTitle, Title, MetadataLocked, Id, MapperId, OriginalAvailable, OriginalAvailableSetter);
+                return
+                    $"SortTitle: {SortTitle}, Title: {Title}, MetadataLocked: {MetadataLocked}, Id: {Id}, MapperId: {MapperId}, OriginalAvailable: {OriginalAvailable}, OriginalAvailableSetter: {OriginalAvailableSetter}";
             }
         }
 
@@ -192,51 +230,51 @@ namespace SynologyRestDAL
         [DataContract]
         public class File
         {
-            ///// <summary>
-            ///// Sample value:640000
-            ///// </summary>
+            /// <summary>
+            /// Sample value:640000
+            /// </summary>
             [DataMember(Name = "audio_bitrate")]
             public int AudioBitrate { get; set; }
 
-            ///// <summary>
-            ///// Sample value:"eac3"
-            ///// </summary>
+            /// <summary>
+            /// Sample value:"eac3"
+            /// </summary>
             [DataMember(Name = "audio_codec")]
             public string AudioCodec { get; set; }
 
-            ///// <summary>
-            ///// Sample value:6
-            ///// </summary>
+            /// <summary>
+            /// Sample value:6
+            /// </summary>
             [DataMember(Name = "channel")]
             public int Channel { get; set; }
 
-            ///// <summary>
-            ///// Sample value:"matroska,webm"
-            ///// </summary>
+            /// <summary>
+            /// Sample value:"matroska,webm"
+            /// </summary>
             [DataMember(Name = "container_type")]
             public string ContainerType { get; set; }
 
-            ///// <summary>
-            ///// Sample value:false
-            ///// </summary>
+            /// <summary>
+            /// Sample value:false
+            /// </summary>
             [DataMember(Name = "conversion_produced")]
             public bool ConversionProduced { get; set; }
 
-            ///// <summary>
-            ///// Sample value:1280
-            ///// </summary>
+            /// <summary>
+            /// Sample value:1280
+            /// </summary>
             [DataMember(Name = "display_x")]
             public int DisplayX { get; set; }
 
-            ///// <summary>
-            ///// Sample value:720
-            ///// </summary>
+            /// <summary>
+            /// Sample value:720
+            /// </summary>
             [DataMember(Name = "display_y")]
             public int DisplayY { get; set; }
 
-            ///// <summary>
-            ///// Sample value:"1:11:05"
-            ///// </summary>
+            /// <summary>
+            /// Sample value:"1:11:05"
+            /// </summary>
             [DataMember(Name = "duration")]
             // ReSharper disable once InconsistentNaming
             public string DurationRaw { get; private set; }
@@ -257,9 +295,9 @@ namespace SynologyRestDAL
                 }
             }
 
-            ///// <summary>
-            ///// Sample value:100
-            ///// </summary>
+            /// <summary>
+            /// Sample value:100
+            /// </summary>
             [DataMember(Name = "ff_video_profile")]
             // ReSharper disable once InconsistentNaming
             public int FFVideoProfile { get; set; }
@@ -271,27 +309,27 @@ namespace SynologyRestDAL
             [DataMember(Name = "filesize")]
             public long FileSize { get; set; }
 
-            ///// <summary>
-            ///// Sample value:9205986
-            ///// </summary>
+            /// <summary>
+            /// Sample value:9205986
+            /// </summary>
             [DataMember(Name = "frame_bitrate")]
             public int FrameBitrate { get; set; }
 
-            ///// <summary>
-            ///// Sample value:1001
-            ///// </summary>
+            /// <summary>
+            /// Sample value:1001
+            /// </summary>
             [DataMember(Name = "frame_rate_den")]
             public int FrameRateDen { get; set; }
 
-            ///// <summary>
-            ///// Sample value:24000
-            ///// </summary>
+            /// <summary>
+            /// Sample value:24000
+            /// </summary>
             [DataMember(Name = "frame_rate_num")]
             public int FrameRateNum { get; set; }
 
-            ///// <summary>
-            ///// Sample value:48000
-            ///// </summary>
+            /// <summary>
+            /// Sample value:48000
+            /// </summary>
             [DataMember(Name = "frequency")]
             public int Frequency { get; set; }
 
@@ -314,14 +352,11 @@ namespace SynologyRestDAL
             [DataMember(Name = "position")]
             public long PositionRaw { get; set; }
 
-            public TimeSpan Position
-            {
-                get { return TimeSpan.FromSeconds(PositionRaw); }
-            }
+            public TimeSpan Position => TimeSpan.FromSeconds(PositionRaw);
 
-            ///// <summary>
-            ///// Sample value:1280
-            ///// </summary>
+            /// <summary>
+            /// Sample value:1280
+            /// </summary>
             [DataMember(Name = "resolutionx")]
             public int ResolutionX { get; set; }
 
@@ -331,9 +366,9 @@ namespace SynologyRestDAL
             [DataMember(Name = "resolutiony")]
             public int ResolutionY { get; set; }
 
-            ///// <summary>
-            ///// Sample value:0
-            ///// </summary>
+            /// <summary>
+            /// Sample value:0
+            /// </summary>
             [DataMember(Name = "rotation")]
             public int Rotation { get; set; }
 
@@ -343,15 +378,15 @@ namespace SynologyRestDAL
             [DataMember(Name = "sharepath")]
             public string Sharepath { get; set; }
 
-            ///// <summary>
-            ///// Sample value:0
-            ///// </summary>
+            /// <summary>
+            /// Sample value:0
+            /// </summary>
             [DataMember(Name = "video_bitrate")]
             public int VideoBitrate { get; set; }
 
-            ///// <summary>
-            ///// Sample value:"h264"
-            ///// </summary>
+            /// <summary>
+            /// Sample value:"h264"
+            /// </summary>
             [DataMember(Name = "video_codec")]
             public string VideoCodec { get; set; }
 
@@ -361,21 +396,21 @@ namespace SynologyRestDAL
             [DataMember(Name = "video_level")]
             public int VideoLevel { get; set; }
 
-            ///// <summary>
-            ///// Sample value:3
-            ///// </summary>
+            /// <summary>
+            /// Sample value:3
+            /// </summary>
             [DataMember(Name = "video_profile")]
             public int VideoProfile { get; set; }
 
-            ///// <summary>
-            ///// Sample value:0.3623693379790941
-            ///// </summary>
+            /// <summary>
+            /// Sample value:0.3623693379790941
+            /// </summary>
             [DataMember(Name = "watched_ratio")]
             public decimal WatchedRatio { get; set; }
 
             public override string ToString()
             {
-                return string.Format("{{ Id: {0}, Path: {1} }}", Id, Path ?? Sharepath ?? string.Empty);
+                return $"{{ Id: {Id}, Path: {Path ?? Sharepath ?? string.Empty} }}";
             }
         }
 
@@ -395,20 +430,105 @@ namespace SynologyRestDAL
             public int Season { get; set; }
 
             [DataMember(Name = "tvshow_id")]
-            internal int TvshowId { get; set; }
+            internal int TvShowId { get; set; }
+
+            [DataMember(Name = "tvshow_mapper_id")]
+            internal int TvShowMapperId { get; set; }
+
+            public DateTime? TvShowOriginalAvailable { get; private set; }
+
+            /// <summary>
+            /// Sample: "2003-10-07"
+            /// </summary>
+            [DataMember(Name = "tvshow_original_available")]
+            private string TvShowOriginalAvailableSetter
+            {
+                set
+                {
+                    try
+                    {
+                        var dateParts = value.Split('-');
+                        if (dateParts.Length < 3)
+                        {
+                            return;
+                        }
+
+                        TvShowOriginalAvailable = new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]),
+                            int.Parse(dateParts[2]));
+                    }
+                    catch
+                    {
+                        Trace.TraceInformation($"Invalid date format:{value}");
+                    }
+                }
+                get =>
+                    TvShowOriginalAvailable == null
+                        ? null
+                        : $"{TvShowOriginalAvailable.Value.Year}-{TvShowOriginalAvailable.Value.Month}-{TvShowOriginalAvailable.Value.Day}";
+            }
 
             public override string ToString()
             {
                 return
                     string.Format(
                         "{{ Episode: {1}, LastWatched: {2}, Season: {3}, Tagline: {4}, Summary: {5}, TvshowId: {{ {0} }} }}",
-                        TvshowId, Episode, LastWatched, Season, Tagline, Additional.Summary ?? string.Empty);
+                        TvShowId, Episode, LastWatched, Season, Tagline, Additional.Summary ?? string.Empty);
             }
         }
 
         [DataContract]
         public class Movie : MetaDataItem
         {
+        }
+
+        [DataContract]
+        public class PreviewVideo : TvEpisode
+        {
+        }
+
+        [DataContract]
+        public class Folder
+        {
+            /// <summary>
+            /// Number of files. Min value is 0.
+            /// Sample: 5
+            /// </summary>
+            [DataMember(Name = "file_count")]
+            public int FileCount { get; set; }
+
+            /// <summary>
+            /// Path of the containing folder.
+            /// Sample: "/volume1/video/TV_Show/Alps from Above"
+            /// </summary>
+            [DataMember(Name = "id")]
+            public string Id { get; set; }
+
+            [DataMember(Name = "preview_video")]
+            public IEnumerable<PreviewVideo> PreviewVideos { get; set; }
+
+            /// <summary>
+            /// Path of the containing share folder.
+            /// Optional.
+            /// Sample: "/video/TV_Show/Alps from Above"
+            /// </summary>
+            [DataMember(Name = "sharepath")]
+            public string SharePath { get; set; }
+
+            /// <summary>
+            /// Title.
+            /// Optional.
+            /// Sample: "Alps from Above"
+            /// </summary>
+            [DataMember(Name = "title")]
+            public string Title { get; set; }
+
+            /// <summary>
+            /// Type.
+            /// Optional.
+            /// Sample: "folder"
+            /// </summary>
+            [DataMember(Name = "type")]
+            public string Type { get; set; }
         }
 
         [DataContract]
@@ -446,6 +566,37 @@ namespace SynologyRestDAL
             public bool IsParentalControlled { get; set; }
 
             /// <summary>
+            /// Optional.
+            /// </summary>
+            [DataMember(Name = "tvshow_summary")]
+            public string TvShowSummary { get; set; }
+
+            /// <summary>
+            /// Sample value:0.3623693379790941
+            /// </summary>
+            [DataMember(Name = "watched_ratio")]
+            public decimal? WatchedRatio { get; set; }
+
+            /// <summary>
+            /// Optional.
+            /// Sample value: "2020-05-06 20:12:47.66867"
+            /// </summary>
+            [DataMember(Name = "poster_mtime")]
+            private string PosterMTimeSetter { get; set; }
+
+            /// <summary>
+            /// Poster modification time.
+            /// Optional.
+            /// </summary>
+            public DateTime? PosterMTime
+            {
+                get => !string.IsNullOrWhiteSpace(PosterMTimeSetter)
+                    ? XmlConvert.ToDateTime(PosterMTimeSetter, XmlDateTimeSerializationMode.Unspecified)
+                    : (DateTime?)null;
+                set => PosterMTimeSetter = value?.ToString("yy-MM-dd HH:mm:dd.fff", CultureInfo.InvariantCulture);
+            }
+
+            /// <summary>
             /// Null on <see cref="TvShow"/>.
             /// </summary>
             [DataMember(Name = "file")]
@@ -453,7 +604,7 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return string.Format("Summary: {0}, File:{{ {1} }}", Summary, Files);
+                return $"Summary: {Summary}, Files count:{{ {(Files ?? Enumerable.Empty<File>()).Count()} }}";
             }
         }
 
@@ -501,7 +652,8 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return string.Format("Id: {0}, IsPublic: {1}, Title: {2}, LibraryType: {3}, Visible: {4}", Id, IsPublic, Title ?? string.Empty, LibraryType, Visible);
+                return
+                    $"Id: {Id}, IsPublic: {IsPublic}, Title: {Title ?? string.Empty}, LibraryType: {LibraryType}, Visible: {Visible}";
             }
         }
 
@@ -519,7 +671,7 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return string.Format("Format: {0}, StreamId: {1}", Format ?? string.Empty, StreamId ?? string.Empty);
+                return $"Format: {Format ?? string.Empty}, StreamId: {StreamId ?? string.Empty}";
             }
         }
 
@@ -563,7 +715,8 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return string.Format("Embedded: {0}, Format: {1}, Language: {2}, Title: {3}, NeedPreview: {4}, Id: {5}", Embedded, Format, Language, Title, NeedPreview, Id);
+                return
+                    $"Embedded: {Embedded}, Format: {Format}, Language: {Language}, Title: {Title}, NeedPreview: {NeedPreview}, Id: {Id}";
             }
         }
 
@@ -680,8 +833,8 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return string.Format("Id: {0}, Track: {1}, Language: {2}, StreamId: {3}, IsDefault: {4}, Bitrate: {5}, SampleRate: {6}, Channel: {7}, ChannelLayout: {8}, Codec: {9}, CodecRaw: {10}, Frequency: {11}, Profile: {12}",
-                    Id, Track, Language, StreamId, IsDefault, Bitrate, SampleRate, Channel, ChannelLayout, Codec, CodecRaw, Frequency, Profile);
+                return
+                    $"Id: {Id}, Track: {Track}, Language: {Language}, StreamId: {StreamId}, IsDefault: {IsDefault}, Bitrate: {Bitrate}, SampleRate: {SampleRate}, Channel: {Channel}, ChannelLayout: {ChannelLayout}, Codec: {Codec}, CodecRaw: {CodecRaw}, Frequency: {Frequency}, Profile: {Profile}";
             }
         }
 
@@ -727,7 +880,8 @@ namespace SynologyRestDAL
 
             public override string ToString()
             {
-                return string.Format("LastUpdate: {0}, Position: {1}", LastUpdate.HasValue ? LastUpdate.ToString() : "Unknown", Position.HasValue ? Position.ToString() : "Unknown");
+                return
+                    $"LastUpdate: {(LastUpdate.HasValue ? LastUpdate.ToString() : "Unknown")}, Position: {(Position.HasValue ? Position.ToString() : "Unknown")}";
             }
         }
     }
