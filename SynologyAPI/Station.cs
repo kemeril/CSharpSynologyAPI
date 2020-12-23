@@ -233,10 +233,11 @@ namespace SynologyAPI
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
                 param.Add("device_id", deviceId);
-                if (!string.IsNullOrWhiteSpace(otpCode))
-                {
-                    param.Add("enable_device_token", "yes");
-                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(otpCode) || !string.IsNullOrWhiteSpace(deviceId))
+            {
+                param.Add("enable_device_token", "yes");
             }
 
             if (!string.IsNullOrWhiteSpace(deviceName))
