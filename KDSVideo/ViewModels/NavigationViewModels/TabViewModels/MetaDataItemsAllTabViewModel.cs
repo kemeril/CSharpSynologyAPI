@@ -2,16 +2,16 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using KDSVideo.Messages;
+using KDSVideo.Views;
 using SynologyAPI;
+using SynologyRestDAL.Vs;
 using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using KDSVideo.Views;
-using SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
 {
@@ -25,7 +25,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
         
         private bool _showProgressIndicator;
         private Library _library;
-        private IList<MediaMetaDataItem> _mediaMetaDataItems;
+        private ObservableCollection<MediaMetaDataItem> _mediaMetaDataItems;
 
         public MetaDataItemsAllTabViewModel()
         {
@@ -55,7 +55,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
             set => Set(nameof(ShowProgressIndicator), ref _showProgressIndicator, value);
         }
 
-        public IList<MediaMetaDataItem> MediaMetaDataItems
+        public ObservableCollection<MediaMetaDataItem> MediaMetaDataItems
         {
             get => _mediaMetaDataItems;
             private set => Set(nameof(MediaMetaDataItems), ref _mediaMetaDataItems, value);
@@ -92,7 +92,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
         private void CleanUp()
         {
             _library = null;
-            MediaMetaDataItems = new List<MediaMetaDataItem>();
+            MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>();
         }
 
         public void RefreshData()
@@ -129,18 +129,14 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
                     case LibraryType.Movie:
                     {
                         var moviesInfo = await _videoStation.MovieListAsync(library.Id, cancellationToken: cts.Token);
-                        MediaMetaDataItems = moviesInfo.Movies
-                            .Select(item => new MovieMetaDataItem(item))
-                            .Cast<MediaMetaDataItem>()
-                            .ToList();
+                        MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>(moviesInfo.Movies
+                            .Select(item => new MovieMetaDataItem(item)));
                         break;
                     }
                     case LibraryType.TvShow:
                         var tvShowsInfo = await _videoStation.TvShowListAsync(library.Id, cancellationToken: cts.Token);
-                        MediaMetaDataItems = tvShowsInfo.TvShows
-                            .Select(item => new TvShowMetaDataItem(item))
-                            .Cast<MediaMetaDataItem>()
-                            .ToList();
+                        MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>(tvShowsInfo.TvShows
+                            .Select(item => new TvShowMetaDataItem(item)));
                         break;
                     case LibraryType.HomeVideo:
                     case LibraryType.TvRecord:
