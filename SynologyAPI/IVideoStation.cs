@@ -126,10 +126,10 @@ namespace SynologyAPI
         /// Create a <see cref="WebRequest"/> instance for download the poster image for a media.
         /// </summary>
         /// <param name="id">Id of the media whose poster image wants to be downloaded. <see cref="MetaDataItem.Id"/></param>
-        /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode</param>
+        /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The <see cref="WebRequest"/> instance for download the poster image for a media.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is throws on error.</exception>
         Task<WebRequest> PosterGetImageAsync(int id, MediaType mediaType, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace SynologyAPI
         /// <param name="mapperId">MapperId of the media whose backdrop image wants to be downloaded. <see cref="MetaDataItem.MapperId"/></param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The <see cref="WebRequest"/> instance for download the backdrop image for a media.</returns>
-        /// <exception cref="SynoRequestException"> is throws on error</exception>
+        /// <exception cref="SynoRequestException"> is throws on error.</exception>
         Task<WebRequest> BackdropGetAsync(int mapperId, CancellationToken cancellationToken = default);
 
         /// <summary>

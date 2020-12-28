@@ -480,10 +480,10 @@ namespace SynologyAPI
         /// Create a <see cref="WebRequest"/> instance for download the poster image for a media.
         /// </summary>
         /// <param name="id">Id of the media whose poster image wants to be downloaded. <see cref="MetaDataItem.Id"/></param>
-        /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode</param>
+        /// <param name="mediaType">Select the of the media Movie, TVShow or TVShowEpisode.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The <see cref="WebRequest"/> instance for download the poster image for a media.</returns>
-        /// <exception cref="SynoRequestException"> is thrown on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error.</exception>
         public async Task<WebRequest> PosterGetImageAsync(int id, MediaType mediaType, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await GetWebRequestAsync(ApiSynoVideoStationPoster, MethodGetImage, new ReqParams
@@ -501,10 +501,10 @@ namespace SynologyAPI
         /// Create a <see cref="WebRequest"/> instance for download the backdrop image for a media.
         /// There is no backdrop image for episode parts of TVShow, please download the TVShow (collection) backdrop image instead.
         /// </summary>
-        /// <param name="mapperId">MapperId of the media whose backdrop image wants to be downloaded. <see cref="MetaDataItem.MapperId"/></param>
+        /// <param name="mapperId">MapperId of the media whose backdrop image wants to be downloaded. <see cref="MetaDataItem.MapperId"/>.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The <see cref="WebRequest"/> instance for download the backdrop image for a media.</returns>
-        /// <exception cref="SynoRequestException"> is thrown on error</exception>
+        /// <exception cref="SynoRequestException"> is thrown on error.</exception>
         public async Task<WebRequest> BackdropGetAsync(int mapperId, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await GetWebRequestAsync(ApiSynoVideoStationBackdrop, MethodGet, new ReqParams

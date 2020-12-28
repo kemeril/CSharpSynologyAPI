@@ -174,20 +174,6 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
             {
                 ShowProgressIndicator = false;
             }
-
-            //await RefreshPosters();
-        }
-
-        private async Task RefreshPosters()
-        {
-            var metaDataItem = MediaMetaDataItems.FirstOrDefault();
-            if (metaDataItem == null)
-            {
-                return;
-            }
-            
-            var poster = await metaDataItem.GetPoster(_videoStation, 154, 234);
-            metaDataItem.Poster = poster;
         }
     }
 }

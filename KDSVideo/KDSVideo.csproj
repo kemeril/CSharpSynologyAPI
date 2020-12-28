@@ -120,6 +120,8 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Extensions\DispatcherTaskExtensions.cs" />
+    <Compile Include="Extensions\SoftwareBitmapExtensions.cs" />
+    <Compile Include="Extensions\VideoStationExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationInfoService.cs" />
     <Compile Include="Infrastructure\AuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\AutoLoginData.cs" />
