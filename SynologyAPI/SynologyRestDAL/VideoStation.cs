@@ -127,6 +127,14 @@ namespace SynologyRestDAL
             public WatchStatus WatchStatus { get; set; }
         }
 
+        public enum MediaType
+        {
+            Unknown,
+            Movie,
+            TvShow,
+            TvShowEpisode
+        }
+
         [DataContract]
         public abstract class MetaDataItem
         {
@@ -215,6 +223,8 @@ namespace SynologyRestDAL
             [DataMember(Name = "additional")]
             public Additional Additional { get; private set; }
 
+            public virtual MediaType MediaType { get; } = MediaType.Unknown;
+
             public override string ToString()
             {
                 return
@@ -225,6 +235,7 @@ namespace SynologyRestDAL
         [DataContract]
         public class TvShow : MetaDataItem
         {
+            public override MediaType MediaType => MediaType.TvShow;
         }
 
         [DataContract]
@@ -467,6 +478,8 @@ namespace SynologyRestDAL
                         : $"{TvShowOriginalAvailable.Value.Year}-{TvShowOriginalAvailable.Value.Month}-{TvShowOriginalAvailable.Value.Day}";
             }
 
+            public override MediaType MediaType => MediaType.TvShowEpisode;
+
             public override string ToString()
             {
                 return
@@ -479,6 +492,7 @@ namespace SynologyRestDAL
         [DataContract]
         public class Movie : MetaDataItem
         {
+            public override MediaType MediaType => MediaType.Movie;
         }
 
         [DataContract]

@@ -2,13 +2,42 @@
     x:Class="KDSVideo.Views.NavigationViews.MoviePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:KDSVideo.Views.NavigationViews"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    NavigationCacheMode="Enabled"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    DataContext="{Binding MovieViewModel, Source={StaticResource Locator}}">
 
     <Grid>
-        <TextBlock Text="Movie"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="Movies" FontSize="16" Margin="10,0"/>
+        <NavigationView Grid.Row="1" x:Name="NavigationViewControl" PaneDisplayMode="Top"
+            IsBackButtonVisible="Collapsed"
+            IsBackEnabled="False"
+            IsSettingsVisible="False"
+            ItemInvoked="NavigationViewControl_OnItemInvoked">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="All" Tag="ALL" />
+                <NavigationViewItem Content="By Folder" Tag="BY_FOLDER" />
+                <NavigationViewItem Content="Just Added" Tag="JUST_ADDED" />
+                <NavigationViewItem Content="Just Watched" Tag="JUST_WATCHED" />
+                <NavigationViewItem Content="Just Released" Tag="JUST_RELEASED" />
+            </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame">
+                <Frame.ContentTransitions>
+                    <TransitionCollection>
+                        <NavigationThemeTransition>
+                            <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                <EntranceNavigationTransitionInfo/>
+                            </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                        </NavigationThemeTransition>
+                    </TransitionCollection>
+                </Frame.ContentTransitions>
+            </Frame>
+        </NavigationView>
     </Grid>
 </Page>

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using SynologyRestDAL.Vs;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -8,10 +10,28 @@ namespace KDSVideo.UIHelpers
 {
     public abstract class NavigationItemBase { }
 
-    public sealed class NavigationCategory : NavigationItemBase
+    public sealed class NavigationCategory : NavigationItemBase, INotifyPropertyChanged
     {
+        private bool _isSelected;
         public string Name { get; set; }
         public Library Library { get; set; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public sealed class NavigationMenuSeparator : NavigationItemBase { }

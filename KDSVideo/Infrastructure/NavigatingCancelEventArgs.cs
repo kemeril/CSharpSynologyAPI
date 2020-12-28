@@ -8,14 +8,14 @@ namespace KDSVideo.Infrastructure
     /// </summary>
     public sealed class NavigatingCancelEventArgs
     {
-        public NavigatingCancelEventArgs(NavigationMode navigationMode, string sourcePageKey, object parameter)
+        public NavigatingCancelEventArgs(bool cancel, NavigationMode navigationMode, string sourcePageKey, object parameter)
         {
             if (string.IsNullOrWhiteSpace(sourcePageKey))
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(sourcePageKey));
             }
             
-            Cancel = false;
+            Cancel = cancel;
             NavigationMode = navigationMode;
             SourcePageKey = sourcePageKey;
             Parameter = parameter;

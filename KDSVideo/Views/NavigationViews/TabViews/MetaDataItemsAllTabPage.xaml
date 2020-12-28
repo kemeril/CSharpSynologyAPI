@@ -1,0 +1,49 @@
+﻿<Page
+    x:Class="KDSVideo.Views.NavigationViews.TabViews.MetaDataItemsAllTabPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tabViewModels="using:KDSVideo.ViewModels.NavigationViewModels.TabViewModels"
+    xmlns:navigationViewModels="using:KDSVideo.ViewModels.NavigationViewModels"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+    NavigationCacheMode="Enabled">
+    <Page.DataContext>
+        <tabViewModels:MetaDataItemsAllTabViewModel />
+    </Page.DataContext>
+
+    <GridView
+        ItemsSource="{Binding MediaMetaDataItems}"
+        ContainerContentChanging="ListViewBase_OnContainerContentChanging">
+        <GridView.ItemContainerStyle>
+            <Style TargetType="GridViewItem">
+                <Setter Property="Margin" Value="10"/>
+            </Style>
+        </GridView.ItemContainerStyle>
+
+        <GridView.ItemTemplate>
+            <DataTemplate x:DataType="navigationViewModels:MediaMetaDataItem">
+                <Grid Width="156" Height="234" Tag="{x:Bind MetaDataItem.Id}" x:Phase="1">
+                    <Grid.Background>
+                        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                            <GradientStop Color="#FF2B2E30" Offset="0"/>
+                            <GradientStop Color="#FF2B2E30" Offset="0.5"/>
+                            <GradientStop Color="#FF2B2E30" Offset="0.25"/>
+                            <GradientStop Color="#FF1E2022" Offset="0.75"/>
+                            <GradientStop Color="#FF131416" Offset="0.9"/>
+                            <GradientStop Color="#FF070707" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Grid.Background>
+                    <SymbolIcon Symbol="Play" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="DarkGray" Height="100" Margin="0,0,0,20"/>
+                    <Image Width="156" Height="234" Stretch="Fill" IsHitTestVisible="False"/>
+                    <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="#A0000000" IsHitTestVisible="False">
+                        <TextBlock Text="{x:Bind MetaDataItem.OriginalAvailable, Converter={StaticResource DateConverter}}" HorizontalAlignment="Left" Foreground="DarkGray"/>
+                        <TextBlock Text="{x:Bind MetaDataItem.Title}" HorizontalAlignment="Left"
+                            MaxLines="2" TextWrapping="WrapWholeWords" TextTrimming="CharacterEllipsis" LineStackingStrategy="BlockLineHeight"/>
+                    </StackPanel>
+                </Grid>
+            </DataTemplate>
+        </GridView.ItemTemplate>
+    </GridView>
+</Page>

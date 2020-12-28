@@ -119,10 +119,13 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Extensions\DispatcherTaskExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationInfoService.cs" />
+    <Compile Include="Infrastructure\AuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\AutoLoginData.cs" />
     <Compile Include="Infrastructure\AutoLoginDataHandler.cs" />
     <Compile Include="Infrastructure\IApplicationInfoService.cs" />
+    <Compile Include="Infrastructure\IAuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\INavigable.cs" />
     <Compile Include="Infrastructure\INavigationService.cs" />
     <Compile Include="Infrastructure\IVideoSettingsDataHandler.cs" />
@@ -149,14 +152,22 @@
     <Compile Include="Messages\LoginMessage.cs" />
     <Compile Include="Messages\LogoutMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UIHelpers\DateConverter.cs" />
     <Compile Include="UIHelpers\LibraryNameConverter.cs" />
     <Compile Include="UIHelpers\NavigationViewItemTemplateSelector.cs" />
     <Compile Include="ViewModels\ApplicationLevelErrorCodes.cs" />
+    <Compile Include="ViewModels\ApplicationLevelErrorMessages.cs" />
+    <Compile Include="ViewModels\EncryptionInfoResult.cs" />
     <Compile Include="ViewModels\LoginException.cs" />
     <Compile Include="ViewModels\LoginResult.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
     <Compile Include="ViewModels\LogoffViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\NavigationViewModels\MediaMetaDataItem.cs" />
+    <Compile Include="ViewModels\NavigationViewModels\MovieMetaDataItem.cs" />
+    <Compile Include="ViewModels\NavigationViewModels\MovieViewModel.cs" />
+    <Compile Include="ViewModels\NavigationViewModels\TabViewModels\MetaDataItemsAllTabViewModel.cs" />
+    <Compile Include="ViewModels\NavigationViewModels\TvShowMetaDataItem.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\ErrorDialog.xaml.cs">
@@ -182,6 +193,9 @@
     </Compile>
     <Compile Include="Views\NavigationViews\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\NavigationViews\TabViews\MetaDataItemsAllTabPage.xaml.cs">
+      <DependentUpon>MetaDataItemsAllTabPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\NavigationViews\TVShowPage.xaml.cs">
       <DependentUpon>TVShowPage.xaml</DependentUpon>
@@ -236,6 +250,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NavigationViews\SettingsPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\NavigationViews\TabViews\MetaDataItemsAllTabPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

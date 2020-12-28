@@ -90,14 +90,6 @@ namespace SynologyAPI
             Descending
         }
 
-        public enum MediaType
-        {
-            Movie,
-            TvShow,
-            TvShowEpisode
-        }
-
-
         /// <summary>
         /// Video transcoding options
         /// See: https://www.synology.com/en-us/knowledgebase/DSM/tutorial/Multimedia/How_do_I_stream_videos_smoothly_via_Video_Station_DS_video

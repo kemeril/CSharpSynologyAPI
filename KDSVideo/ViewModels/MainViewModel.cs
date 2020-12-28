@@ -102,7 +102,6 @@ namespace KDSVideo.ViewModels
 
             var initialLibrary = Libraries
                 .OfType<NavigationCategory>()
-                .Cast<NavigationCategory>()
                 .FirstOrDefault();
 
             if (initialLibrary == null)
@@ -115,7 +114,7 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private void LogoutMessageReceived(LogoutMessage logoffMessage)
+        private void LogoutMessageReceived(LogoutMessage logoutMessage)
         {
             IsNavigationVisible = false;
             Libraries = new List<NavigationItemBase>().AsReadOnly();
@@ -183,9 +182,11 @@ namespace KDSVideo.ViewModels
             switch (library.LibraryType)
             {
                 case LibraryType.Movie:
+                    SelectLibraryOnUI(library);
                     _navigationService.NavigateTo(PageNavigationKey.MoviePage, library);
                     break;
                 case LibraryType.TvShow:
+                    SelectLibraryOnUI(library);
                     _navigationService.NavigateTo(PageNavigationKey.TvShowPage, library);
                     break;
                 case LibraryType.HomeVideo:
@@ -194,6 +195,22 @@ namespace KDSVideo.ViewModels
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void SelectLibraryOnUI(Library library)
+        {
+            foreach (var navigationItemBase in _libraries)
+            {
+                if (navigationItemBase is NavigationCategory navigationCategory &&
+                    navigationCategory.Library == library)
+                {
+                    if (!navigationCategory.IsSelected)
+                    {
+                        navigationCategory.IsSelected = true;
+                    }
+                    break;
+                }
             }
         }
     }

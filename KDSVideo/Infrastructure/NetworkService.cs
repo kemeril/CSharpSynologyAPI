@@ -9,6 +9,18 @@ namespace KDSVideo.Infrastructure
     {
         private const string QUICKCONNECT_TO = "QuickConnect.to";
 
+        public string GetComputerName()
+        {
+            try
+            {
+                return Environment.MachineName;
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
         public Uri GetHostUri(string host)
         {
             if (string.IsNullOrWhiteSpace(host))

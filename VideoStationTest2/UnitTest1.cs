@@ -27,7 +27,7 @@ namespace VideoStationTest2
 
             try
             {
-                var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, null, DeviceId, DeviceName, null, proxy).GetAwaiter().GetResult();
+                var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, null, null, DeviceId, DeviceName, null, proxy).GetAwaiter().GetResult();
                 Sid = loginInfo.Sid;
             }
             catch (SynoRequestException e)
@@ -244,7 +244,7 @@ namespace VideoStationTest2
             var result = VideoStation.MovieListAsync(libraryId, VideoStation.SortBy.Added, VideoStation.SortDirection.Descending, 0, 10).GetAwaiter().GetResult();
             var movies = result.Movies.ToList();
 
-            var posterRequest = VideoStation.PosterGetImageAsync(movies[0].Id, VideoStation.MediaType.Movie).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImageAsync(movies[0].Id, MediaType.Movie).GetAwaiter().GetResult();
             using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("poster" + movies[0].Id + ".jpg"))
@@ -263,7 +263,7 @@ namespace VideoStationTest2
                     VideoStation.SortBy.Added)
                 .GetAwaiter().GetResult().TvShows.ToList();
 
-            var posterRequest = VideoStation.PosterGetImageAsync(tvShowsInfo[0].Id, VideoStation.MediaType.TvShow).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImageAsync(tvShowsInfo[0].Id, MediaType.TvShow).GetAwaiter().GetResult();
             using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("poster" + tvShowsInfo[0].Id + ".jpg"))
@@ -287,7 +287,7 @@ namespace VideoStationTest2
                 .GetAwaiter().GetResult();
             var episodes = episodesInfo.Episodes.ToList();
 
-            var posterRequest = VideoStation.PosterGetImageAsync(episodes[0].Id, VideoStation.MediaType.TvShowEpisode).GetAwaiter().GetResult();
+            var posterRequest = VideoStation.PosterGetImageAsync(episodes[0].Id, MediaType.TvShowEpisode).GetAwaiter().GetResult();
             using (var posterStream = posterRequest.GetResponseAsync().GetAwaiter().GetResult())
             {
                 using (var file = System.IO.File.OpenWrite("poster" + episodes[0].Id + ".jpg"))

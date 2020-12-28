@@ -20,8 +20,9 @@ namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ViewModelBase, IDisposable, INavigable
     {
-        private const string DeviceName = "UWP - KDS video";
+        private const string AppName = "KDSVideo";
 
+        private readonly IAuthenticationIdProvider _authenticationIdProvider;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IAutoLoginDataHandler _autoLoginDataHandler;
@@ -33,10 +34,9 @@ namespace KDSVideo.ViewModels
         private bool _disposedValue;
 
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        private IWebProxy _webProxy;
 
-        private RelayCommand _loginCommand;
-        private RelayCommand _selectHistoricalLoginDataCommand;
+        private readonly RelayCommand _loginCommand;
+        private readonly RelayCommand _selectHistoricalLoginDataCommand;
 
         private string _host = string.Empty;
         private string _account = string.Empty;
@@ -51,8 +51,9 @@ namespace KDSVideo.ViewModels
         private IReadOnlyCollection<HistoricalLoginData> _historicalLoginData = new List<HistoricalLoginData>().AsReadOnly();
         private HistoricalLoginData _selectedHistoricalLoginData;
 
-        public LoginViewModel(IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
+        public LoginViewModel(IAuthenticationIdProvider authenticationIdProvider, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
         {
+            _authenticationIdProvider = authenticationIdProvider ?? throw new ArgumentNullException(nameof(authenticationIdProvider));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
             _autoLoginDataHandler = autoLoginDataHandler ?? throw new ArgumentNullException(nameof(autoLoginDataHandler));
@@ -112,7 +113,7 @@ namespace KDSVideo.ViewModels
             _messenger.Unregister<LogoutMessage>(this, LogoutMessageReceived);
         }
 
-        private async void LogoutMessageReceived(LogoutMessage logoffMessage)
+        private async void LogoutMessageReceived(LogoutMessage logoutMessage)
         {
             var cts = new CancellationTokenSource(_timeout);
             try
@@ -125,14 +126,26 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private async Task<LoginResult> LoginAsync(string host, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default)
+        private async Task<EncryptionInfoResult> GetEncryptionInfoAsync(IWebProxy proxy, Uri baseUri, string authenticationId, string deviceId, CancellationToken cancellationToken = default)
         {
             try
             {
-                _webProxy = _networkService.GetProxy();
-                var baseUri = _networkService.GetHostUri(host);
-                var loginInfo = await _videoStation.LoginAsync(baseUri, username, password, otpCode, deviceId, deviceName, cipherText, proxy, cancellationToken);
-                var librariesInfo = await _videoStation.LibraryListAsync(0, -1, cancellationToken);
+                var encryptionInfoInfo = await _videoStation.GetEncryptionInfoAsync(baseUri, authenticationId, deviceId, proxy, cancellationToken);
+                return new EncryptionInfoResult(encryptionInfoInfo);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceInformation(ex.ToString());
+                return new EncryptionInfoResult(ex);
+            }
+        }
+
+        private async Task<LoginResult> LoginAsync(IWebProxy proxy, Uri baseUri, string username, string password, string otpCode = null, string authenticationId = null, string deviceId = null, string deviceName = null, string cipherText = null, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var loginInfo = await _videoStation.LoginAsync(baseUri, username, password, otpCode, authenticationId, deviceId, deviceName, cipherText, proxy, cancellationToken);
+                var librariesInfo = await _videoStation.LibraryListAsync(cancellationToken: cancellationToken);
                 var libraries = librariesInfo.Libraries.ToList().AsReadOnly();
                 if (libraries.Any())
                 {
@@ -196,12 +209,45 @@ namespace KDSVideo.ViewModels
             _trustedLoginDataHandler.AddOrUpdate(Host, Account, Password, deviceId);
         }
 
+        private string GetDeviceName()
+        {
+            var computerName = _networkService.GetComputerName();
+            if (string.IsNullOrWhiteSpace(computerName))
+            {
+                computerName = "UWP";
+            }
+
+            return $"{computerName}-{AppName}";
+        }
+        
         private async void Login()
         {
             ShowProgressIndicator = true;
             var deviceId = _trustedLoginDataHandler.GetDeviceId(Host, Account, Password);
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                deviceId = _deviceIdProvider.GetDeviceId();
+            }
+            
             var cts = new CancellationTokenSource(_timeout);
-            var loginResult = await LoginAsync(Host, Account, Password, null, deviceId, DeviceName, null, _webProxy, cts.Token);
+            var deviceName = GetDeviceName();
+            var webProxy = _networkService.GetProxy();
+            var baseUri = _networkService.GetHostUri(Host);
+            var authenticationId = _authenticationIdProvider.GetNewAuthenticationId();
+
+            var encryptionInfoResult = await GetEncryptionInfoAsync(webProxy, baseUri, authenticationId, deviceId, cts.Token);
+            if (!encryptionInfoResult.Success)
+            {
+                ShowProgressIndicator = false;
+                if (!string.IsNullOrWhiteSpace(encryptionInfoResult.ErrorMessage))
+                {
+                    await new ErrorDialog(encryptionInfoResult.ErrorMessage).ShowAsync();
+                }
+                return;
+            }
+
+            var cipherText = encryptionInfoResult.EncryptionInfo.PublicKey;
+            var loginResult = await LoginAsync(webProxy, baseUri, Account, Password, null, authenticationId, deviceId, deviceName, cipherText, cts.Token);
 
             if (loginResult.Success)
             {
@@ -234,7 +280,7 @@ namespace KDSVideo.ViewModels
                             ShowProgressIndicator = true;
                             cts = new CancellationTokenSource(_timeout);
                             var newDeviceId = _deviceIdProvider.GetDeviceId();
-                            loginResult = await LoginAsync(Host, Account, Password, OtpCode, newDeviceId, DeviceName, null, _webProxy, cts.Token);
+                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, authenticationId, newDeviceId, deviceName, cipherText, cts.Token);
 
                             if (loginResult.Success)
                             {

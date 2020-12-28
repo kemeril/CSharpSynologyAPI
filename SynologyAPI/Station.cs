@@ -18,10 +18,12 @@ namespace SynologyAPI
         // ReSharper disable InconsistentNaming
         private const string ApiSynoApiAuth = "SYNO.API.Auth";
         private const string ApiSynoApiInfo = "SYNO.API.Info";
+        private const string ApiSynoApiEncryption = "SYNO.API.Encryption";
         // ReSharper restore InconsistentNaming
 
         private const string MethodLogin = "login";
         private const string MethodLogout = "logout";
+        private const string MethodGetInfo = "getinfo";
 
         protected Uri BaseUrl;
         protected string Sid;
@@ -52,8 +54,18 @@ namespace SynologyAPI
 
         protected async Task<string> _runAsync(RequestBuilder requestBuilder, CancellationToken cancellationToken)
         {
-            var request = WebRequest.Create(BaseUrl.ToString() + requestBuilder);
-            if (Proxy != null)
+            return await _runAsync(Proxy, BaseUrl, requestBuilder, cancellationToken).ConfigureAwait(false);
+        }
+
+        protected async Task<string> _runAsync(IWebProxy proxy, Uri baseUri, RequestBuilder requestBuilder, CancellationToken cancellationToken)
+        {
+            var request = WebRequest.Create(baseUri.ToString() + requestBuilder);
+            if (request is HttpWebRequest httpWebRequest)
+            {
+                httpWebRequest.CookieContainer = new CookieContainer();
+            }
+            
+            if (proxy != null)
             {
                 request.Proxy = Proxy;
             }
@@ -162,18 +174,60 @@ namespace SynologyAPI
                 ).ConfigureAwait(false);
                 ApiInfo = JsonHelper.FromJson<ApiInfo>(jsonResult);
             }
+            
             return ApiInfo.Data.Where(p => p.Key.StartsWith(apiName)).ToDictionary(t => t.Key, t => t.Value);
+        }
+
+        /// <summary>
+        /// Gets Encryption information. This information can used by <see cref="LoginAsync"/> method cipherText param.
+        /// </summary>
+        /// <param name="baseUri">The VideoStation base uri. Required. Does not store <paramref name="baseUri"/> for further operations.</param>
+        /// <param name="id">Authentication Id. Sample value: i_pI9DZgwA-PXYIvIkqrbWRbP6A5QTUKGCNA2xAvR347RigtO9QsMUQO5u0crwrW2lWGaW2406BhQTIi5H7nfI</param>
+        /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.
+        /// Sample value: 51JDCuT81kbudcKWxgP4MFko142njD8sQ2x7ey1dO04ZwG3cRtHtvBZT0EyoAv6YiFzPcfQvLWN7tnOEfKwdXxbLsluoiR9XnYafddNAOLTkMfAbnLDr4uiiqLQ6yfD</param>
+        /// <param name="proxy">Optional.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns></returns>
+        /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
+        public async Task<EncryptionInfo> GetEncryptionInfoAsync(Uri baseUri, string id, string deviceId, IWebProxy proxy = null, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(id))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(id));
+            }
+
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceId));
+            }
+
+            var jsonResult = await _runAsync(proxy, baseUri,
+                new RequestBuilder().Api(ApiSynoApiEncryption)
+                    .Method(MethodGetInfo)
+                    .AddParam("id", id)
+                    .AddParam("did", deviceId)
+                    .Version("1"),
+                cancellationToken
+            ).ConfigureAwait(false);
+            
+            var encryptionInfoResult = JsonHelper.FromJson<EncryptionInfoResult>(jsonResult);
+            if (!encryptionInfoResult.Success)
+            {
+                throw new SynoRequestException(ApiSynoApiEncryption, MethodGetInfo, encryptionInfoResult.Error.Code);
+            }
+
+            return encryptionInfoResult.Data;
         }
 
         /// <summary>
         /// Logins to the Synology NAS.
         /// Support 2-way authentication.
         /// Login with param combinations:
-        /// 1.) username, password; If the error code is 403 the OTP_CODE is asked. the suer has to login with the 2nd way. DeviceId is anything can identify the device such as an GUID without hyphen characters. 
+        /// 1.) username, password; If the error code is 403 the OTP_CODE is asked. the user has to login with the 2nd way. DeviceId is anything can identify the device such as an GUID without hyphen characters. 
         /// 2.) username, password, otpCode, deviceId; If the error code is 403 then the OTP_CODE is failed a new one asked again.
         /// 3.) deviceId; the did value returned by the 2nd login method. No username or other params required.
         /// </summary>
-        /// <param name="baseUri">THe VideoStation base uri. Required.</param>
+        /// <param name="baseUri">The VideoStation base uri. Required. Stores <paramref name="baseUri"/> for further operations.</param>
         /// <param name="username">The username. Optional.</param>
         /// <param name="password">The password. Optional.</param>
         /// <param name="otpCode">6-digit otp code. Optional. Available DSM 3 and onward.
@@ -182,27 +236,24 @@ namespace SynologyAPI
         /// 
         /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
         /// </param>
-        /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.</param>
+        /// <param name="id">Optional.Sample value: i_pI9DZgwA-PXYIvIkqrbWRbP6A5QTUKGCNA2xAvR347RigtO9QsMUQO5u0crwrW2lWGaW2406BhQTIi5H7nfI</param>
+        /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.
+        /// Sample value: 51JDCuT81kbudcKWxgP4MFko142njD8sQ2x7ey1dO04ZwG3cRtHtvBZT0EyoAv6YiFzPcfQvLWN7tnOEfKwdXxbLsluoiR9XnYafddNAOLTkMfAbnLDr4uiiqLQ6yfD</param>
         /// <param name="deviceName">Optional.</param>
         /// <param name="cipherText">>Optional.</param>
         /// <param name="proxy">Optional.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        public async Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null,
+        public async Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string id = null, string deviceId = null, string deviceName = null, string cipherText = null,
              IWebProxy proxy = null, CancellationToken cancellationToken = default)
         {
-            if (baseUri == null)
-            {
-                throw new ArgumentNullException(nameof(baseUri));
-            }
-
             if (!string.IsNullOrWhiteSpace(otpCode) && otpCode.Length != 6)
             {
                 throw new ArgumentException("otpCode is optional but if it is passed it has to be 6-digits length!", nameof(otpCode));
             }
 
-            BaseUrl = baseUri;
+            BaseUrl = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
 
             if (proxy != null)
             {
@@ -228,6 +279,11 @@ namespace SynologyAPI
             if (!string.IsNullOrWhiteSpace(otpCode))
             {
                 param.Add("otp_code", otpCode);
+            }
+
+            if (!string.IsNullOrWhiteSpace(id))
+            {
+                param.Add("id", id);
             }
 
             if (!string.IsNullOrWhiteSpace(deviceId))
@@ -265,7 +321,9 @@ namespace SynologyAPI
             }
 
             if (!loginResult.Success)
+            {
                 throw new SynoRequestException(ApiSynoApiAuth, MethodLogin, loginResult.Error.Code);
+            }
 
             return loginResult.Data;
         }

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using StdUtils;
 
 namespace SynologyRestDAL
 {
@@ -193,6 +195,42 @@ namespace SynologyRestDAL
 
     [DataContract]
     public class LoginResult : TResult<LoginInfo>
+    {
+    }
+
+    [DataContract]
+    public class EncryptionInfo
+    {
+        [DataMember(Name = "cipherkey")]
+        public string CipherKey { get; set; }
+
+        [DataMember(Name = "__cIpHeRtOkEn")]
+        public string CipherToken { get; set; }
+
+        [DataMember(Name = "public_key")]
+        public string PublicKey { get; set; }
+
+        [DataMember(Name = "server_time")]
+        public long? OriginalServerTime { get; private set; }
+
+        /// <summary>
+        ///  Samples:
+        /// 1554724904
+        /// and it means: Mon Apr 08 2019 13:01:44 GMT+0200 (CEST)
+        /// </summary>
+        public DateTime? ServerTime
+        {
+            get => OriginalServerTime.HasValue
+                ? DateTimeConverter.FromUnixTime(OriginalServerTime.Value)
+                : (DateTime?)null;
+            set => OriginalServerTime = value.HasValue
+                ? DateTimeConverter.ToUnixTime(value.Value)
+                : (long?)null;
+        }
+    }
+
+    [DataContract]
+    public class EncryptionInfoResult : TResult<EncryptionInfo>
     {
     }
 }

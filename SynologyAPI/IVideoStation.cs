@@ -130,7 +130,7 @@ namespace SynologyAPI
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns>The <see cref="WebRequest"/> instance for download the poster image for a media.</returns>
         /// <exception cref="SynoRequestException"> is throws on error</exception>
-        Task<WebRequest> PosterGetImageAsync(int id, VideoStation.MediaType mediaType, CancellationToken cancellationToken = default);
+        Task<WebRequest> PosterGetImageAsync(int id, MediaType mediaType, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Create a <see cref="WebRequest"/> instance for download the backdrop image for a media.

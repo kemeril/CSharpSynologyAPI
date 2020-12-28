@@ -9,10 +9,23 @@ namespace SynologyAPI
     public interface IStation
     {
         /// <summary>
+        /// Gets Encryption information. This information can used by <see cref="LoginAsync"/> method cipherText param.
+        /// </summary>
+        /// <param name="baseUri">The VideoStation base uri. Required. Does not store <paramref name="baseUri"/> for further operations.</param>
+        /// <param name="id">Authentication Id. Sample value: i_pI9DZgwA-PXYIvIkqrbWRbP6A5QTUKGCNA2xAvR347RigtO9QsMUQO5u0crwrW2lWGaW2406BhQTIi5H7nfI</param>
+        /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.
+        /// Sample value: 51JDCuT81kbudcKWxgP4MFko142njD8sQ2x7ey1dO04ZwG3cRtHtvBZT0EyoAv6YiFzPcfQvLWN7tnOEfKwdXxbLsluoiR9XnYafddNAOLTkMfAbnLDr4uiiqLQ6yfD</param>
+        /// <param name="proxy">Optional.</param>
+        /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
+        /// <returns></returns>
+        /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
+        Task<EncryptionInfo> GetEncryptionInfoAsync(Uri baseUri, string id, string deviceId, IWebProxy proxy = null, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Logins to the Synology NAS.
         /// Support 2-way authentication.
         /// </summary>
-        /// <param name="url">THe VideoStation base url. Required.</param>
+        /// <param name="baseUri">The VideoStation base url. Required. Stores <paramref name="baseUri"/> for further operations.</param>
         /// <param name="username">The username. Required.</param>
         /// <param name="password">The password. Required.</param>
         /// <param name="otpCode">
@@ -22,6 +35,7 @@ namespace SynologyAPI
         /// 
         /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
         /// </param>
+        /// <param name="id">Optional.Sample value: i_pI9DZgwA-PXYIvIkqrbWRbP6A5QTUKGCNA2xAvR347RigtO9QsMUQO5u0crwrW2lWGaW2406BhQTIi5H7nfI</param>
         /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.</param>
         /// <param name="deviceName">Optional.</param>
         /// <param name="cipherText">Optional.</param>
@@ -39,7 +53,7 @@ namespace SynologyAPI
         /// password cannot be empty! - password
         /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        Task<LoginInfo> LoginAsync(Uri url, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default);
+        Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string id = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default);
 
         Task LogoutAsync(CancellationToken cancellationToken = default);
     }

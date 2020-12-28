@@ -86,15 +86,17 @@ namespace KDSVideo.Infrastructure
                 var previousPageKey = GetPreviousPageKey();
                 if (previousPageKey != null && _pagesByKey.ContainsKey(previousPageKey))
                 {
-                    var navigatingCancelEventArgs = new NavigatingCancelEventArgs(NavigationMode.Back, previousPageKey, null);
+                    var navigatingCancelEventArgs = new NavigatingCancelEventArgs(false, NavigationMode.Back, previousPageKey, null);
                     Navigating?.Invoke(this, navigatingCancelEventArgs);
-                    if (!navigatingCancelEventArgs.Cancel)
+                    if (navigatingCancelEventArgs.Cancel)
                     {
-                        lock (_pagesByKey)
-                        {
-                            CurrentFrame.Navigate(_pagesByKey[previousPageKey], null);
-                            Navigated?.Invoke(this, new NavigationEventArgs(NavigationMode.Back, previousPageKey, null));
-                        }
+                        return;
+                    }
+                    
+                    lock (_pagesByKey)
+                    {
+                        CurrentFrame.Navigate(_pagesByKey[previousPageKey], null);
+                        Navigated?.Invoke(this, new NavigationEventArgs(NavigationMode.Back, previousPageKey, null));
                     }
                 }
             }
@@ -140,7 +142,7 @@ namespace KDSVideo.Infrastructure
                 var navigationMode = pageKey.Equals(currentPageKey, StringComparison.Ordinal)
                     ? NavigationMode.New
                     : NavigationMode.Refresh;
-                var navigatingCancelEventArgs = new NavigatingCancelEventArgs(navigationMode, pageKey, parameter);
+                var navigatingCancelEventArgs = new NavigatingCancelEventArgs(false, navigationMode, pageKey, parameter);
                 Navigating?.Invoke(this, navigatingCancelEventArgs);
                 if (navigatingCancelEventArgs.Cancel)
                 {

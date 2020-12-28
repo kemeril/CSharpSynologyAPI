@@ -26,7 +26,7 @@ namespace KDSVideo.ViewModels
         public LoginInfo LoginInfo { get; }
         public IReadOnlyCollection<Library> Libraries { get; }
         public Exception Exception { get; }
-        public bool Success => LoginInfo != null && Libraries != null && Libraries.Any() &&  Exception == null;
+        public bool Success => LoginInfo != null && Exception == null && Libraries != null && Libraries.Any();
 
         public int ErrorCode
         {
@@ -53,11 +53,12 @@ namespace KDSVideo.ViewModels
                 switch (ErrorCode)
                 {
                     // Application level error codes
-                    case ApplicationLevelErrorCodes.InvalidHost: return "Invalid host.";
-                    case ApplicationLevelErrorCodes.QuickConnectIsNotSupported: return "QuickConnect connection type is not supported.";
-                    case ApplicationLevelErrorCodes.OperationTimeOut: return "Operation time out.";
-                    case ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished: return "A connection with the server could not be established.";
-                    case ApplicationLevelErrorCodes.NoVideoLibraries: return "There is no video libraries is available for the user logged in.";
+                    case ApplicationLevelErrorCodes.InvalidHost:
+                    case ApplicationLevelErrorCodes.QuickConnectIsNotSupported:
+                    case ApplicationLevelErrorCodes.OperationTimeOut:
+                    case ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished:
+                    case ApplicationLevelErrorCodes.NoVideoLibraries:
+                        return ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode);
 
                     // Synology error codes
                     case ErrorCodes.TheAccountParameterIsNotSpecified: return "The account is not specified.";

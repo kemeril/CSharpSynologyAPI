@@ -17,13 +17,13 @@ namespace KDSVideo.UIHelpers
                 switch (library.LibraryType)
                 {
                     case LibraryType.Movie:
-                        return "Movie";
+                        return "Movies";
                     case LibraryType.TvShow:
-                        return "TV Show";
+                        return "TV Shows";
                     case LibraryType.HomeVideo:
-                        return "Home Video";
+                        return "Home Videos";
                     case LibraryType.TvRecord:
-                        return "TV Recording";
+                        return "TV Recordings";
                     case LibraryType.Unknown:
                         break;
                     default:

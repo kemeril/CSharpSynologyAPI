@@ -18,7 +18,7 @@
         public const int OperationTimeOut = -3;
 
         /// <summary>
-        /// A connection with the server could not be established.
+        /// Connection with the server could not be established.
         /// </summary>
         public const int ConnectionWithTheServerCouldNotBeEstablished = -4;
 
@@ -26,5 +26,10 @@
         /// There is no video libraries is available for the user logged in.
         /// </summary>
         public const int NoVideoLibraries = -5;
+
+        /// <summary>
+        /// Unknown error.
+        /// </summary>
+        public const int UnknownError = int.MinValue;
     }
 }

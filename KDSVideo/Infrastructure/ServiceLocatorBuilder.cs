@@ -8,6 +8,7 @@ using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 using GalaSoft.MvvmLight;
+using KDSVideo.ViewModels.NavigationViewModels;
 using KDSVideo.Views.NavigationViews;
 
 namespace KDSVideo.Infrastructure
@@ -55,6 +56,7 @@ namespace KDSVideo.Infrastructure
 
             //Register your services used here
             SimpleIoc.Default.Register(() => Messenger.Default);
+            SimpleIoc.Default.Register<IAuthenticationIdProvider>(() => new AuthenticationIdProvider());
             SimpleIoc.Default.Register<IDeviceIdProvider>(() => new DeviceIdProvider());
             SimpleIoc.Default.Register<IAutoLoginDataHandler>(() => new AutoLoginDataHandler());
             SimpleIoc.Default.Register<IHistoricalLoginDataHandler>(() => new HistoricalLoginDataHandler());
@@ -77,6 +79,7 @@ namespace KDSVideo.Infrastructure
             SimpleIoc.Default.Register<LogoffViewModel>();
             SimpleIoc.Default.Register<SettingsViewModel>();
             SimpleIoc.Default.Register<MainViewModel>();
+            SimpleIoc.Default.Register<MovieViewModel>();
 
             _serviceLocator = ServiceLocator.Current;
 
