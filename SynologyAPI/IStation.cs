@@ -55,6 +55,16 @@ namespace SynologyAPI
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
         Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string id = null, string deviceId = null, string deviceName = null, string cipherText = null, IWebProxy proxy = null, CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Logs out.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
         Task LogoutAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Clear cookies.
+        /// </summary>
+        void ClearCookies();
     }
 }

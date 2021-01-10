@@ -181,9 +181,16 @@ namespace SynologyRestDAL
         public string Sid { get; set; } = string.Empty;
 
         /// <summary>
-        /// Device id, use to skip OTP checking. DSM 6 and onward.
+        /// did, use to skip OTP checking. DSM 6 and onward.
         /// </summary>
         [DataMember(Name = "did")]
+        [Obsolete]
+        public string Did { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Device id, use to skip OTP checking. DSM 6 and onward.
+        /// </summary>
+        [DataMember(Name = "device_id")]
         public string DeviceId { get; set; } = string.Empty;
 
         /// <summary>

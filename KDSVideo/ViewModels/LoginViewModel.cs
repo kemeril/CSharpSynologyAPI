@@ -234,7 +234,8 @@ namespace KDSVideo.ViewModels
             var webProxy = _networkService.GetProxy();
             var baseUri = _networkService.GetHostUri(Host);
             var authenticationId = _authenticationIdProvider.GetNewAuthenticationId();
-
+            
+            _videoStation.ClearCookies();
             var encryptionInfoResult = await GetEncryptionInfoAsync(webProxy, baseUri, authenticationId, deviceId, cts.Token);
             if (!encryptionInfoResult.Success)
             {

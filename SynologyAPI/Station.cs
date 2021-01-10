@@ -34,7 +34,9 @@ namespace SynologyAPI
 
         private Dictionary<string, int> _implementedApi;
         protected Dictionary<string, int> ImplementedApi => _implementedApi ?? (_implementedApi = GetImplementedApi());
-      
+
+        private CookieContainer _cookieContainer = new CookieContainer();
+
         public Station()
         {
             // **** Ignore any ssl errors
@@ -42,33 +44,16 @@ namespace SynologyAPI
                 (sender, certificate, chain, sslPolicyErrors) => true;
         }
 
-        protected virtual string GetSessionName()
-        {
-            return "DownloadStation";
-        }
+        protected virtual string GetSessionName() => "DownloadStation";
 
-        protected virtual Dictionary<string, int> GetImplementedApi()
-        {
-            return new Dictionary<string, int> { { ApiSynoApiAuth, 3 } };
-        }
+        protected virtual Dictionary<string, int> GetImplementedApi() => new Dictionary<string, int> { { ApiSynoApiAuth, 3 } };
 
-        protected async Task<string> _runAsync(RequestBuilder requestBuilder, CancellationToken cancellationToken)
-        {
-            return await _runAsync(Proxy, BaseUrl, requestBuilder, cancellationToken).ConfigureAwait(false);
-        }
+        protected async Task<string> _runAsync(RequestBuilder requestBuilder, CancellationToken cancellationToken) =>
+            await _runAsync(Proxy, BaseUrl, requestBuilder, cancellationToken).ConfigureAwait(false);
 
         protected async Task<string> _runAsync(IWebProxy proxy, Uri baseUri, RequestBuilder requestBuilder, CancellationToken cancellationToken)
         {
-            var request = WebRequest.Create(baseUri.ToString() + requestBuilder);
-            if (request is HttpWebRequest httpWebRequest)
-            {
-                httpWebRequest.CookieContainer = new CookieContainer();
-            }
-            
-            if (proxy != null)
-            {
-                request.Proxy = Proxy;
-            }
+            var request = _createWebRequest(baseUri, requestBuilder);
 
             var response = await request.GetResponseAsync(cancellationToken).ConfigureAwait(false);
 
@@ -85,9 +70,26 @@ namespace SynologyAPI
             }
         }
 
-        protected WebRequest _createWebRequest(RequestBuilder requestBuilder)
+        protected WebRequest _createWebRequest(Uri baseUri, RequestBuilder requestBuilder)
         {
-            var request = WebRequest.Create(BaseUrl.ToString() + requestBuilder);
+            var existingCookies = _cookieContainer.GetCookies(baseUri);
+            var requestParam = requestBuilder.Build();
+
+            var request = WebRequest.Create(baseUri + requestParam);
+            if (request is HttpWebRequest httpWebRequest)
+            {
+                httpWebRequest.CookieContainer = _cookieContainer;
+                if (requestBuilder.Params.TryGetValue(RequestBuilder.DID, out var did))
+                {
+                    if (existingCookies[RequestBuilder.DID] == null)
+                    {
+                        var domain = baseUri.Host;
+                        var didCookie = new Cookie(RequestBuilder.DID, did, "/", domain);
+                        _cookieContainer.Add(didCookie);
+                    }
+                }
+            }
+            
             if (Proxy != null)
             {
                 request.Proxy = Proxy;
@@ -97,14 +99,12 @@ namespace SynologyAPI
         }
 
         // ReSharper disable once UnusedMember.Global
-        public RequestBuilder CreateRequest(KeyValuePair<string, ApiSpec> apiSpec)
-        {
-            return new RequestBuilder().
-                        Api(apiSpec.Key).
-                        CgiPath(apiSpec.Value.Path).
-                        Version(apiSpec.Value.MaxVersion.ToString()).
-                        Method(string.Empty);
-        }
+        public RequestBuilder CreateRequest(KeyValuePair<string, ApiSpec> apiSpec) =>
+            new RequestBuilder().
+                Api(apiSpec.Key).
+                CgiPath(apiSpec.Value.Path).
+                Version(apiSpec.Value.MaxVersion.ToString()).
+                Method(string.Empty);
 
         public RequestBuilder CreateRequest(RequestBuilder requestBuilder, KeyValuePair<string, ApiSpec> apiSpec)
         {
@@ -135,34 +135,26 @@ namespace SynologyAPI
                 : JsonHelper.FromJson<T>(await _runAsync(CreateRequest(requestBuilder, stationApi), cancellationToken));
         }
 
-        protected async Task<T> CallMethodAsync<T>(string apiName, string method, CancellationToken cancellationToken = default)
-        {
-            return await CallAsync<T>(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
-        }
+        protected async Task<T> CallMethodAsync<T>(string apiName, string method, CancellationToken cancellationToken = default) =>
+            await CallAsync<T>(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
 
-        public async Task<T> CallMethodAsync<T>(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default)
-        {
-            return await CallAsync<T>(apiName, new RequestBuilder(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
-        }
+        public async Task<T> CallMethodAsync<T>(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default) =>
+            await CallAsync<T>(apiName, new RequestBuilder(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
 
         public async Task<WebRequest> GetWebRequestAsync(string apiName, RequestBuilder requestBuilder, CancellationToken cancellationToken = default)
         {
             var stationApi = (await GetApiAsync(apiName, cancellationToken).ConfigureAwait(false)).FirstOrDefault();
             return stationApi.Key == null
                 ? null
-                : _createWebRequest(CreateRequest(requestBuilder, stationApi));
+                : _createWebRequest(BaseUrl, CreateRequest(requestBuilder, stationApi));
         }
 
         // ReSharper disable once UnusedMember.Global
-        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, CancellationToken cancellationToken = default)
-        {
-            return await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
-        }
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, CancellationToken cancellationToken = default) =>
+            await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
 
-        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default)
-        {
-            return await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
-        }
+        public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, ReqParams param, CancellationToken cancellationToken = default) =>
+            await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method, param), cancellationToken).ConfigureAwait(false);
 
         public async Task<Dictionary<string, ApiSpec>> GetApiAsync(string apiName, CancellationToken cancellationToken = default)
         {
@@ -205,7 +197,7 @@ namespace SynologyAPI
                 new RequestBuilder().Api(ApiSynoApiEncryption)
                     .Method(MethodGetInfo)
                     .AddParam("id", id)
-                    .AddParam("did", deviceId)
+                    .AddParam(RequestBuilder.DID, deviceId)
                     .Version("1"),
                 cancellationToken
             ).ConfigureAwait(false);
@@ -288,7 +280,8 @@ namespace SynologyAPI
 
             if (!string.IsNullOrWhiteSpace(deviceId))
             {
-                param.Add("device_id", deviceId);
+                //param.Add("device_id", deviceId);
+                param.Add("did", deviceId);
             }
 
             if (!string.IsNullOrWhiteSpace(otpCode) || !string.IsNullOrWhiteSpace(deviceId))
@@ -328,6 +321,11 @@ namespace SynologyAPI
             return loginResult.Data;
         }
 
+        /// <summary>
+        /// Logs out.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
         public async Task LogoutAsync(CancellationToken cancellationToken = default)
         {
             Sid = string.Empty;
@@ -336,9 +334,21 @@ namespace SynologyAPI
                 .ConfigureAwait(false);
 
             if (!logoutResult.Success)
+            {
                 throw new SynoRequestException(ApiSynoApiAuth, MethodLogout, logoutResult.Error.Code);
+            }
+
+            ClearCookies();
         }
 
+        /// <summary>
+        /// Clear cookies.
+        /// </summary>
+        public void ClearCookies()
+        {
+            _cookieContainer = new CookieContainer();
+        }
+        
         protected string _postFile(RequestBuilder requestBuilder, string fileName, Stream fileStream, string fileParam = "file")
         {
             var requestHandler = new HttpClientHandler();

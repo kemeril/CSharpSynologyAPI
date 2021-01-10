@@ -7,11 +7,12 @@ namespace SynologyAPI
 {
     public class ReqParams : Dictionary<string, string>
     {
-
     }
 
     public class RequestBuilder
     {
+        internal const string DID = "did";
+        
         private readonly ReqParams _reqData = new ReqParams
         {
             { "api", "SYNO.API.Info" },
@@ -24,8 +25,6 @@ namespace SynologyAPI
         private ReqParams _params = new ReqParams();
 
         private readonly string[] _headBuildOrder = { "api", "version", "method" };
-
-        public ReqParams ApiParams => _reqData;
 
         public RequestBuilder()
         {
@@ -92,51 +91,45 @@ namespace SynologyAPI
             return this;
         }
 
-        public override string ToString()
-        {
-            return _build();
-        }
+        public string WebApi() => string.Format("{0}{1}", "webapi", _reqData["cgiPath"] != string.Empty ? "/" + _reqData["cgiPath"] : "");
 
-        public string WebApi()
-        {
-            return string.Format("{0}{1}", "webapi", _reqData["cgiPath"] != string.Empty ? "/" + _reqData["cgiPath"] : "");
-        }
+        public IDictionary<string, string> CallParams =>
+            _reqData
+                .Where(k => k.Key != "cgiPath")
+                .OrderBy(k => k.Key == "sid" ? -1 : _headBuildOrder.ToList().IndexOf(k.Key))
+                .ToDictionary(k => k.Key == "sid" ? "_sid" : k.Key, v => v.Value);
 
-        public IDictionary<string, string> CallParams
-        {
-            get
-            {
-                return _reqData
-                    .Where(k => k.Key != "cgiPath")
-                    .OrderBy(k => k.Key == "sid" ? -1 : _headBuildOrder.ToList().IndexOf(k.Key))
-                    .ToDictionary(k => k.Key == "sid" ? "_sid" : k.Key, v => v.Value);
-            }
-        }
-
-        private string _build()
+        public string Build()
         {
             var request = new StringBuilder();
 
             request.Append(WebApi());
 
             var reqHead = (from s in _headBuildOrder where _reqData[s] != string.Empty select s + "=" + System.Web.HttpUtility.UrlEncode(_reqData[s])).ToList();
-            var reqParams = _params.Select(param => param.Key + "=" + System.Web.HttpUtility.UrlEncode(param.Value)).ToList();
+            var reqParams = _params
+                .Select(param => param.Key + "=" + System.Web.HttpUtility.UrlEncode(param.Value))
+                .ToList();
+           
             if (reqHead.Any() || reqParams.Any())
             {
                 request.Append("?");
             }
+            
             if (reqHead.Any())
             {
                 request.Append(string.Join("&", reqHead));
             }
+            
             if (reqParams.Any())
             {
                 request.Append("&" + string.Join("&", reqParams));
             }
+            
             if (!string.IsNullOrWhiteSpace(_reqData["sid"]))
             {
                 request.Append("&_sid=" + _reqData["sid"]);
             }
+            
             return request.ToString();
         }
 
