@@ -51,7 +51,7 @@ namespace KDSVideo.ViewModels
         private IReadOnlyCollection<HistoricalLoginData> _historicalLoginData = new List<HistoricalLoginData>().AsReadOnly();
         private HistoricalLoginData _selectedHistoricalLoginData;
 
-        public LoginViewModel(IAuthenticationIdProvider authenticationIdProvider, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler,  IHistoricalLoginDataHandler historicalLoginDataHandler,  ITrustedLoginDataHandler trustedLoginDataHandler,  IVideoStation videoStation, IMessenger messenger)
+        public LoginViewModel(IAuthenticationIdProvider authenticationIdProvider, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler, IHistoricalLoginDataHandler historicalLoginDataHandler, ITrustedLoginDataHandler trustedLoginDataHandler, IVideoStation videoStation, IMessenger messenger)
         {
             _authenticationIdProvider = authenticationIdProvider ?? throw new ArgumentNullException(nameof(authenticationIdProvider));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
@@ -265,7 +265,7 @@ namespace KDSVideo.ViewModels
 
             try
             {
-                for (;;)
+                for (; ; )
                 {
                     if (loginResult.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified || loginResult.ErrorCode == ErrorCodes.OneTimePasswordAuthenticateFailed)
                     {

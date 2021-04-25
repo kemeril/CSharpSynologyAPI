@@ -1,8 +1,8 @@
 ﻿<Project>
   <PropertyGroup>
-    <Product>LEADER Driver Advisory System</Product>
-    <Company>Knorr-Bremse Rail Systems Budapest</Company>
-    <Copyright>© 2020 Knorr-Bremse. All rights reserved.</Copyright>
+    <Product>KDS Video</Product>
+    <Company>Lewis's Ltd.</Company>
+    <Copyright>© 2021 Lewis's Ltd. All rights reserved.</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <LangVersion>7.3</LangVersion>
   </PropertyGroup>

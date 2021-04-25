@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -27,7 +27,7 @@ namespace KDSVideo.Infrastructure
             {
                 return null;
             }
-          
+
             try
             {
                 var isQuickConnectId = IsQuickConnectId(host);
@@ -40,7 +40,7 @@ namespace KDSVideo.Infrastructure
                 host = CheckHostScheme(host);
 
                 var uriBuilder = new UriBuilder(host);
-                
+
                 //TODO: Implement QuickConnectId based connection! Remark: the Synology relay server may redirect the request.
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (!isQuickConnectId && !DoesHostContainsPortNumber(host, uriBuilder.Uri.HostNameType))
@@ -49,7 +49,7 @@ namespace KDSVideo.Infrastructure
                 }
 
                 var uri = uriBuilder.Uri;
-                
+
                 return uri;
             }
             catch (Exception e)
@@ -99,17 +99,17 @@ namespace KDSVideo.Infrastructure
                     throw new NotSupportedException("Unknown host.");
                 case UriHostNameType.Dns:
                 case UriHostNameType.IPv4:
-                {
-                    const string pattern = @":\d";
-                    var regex = new Regex(pattern);
-                    return regex.IsMatch(host ?? string.Empty);
-                }
+                    {
+                        const string pattern = @":\d";
+                        var regex = new Regex(pattern);
+                        return regex.IsMatch(host ?? string.Empty);
+                    }
                 case UriHostNameType.IPv6:
-                {
-                    const string pattern = @"]:\d";
-                    var regex = new Regex(pattern);
-                    return regex.IsMatch(host ?? string.Empty);
-                }
+                    {
+                        const string pattern = @"]:\d";
+                        var regex = new Regex(pattern);
+                        return regex.IsMatch(host ?? string.Empty);
+                    }
                 default:
                     throw new ArgumentOutOfRangeException();
             }
