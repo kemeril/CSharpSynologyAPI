@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using KDSVideo.Infrastructure;
@@ -63,7 +63,7 @@ namespace KDSVideo.ViewModels
             _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
 
             _loginCommand = new RelayCommand(Login, CanLogin);
-            _selectHistoricalLoginDataCommand = new RelayCommand(SelectHistoricalLoginData);
+            _selectHistoricalLoginDataCommand = new RelayCommand(SelectHistoricalLoginData, CanSelectHistoricalLoginData);
 
             var autoLoginData = _autoLoginDataHandler.Get();
             if (autoLoginData != null)
@@ -153,7 +153,6 @@ namespace KDSVideo.ViewModels
                 }
 
                 throw new LoginException(ApplicationLevelErrorCodes.NoVideoLibraries);
-               
             }
             catch (Exception ex)
             {
@@ -196,7 +195,7 @@ namespace KDSVideo.ViewModels
 
             _historicalLoginDataHandler.AddOrUpdate(Host, Account, Password);
         }
-        
+
         private void ReloadHistoricalLoginData() => HistoricalLoginData = _historicalLoginDataHandler.GetAll().ToList().AsReadOnly();
 
         private void SaveTrustedLoginData(string deviceId)
@@ -205,7 +204,7 @@ namespace KDSVideo.ViewModels
             {
                 return;
             }
-            
+
             _trustedLoginDataHandler.AddOrUpdate(Host, Account, Password, deviceId);
         }
 
@@ -219,7 +218,7 @@ namespace KDSVideo.ViewModels
 
             return $"{computerName}-{AppName}";
         }
-        
+
         private async void Login()
         {
             ShowProgressIndicator = true;
@@ -228,13 +227,13 @@ namespace KDSVideo.ViewModels
             {
                 deviceId = _deviceIdProvider.GetDeviceId();
             }
-            
+
             var cts = new CancellationTokenSource(_timeout);
             var deviceName = GetDeviceName();
             var webProxy = _networkService.GetProxy();
             var baseUri = _networkService.GetHostUri(Host);
             var authenticationId = _authenticationIdProvider.GetNewAuthenticationId();
-            
+
             _videoStation.ClearCookies();
             var encryptionInfoResult = await GetEncryptionInfoAsync(webProxy, baseUri, authenticationId, deviceId, cts.Token);
             if (!encryptionInfoResult.Success)
@@ -357,7 +356,9 @@ namespace KDSVideo.ViewModels
         private bool CanLogin() => HostIsValid() && AccountIsValid() && PasswordIsValid();
 
         public ICommand LoginCommand => _loginCommand;
-        
+
+        private bool CanSelectHistoricalLoginData() => HistoricalLoginData != null && HistoricalLoginData.Any();
+
         public ICommand SelectHistoricalLoginDataCommand => _selectHistoricalLoginDataCommand;
 
         public string Host
@@ -369,7 +370,7 @@ namespace KDSVideo.ViewModels
                 _loginCommand.RaiseCanExecuteChanged();
             }
         }
-        
+
         public string Account
         {
             get => _account ?? string.Empty;
@@ -379,7 +380,7 @@ namespace KDSVideo.ViewModels
                 _loginCommand.RaiseCanExecuteChanged();
             }
         }
-        
+
         public string Password
         {
             get => _password ?? string.Empty;
@@ -389,13 +390,13 @@ namespace KDSVideo.ViewModels
                 _loginCommand.RaiseCanExecuteChanged();
             }
         }
-        
+
         public string OtpCode
         {
             get => _otpCode;
             set => Set(nameof(OtpCode), ref _otpCode, value ?? string.Empty);
         }
-        
+
         public bool RememberMe
         {
             get => _rememberMe;

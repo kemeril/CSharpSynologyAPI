@@ -72,7 +72,6 @@ namespace SynologyAPI
 
         protected WebRequest _createWebRequest(Uri baseUri, RequestBuilder requestBuilder)
         {
-            var existingCookies = _cookieContainer.GetCookies(baseUri);
             var requestParam = requestBuilder.Build();
 
             var request = WebRequest.Create(baseUri + requestParam);
@@ -81,6 +80,7 @@ namespace SynologyAPI
                 httpWebRequest.CookieContainer = _cookieContainer;
                 if (requestBuilder.Params.TryGetValue(RequestBuilder.DID, out var did))
                 {
+                    var existingCookies = _cookieContainer.GetCookies(baseUri);
                     if (existingCookies[RequestBuilder.DID] == null)
                     {
                         var domain = baseUri.Host;
