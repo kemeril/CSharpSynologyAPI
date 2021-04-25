@@ -1,11 +1,10 @@
-﻿using StdUtils;
+using StdUtils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Xml;
 
 namespace SynologyRestDAL
 {
@@ -188,7 +187,7 @@ namespace SynologyRestDAL
                         {
                             return;
                         }
-                        
+
                         OriginalAvailable = new DateTime(int.Parse(dateParts[0]), int.Parse(dateParts[1]),
                             int.Parse(dateParts[2]));
                     }
@@ -610,7 +609,7 @@ namespace SynologyRestDAL
                     {
                         return null;
                     }
-                    
+
                     try
                     {
                         var formats = new[] { "yyyy-M-d H:m:s", "yyyy-M-d H:m:s.FFFFFF" };
@@ -693,7 +692,7 @@ namespace SynologyRestDAL
             /// <summary>
             /// Types: "raw", "hls_remux", "hls"
             /// </summary>
-            [DataMember(Name="format")]
+            [DataMember(Name = "format")]
             public string Format { get; set; }
 
             [DataMember(Name = "stream_id")]
@@ -902,7 +901,7 @@ namespace SynologyRestDAL
             {
                 get => long.TryParse(PositionSetter, out long position)
                     ? position
-                    : (long?) null;
+                    : (long?)null;
                 set => PositionSetter = value.HasValue
                     ? value.Value.ToString()
                     : null;

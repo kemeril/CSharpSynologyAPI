@@ -1,4 +1,4 @@
-﻿using StdUtils;
+using StdUtils;
 using SynologyRestDAL;
 using System;
 using System.Collections.Generic;
@@ -49,9 +49,9 @@ namespace SynologyAPI
         protected virtual Dictionary<string, int> GetImplementedApi() => new Dictionary<string, int> { { ApiSynoApiAuth, 3 } };
 
         protected async Task<string> _runAsync(RequestBuilder requestBuilder, CancellationToken cancellationToken) =>
-            await _runAsync(Proxy, BaseUrl, requestBuilder, cancellationToken).ConfigureAwait(false);
+            await _runAsync(BaseUrl, requestBuilder, cancellationToken).ConfigureAwait(false);
 
-        protected async Task<string> _runAsync(IWebProxy proxy, Uri baseUri, RequestBuilder requestBuilder, CancellationToken cancellationToken)
+        protected async Task<string> _runAsync(Uri baseUri, RequestBuilder requestBuilder, CancellationToken cancellationToken)
         {
             var request = _createWebRequest(baseUri, requestBuilder);
 
@@ -89,7 +89,7 @@ namespace SynologyAPI
                     }
                 }
             }
-            
+
             if (Proxy != null)
             {
                 request.Proxy = Proxy;
@@ -166,7 +166,7 @@ namespace SynologyAPI
                 ).ConfigureAwait(false);
                 ApiInfo = JsonHelper.FromJson<ApiInfo>(jsonResult);
             }
-            
+
             return ApiInfo.Data.Where(p => p.Key.StartsWith(apiName)).ToDictionary(t => t.Key, t => t.Value);
         }
 
@@ -193,7 +193,7 @@ namespace SynologyAPI
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(deviceId));
             }
 
-            var jsonResult = await _runAsync(proxy, baseUri,
+            var jsonResult = await _runAsync(baseUri,
                 new RequestBuilder().Api(ApiSynoApiEncryption)
                     .Method(MethodGetInfo)
                     .AddParam("id", id)
@@ -201,7 +201,7 @@ namespace SynologyAPI
                     .Version("1"),
                 cancellationToken
             ).ConfigureAwait(false);
-            
+
             var encryptionInfoResult = JsonHelper.FromJson<EncryptionInfoResult>(jsonResult);
             if (!encryptionInfoResult.Success)
             {
@@ -330,7 +330,7 @@ namespace SynologyAPI
         {
             Sid = string.Empty;
 
-            var logoutResult = await CallMethodAsync<TResult<object>>(ApiSynoApiAuth, MethodLogout, new ReqParams { {"session", GetSessionName()} }, cancellationToken)
+            var logoutResult = await CallMethodAsync<TResult<object>>(ApiSynoApiAuth, MethodLogout, new ReqParams { { "session", GetSessionName() } }, cancellationToken)
                 .ConfigureAwait(false);
 
             if (!logoutResult.Success)
@@ -348,7 +348,7 @@ namespace SynologyAPI
         {
             _cookieContainer = new CookieContainer();
         }
-        
+
         protected string _postFile(RequestBuilder requestBuilder, string fileName, Stream fileStream, string fileParam = "file")
         {
             var requestHandler = new HttpClientHandler();
@@ -376,7 +376,7 @@ namespace SynologyAPI
 
                     // This looks ugly, but won't work otherwise, server api is very sensitive to quotes and stuff
                     fileStreamContent.Headers.Remove("Content-Disposition");
-                    fileStreamContent.Headers.ContentDisposition = 
+                    fileStreamContent.Headers.ContentDisposition =
                         new ContentDispositionHeaderValue("form-data") { FileName = StringUtils.Enquote(fileName), Name = StringUtils.Enquote("file") };
 
                     fileStreamContent.Headers.Remove("Content-Type");

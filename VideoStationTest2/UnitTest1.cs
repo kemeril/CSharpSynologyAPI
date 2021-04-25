@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -23,21 +23,24 @@ namespace VideoStationTest2
             const string DeviceName = "SM-T580 - DS video";
 
             var proxy = VideoStationFactory.GetDefaultProxy() ?? VideoStationFactory.CreateProxy("");
+            //var proxy = new WebProxy();
             VideoStation = new VideoStation();
 
             try
             {
-                var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, null, null, DeviceId, DeviceName, null, proxy).GetAwaiter().GetResult();
+                var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password,
+                    null, null, DeviceId, DeviceName, null, proxy).GetAwaiter().GetResult();
                 Sid = loginInfo.Sid;
             }
             catch (SynoRequestException e)
             {
                 if (e.ErrorCode == ErrorCodes.OneTimePasswordNotSpecified)
                 {
-                    string otpCode = "297334"; //obtain OTP CODE
+                    string otpCode = "635093"; //obtain OTP CODE
                     try
                     {
-                        var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password, otpCode, proxy: proxy).GetAwaiter().GetResult();
+                        var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username,
+                            password, otpCode, proxy: proxy).GetAwaiter().GetResult();
                         Sid = loginInfo.Sid;
 
                         //store device id for later login to bypass OTP CODE obtaining.
@@ -53,7 +56,11 @@ namespace VideoStationTest2
                     Assert.Fail("Login (normal) error. " + e);
                 }
             }
-            
+            catch (Exception e)
+            {
+                Assert.Fail("Error. " + e);
+            }
+
             Console.WriteLine("Sid (for debug purpose only): " + Sid);
         }
 
@@ -204,8 +211,8 @@ namespace VideoStationTest2
 
             Assert.IsNotNull(innerFolderResult);
         }
-        
-                [TestMethod]
+
+        [TestMethod]
         public void Test_FolderList_TvShow2()
         {
             var result = VideoStation.LibraryListAsync().GetAwaiter().GetResult();
@@ -602,7 +609,7 @@ namespace VideoStationTest2
             var audioTrackInfo = VideoStation.AudioTrackListAsync(movieFile.Id).GetAwaiter().GetResult();
             var audioTracks = audioTrackInfo.AudioTracks.ToList();
             if (!audioTracks.Any()) return;
-            
+
             Assert.AreEqual(1, audioTracks.Count);
         }
 

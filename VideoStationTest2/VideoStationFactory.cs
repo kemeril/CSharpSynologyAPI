@@ -1,4 +1,4 @@
-﻿using SynologyAPI;
+//using SynologyAPI;
 using System;
 using System.Net;
 
@@ -18,7 +18,7 @@ namespace VideoStationTest2
             return proxy;
         }
 
-        public static Uri VideoStationBaseUri => new Uri("http://<your-subdomain-here>.duckdns.org/");
+        public static Uri VideoStationBaseUri => new Uri("http://192.168.0.22:5000");
 
 
 
