@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using SynologyAPI.Exception;
@@ -69,10 +69,10 @@ namespace KDSVideo.ViewModels
                     case ErrorCodes.InvalidPassword: return "Invalid password.";
                     case ErrorCodes.GuestOrDisabledAccount: return "Guest or disabled account.";
                     case ErrorCodes.PermissionDenied: return "Permission denied.";
-                    
+
                     case ErrorCodes.OneTimePasswordNotSpecified: return "One time password not specified, 2-way authentication required.";
                     case ErrorCodes.OneTimePasswordAuthenticateFailed: return "One time password authenticate failed while 2-way authentication process.";
-                    
+
                     case ErrorCodes.AppPortalIncorrect: return "Application portal is incorrect.";
                     case ErrorCodes.OTPCodeEnforced: return "One time password (OTP) code enforced.";
 

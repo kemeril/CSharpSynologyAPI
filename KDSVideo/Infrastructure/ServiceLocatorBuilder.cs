@@ -1,4 +1,4 @@
-﻿using CommonServiceLocator;
+using CommonServiceLocator;
 using GalaSoft.MvvmLight.Ioc;
 using GalaSoft.MvvmLight.Messaging;
 using KDSVideo.ViewModels;
@@ -65,7 +65,7 @@ namespace KDSVideo.Infrastructure
             SimpleIoc.Default.Register<IVideoStation>(() => new VideoStation());
             SimpleIoc.Default.Register<IVideoSettingsDataHandler>(() => new VideoSettingsDataHandler());
             SimpleIoc.Default.Register<INavigationService>(() => navigationService);
-            
+
             if (ViewModelBase.IsInDesignModeStatic)
             {
                 SimpleIoc.Default.Register<IApplicationInfoService>(() => new Mock.ApplicationInfoService());

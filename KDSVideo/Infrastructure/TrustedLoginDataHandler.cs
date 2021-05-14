@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.Storage;
@@ -8,20 +8,20 @@ namespace KDSVideo.Infrastructure
 {
     public class TrustedLoginDataHandler : ITrustedLoginDataHandler
     {
-        private const string TrustedLoginDataKey = nameof(TrustedLoginDataKey);
-        private const int MaxItemStorage = 1000;
+        private const string TRUSTED_LOGIN_DATA_KEY = nameof(TRUSTED_LOGIN_DATA_KEY);
+        private const int MAX_ITEM_STORAGE = 1000;
 
         private IList<TrustedLoginData> GetAll()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
 
-            if (!settingValues.TryGetValue(TrustedLoginDataKey, out var listObject))
+            if (!settingValues.TryGetValue(TRUSTED_LOGIN_DATA_KEY, out var listObject))
             {
                 return new List<TrustedLoginData>();
             }
 
             return listObject != null && !string.IsNullOrWhiteSpace((string)listObject)
-                ? JsonHelper.FromJson<List<TrustedLoginData>>((string) listObject) ?? new List<TrustedLoginData>()
+                ? JsonHelper.FromJson<List<TrustedLoginData>>((string)listObject) ?? new List<TrustedLoginData>()
                 : new List<TrustedLoginData>();
         }
 
@@ -91,11 +91,11 @@ namespace KDSVideo.Infrastructure
                 Password = password,
                 DeviceId = deviceId
             });
-            all = all.Take(MaxItemStorage).ToList();
+            all = all.Take(MAX_ITEM_STORAGE).ToList();
 
             var json = JsonHelper.ToJson(all);
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            settingValues[TrustedLoginDataKey] = json;
+            settingValues[TRUSTED_LOGIN_DATA_KEY] = json;
         }
 
         public void RemoveIfExist(string host, string account)
@@ -122,7 +122,7 @@ namespace KDSVideo.Infrastructure
 
                     var json = JsonHelper.ToJson(all);
                     var settingValues = ApplicationData.Current.LocalSettings.Values;
-                    settingValues[TrustedLoginDataKey] = json;
+                    settingValues[TRUSTED_LOGIN_DATA_KEY] = json;
 
                     return;
                 }

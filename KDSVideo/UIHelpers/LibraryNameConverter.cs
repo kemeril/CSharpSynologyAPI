@@ -1,4 +1,4 @@
-﻿using SynologyRestDAL.Vs;
+using SynologyRestDAL.Vs;
 using System;
 
 namespace KDSVideo.UIHelpers
@@ -11,7 +11,7 @@ namespace KDSVideo.UIHelpers
             {
                 return string.Empty;
             }
-            
+
             if (library.Id == 0)
             {
                 switch (library.LibraryType)

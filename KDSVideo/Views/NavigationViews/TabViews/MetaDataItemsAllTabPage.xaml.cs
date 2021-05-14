@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using CommonServiceLocator;
 using KDSVideo.ViewModels.NavigationViewModels;
@@ -63,7 +63,7 @@ namespace KDSVideo.Views.NavigationViews.TabViews
             try
             {
                 mediaMetaDataItem.Poster = await _videoStation.GetPosterSoftwareBitmapAsync(mediaMetaDataItem.MetaDataItem.Id,
-                    mediaMetaDataItem.MetaDataItem.MediaType, (uint) image.Width, (uint) image.Height, cancellationToken: cts.Token);
+                    mediaMetaDataItem.MetaDataItem.MediaType, (uint)image.Width, (uint)image.Height, cancellationToken: cts.Token);
             }
             catch (Exception ex)
             {

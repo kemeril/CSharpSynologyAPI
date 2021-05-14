@@ -1,4 +1,4 @@
-﻿using KDSVideo.ViewModels;
+using KDSVideo.ViewModels;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -18,33 +18,33 @@ namespace KDSVideo.Views
 
         private Brush GetTextControlForegroundFocusedBrush() => (Brush)Application.Current.Resources[TextControlForegroundFocusedKey];
 
-        private void Host_GotFocus(object sender, RoutedEventArgs e)
+        private void Host_GotFocus(object sender, RoutedEventArgs _)
         {
             var foreground = GetTextControlForegroundFocusedBrush();
             HostIcon.Foreground = foreground;
         }
 
-        private void Host_LostFocus(object sender, RoutedEventArgs e)
+        private void Host_LostFocus(object sender, RoutedEventArgs _)
         {
             HostIcon.Foreground = Host.Foreground;
         }
 
-        private void Account_GotFocus(object sender, RoutedEventArgs e)
+        private void Account_GotFocus(object sender, RoutedEventArgs _)
         {
             AccountIcon.Foreground = GetTextControlForegroundFocusedBrush();
         }
 
-        private void Account_LostFocus(object sender, RoutedEventArgs e)
+        private void Account_LostFocus(object sender, RoutedEventArgs _)
         {
             AccountIcon.Foreground = Account.Foreground;
         }
 
-        private void Password_GotFocus(object sender, RoutedEventArgs e)
+        private void Password_GotFocus(object sender, RoutedEventArgs _)
         {
             PasswordIcon.Foreground = GetTextControlForegroundFocusedBrush();
         }
 
-        private void Password_LostFocus(object sender, RoutedEventArgs e)
+        private void Password_LostFocus(object sender, RoutedEventArgs _)
         {
             PasswordIcon.Foreground = Password.Foreground;
         }

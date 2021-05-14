@@ -1,4 +1,4 @@
-﻿using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using KDSVideo.Infrastructure;
@@ -168,7 +168,7 @@ namespace KDSVideo.ViewModels
                 _navigationService.NavigateTo(PageNavigationKey.SettingsPage);
                 return;
             }
-            
+
             if (!(args.InvokedItemContainer?.Tag is Library library))
             {
                 return;

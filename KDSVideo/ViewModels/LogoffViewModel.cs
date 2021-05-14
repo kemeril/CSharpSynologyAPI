@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using KDSVideo.Infrastructure;
@@ -20,7 +20,7 @@ namespace KDSVideo.ViewModels
             {
                 throw new ArgumentNullException(nameof(messenger));
             }
-            
+
             LogoffCommand = new RelayCommand(() =>
             {
                 messenger.Send(new LogoutMessage());

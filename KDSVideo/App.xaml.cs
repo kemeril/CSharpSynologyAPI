@@ -1,4 +1,4 @@
-﻿using CommonServiceLocator;
+using CommonServiceLocator;
 using KDSVideo.Infrastructure;
 using KDSVideo.Views;
 using System;
@@ -12,7 +12,7 @@ namespace KDSVideo
     /// <summary>
     /// Provides application-specific behavior to supplement the default Application class.
     /// </summary>
-    sealed partial class App : Application
+    public sealed partial class App : Application
     {
         private readonly IServiceLocator _serviceLocator;
 
@@ -58,7 +58,7 @@ namespace KDSVideo
                 if (navigationService.CurrentFrame.Content == null)
                 {
                     ViewModelLocator.Init();
-                    
+
                     // Set initial navigation page
                     navigationService.NavigateTo(PageNavigationKey.LoginPage);
                 }

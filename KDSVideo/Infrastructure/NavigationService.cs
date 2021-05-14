@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.UI.Xaml;
@@ -92,7 +92,7 @@ namespace KDSVideo.Infrastructure
                     {
                         return;
                     }
-                    
+
                     lock (_pagesByKey)
                     {
                         CurrentFrame.Navigate(_pagesByKey[previousPageKey], null);
@@ -288,7 +288,7 @@ namespace KDSVideo.Infrastructure
                     }
                 }
             }
-            
+
             return null;
         }
     }

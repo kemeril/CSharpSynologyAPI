@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 using KDSVideo.Infrastructure;
@@ -139,7 +139,7 @@ namespace KDSVideo.ViewModels
 
             Ac3PassthroughIsEnabled = videoSettings.Ac3PassThrough;
         }
-        
+
         private void UpdateSettings()
         {
             VideoStation.VideoTranscoding videoTranscoding;
@@ -159,9 +159,9 @@ namespace KDSVideo.ViewModels
                     break;
                 default:
                     videoTranscoding = VideoStation.VideoTranscoding.Raw;
-                        break;
+                    break;
             }
-            
+
             _videoSettingsDataHandler.SetOrUpdate(videoTranscoding, Ac3PassthroughIsEnabled);
         }
     }

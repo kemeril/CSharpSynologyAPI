@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +12,7 @@ namespace SynologyAPI
     public class RequestBuilder
     {
         internal const string DID = "did";
-        
+
         private readonly ReqParams _reqData = new ReqParams
         {
             { "api", "SYNO.API.Info" },
@@ -109,30 +109,29 @@ namespace SynologyAPI
             var reqParams = _params
                 .Select(param => param.Key + "=" + System.Web.HttpUtility.UrlEncode(param.Value))
                 .ToList();
-           
+
             if (reqHead.Any() || reqParams.Any())
             {
                 request.Append("?");
             }
-            
+
             if (reqHead.Any())
             {
                 request.Append(string.Join("&", reqHead));
             }
-            
+
             if (reqParams.Any())
             {
                 request.Append("&" + string.Join("&", reqParams));
             }
-            
+
             if (!string.IsNullOrWhiteSpace(_reqData["sid"]))
             {
                 request.Append("&_sid=" + _reqData["sid"]);
             }
-            
+
             return request.ToString();
         }
-
     }
 
     internal static class ReqParamsExt
