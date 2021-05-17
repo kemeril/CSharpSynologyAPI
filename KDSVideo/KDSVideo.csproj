@@ -126,6 +126,7 @@
     <Compile Include="Infrastructure\AuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\AutoLoginData.cs" />
     <Compile Include="Infrastructure\AutoLoginDataHandler.cs" />
+    <Compile Include="Infrastructure\DesignerLibrary.cs" />
     <Compile Include="Infrastructure\IApplicationInfoService.cs" />
     <Compile Include="Infrastructure\IAuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\INavigable.cs" />
@@ -136,7 +137,7 @@
     <Compile Include="Infrastructure\NavigationEventArgs.cs" />
     <Compile Include="Infrastructure\PageNavigationKey.cs" />
     <Compile Include="Infrastructure\QuickConnectLoginNotSupportedException.cs" />
-    <Compile Include="Infrastructure\ServiceLocatorBuilder.cs" />
+    <Compile Include="Infrastructure\ServiceProviderBuilder.cs" />
     <Compile Include="Infrastructure\NavigationService.cs" />
     <Compile Include="Infrastructure\HistoricalLoginData.cs" />
     <Compile Include="Infrastructure\HistoricalLoginDataHandler.cs" />
@@ -265,8 +266,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
+      <Version>5.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.12</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Toolkit.Mvvm">
+      <Version>7.0.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>7.0.2</Version>

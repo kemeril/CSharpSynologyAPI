@@ -1,6 +1,6 @@
 using System;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 

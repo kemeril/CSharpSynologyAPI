@@ -1,4 +1,3 @@
-using CommonServiceLocator;
 using KDSVideo.Infrastructure;
 using KDSVideo.Views;
 using System;
@@ -6,6 +5,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
 using KDSVideo.ViewModels;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KDSVideo
 {
@@ -14,7 +14,7 @@ namespace KDSVideo
     /// </summary>
     public sealed partial class App : Application
     {
-        private readonly IServiceLocator _serviceLocator;
+        internal static IServiceProvider Services;
 
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
@@ -23,7 +23,7 @@ namespace KDSVideo
         public App()
         {
             InitializeComponent();
-            _serviceLocator = ServiceLocatorBuilder.Build();
+            Services = ServiceProviderBuilder.ConfigureServices();
             Suspending += OnSuspending;
         }
 
@@ -35,10 +35,10 @@ namespace KDSVideo
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             Windows.UI.Core.SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
-            var navigationService = _serviceLocator.GetInstance<INavigationService>();
+            var navigationService = Services.GetService<INavigationService>();
 
             var mainPage = Window.Current.Content as MainPage;
-            if (mainPage == null)
+            if (navigationService != null && mainPage == null)
             {
                 mainPage = new MainPage();
                 var rootFrame = mainPage.NavigationFrame;
@@ -53,7 +53,7 @@ namespace KDSVideo
                 Window.Current.Content = mainPage;
             }
 
-            if (e.PrelaunchActivated == false)
+            if (navigationService != null && e.PrelaunchActivated == false)
             {
                 if (navigationService.CurrentFrame.Content == null)
                 {
@@ -91,8 +91,8 @@ namespace KDSVideo
         {
             try
             {
-                var navigationService = _serviceLocator.GetInstance<INavigationService>();
-                if (navigationService.CanGoBack)
+                var navigationService = Services.GetService<INavigationService>();
+                if (navigationService != null && navigationService.CanGoBack)
                 {
                     navigationService.GoBack();
                     return true;

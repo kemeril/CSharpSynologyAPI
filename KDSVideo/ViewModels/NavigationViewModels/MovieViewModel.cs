@@ -1,5 +1,5 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using SynologyRestDAL.Vs;
@@ -9,16 +9,17 @@ using NavigationEventArgs = KDSVideo.Infrastructure.NavigationEventArgs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels
 {
-    public class MovieViewModel : ViewModelBase, IDisposable, INavigable
+    public class MovieViewModel : ObservableRecipient, IDisposable, INavigable
     {
         private readonly IMessenger _messenger;
         private bool _disposedValue;
 
         public MovieViewModel(IMessenger messenger)
+            : base(messenger)
         {
-            _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+            _messenger = messenger;
 
-            RegisterMessages();
+            IsActive = true;
         }
 
         ~MovieViewModel()
@@ -50,24 +51,24 @@ namespace KDSVideo.ViewModels.NavigationViewModels
             {
                 if (disposing)
                 {
-                    UnregisterMessages();
+                    IsActive = false;
                 }
 
                 _disposedValue = true;
             }
         }
 
-        private void RegisterMessages()
+        protected override void OnActivated()
         {
-            _messenger.Register<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
         }
 
-        private void UnregisterMessages()
+        protected override void OnDeactivated()
         {
-            _messenger.Unregister<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.UnregisterAll(this);
         }
 
-        private void LogoutMessageReceived(LogoutMessage logoutMessage)
+        private void LogoutMessageReceived()
         {
             CleanUp();
         }
