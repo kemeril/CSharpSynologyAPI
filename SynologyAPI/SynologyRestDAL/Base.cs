@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using StdUtils;
@@ -152,7 +152,7 @@ namespace SynologyRestDAL
     public class TResult<T> : Result
     {
         [DataMember(Name = "data")]
-        public T Data  { get; set; }
+        public T Data { get; set; }
     }
 
     [DataContract]

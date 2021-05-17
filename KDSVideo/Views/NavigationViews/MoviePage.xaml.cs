@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Windows.UI.Xaml.Controls;
 using KDSVideo.ViewModels.NavigationViewModels;
 using KDSVideo.ViewModels.NavigationViewModels.TabViewModels;
@@ -25,7 +25,7 @@ namespace KDSVideo.Views.NavigationViews
             {
                 return;
             }
-            
+
             var tag = args.InvokedItemContainer.Tag?.ToString();
             switch (tag)
             {

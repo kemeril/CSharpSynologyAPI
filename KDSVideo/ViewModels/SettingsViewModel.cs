@@ -1,13 +1,13 @@
-﻿using System;
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Messaging;
+using System;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Messaging;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using SynologyAPI;
 
 namespace KDSVideo.ViewModels
 {
-    public class SettingsViewModel : ViewModelBase, IDisposable
+    public class SettingsViewModel : ObservableRecipient, IDisposable
     {
         private readonly IMessenger _messenger;
         private readonly IVideoSettingsDataHandler _videoSettingsDataHandler;
@@ -18,19 +18,14 @@ namespace KDSVideo.ViewModels
         private bool _ac3PassthroughIsEnabled;
 
         public SettingsViewModel(IMessenger messenger, IApplicationInfoService applicationInfoService, IVideoSettingsDataHandler videoSettingsDataHandler)
+            : base(messenger)
         {
-            _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+            _messenger = messenger;
             _videoSettingsDataHandler = videoSettingsDataHandler ?? throw new ArgumentNullException(nameof(videoSettingsDataHandler));
             ApplicationVersion = applicationInfoService.GetAppVersion();
 
-            if (IsInDesignModeStatic)
-            {
-                _account = "video.station.dev";
-                _host = "192.168.0.1";
-            }
-
             InitVideoSettings();
-            RegisterMessages();
+            IsActive = true;
         }
 
         ~SettingsViewModel()
@@ -49,13 +44,13 @@ namespace KDSVideo.ViewModels
         public string Account
         {
             get => _account;
-            set => Set(nameof(Account), ref _account, value);
+            set => SetProperty(ref _account, value);
         }
 
         public string Host
         {
             get => _host;
-            set => Set(nameof(Host), ref _host, value);
+            set => SetProperty(ref _host, value);
         }
 
         public int PlaybackQuality
@@ -63,7 +58,7 @@ namespace KDSVideo.ViewModels
             get => _playbackQuality;
             set
             {
-                Set(nameof(PlaybackQuality), ref _playbackQuality, value);
+                SetProperty(ref _playbackQuality, value);
                 UpdateSettings();
             }
         }
@@ -73,7 +68,7 @@ namespace KDSVideo.ViewModels
             get => _ac3PassthroughIsEnabled;
             set
             {
-                Set(nameof(Ac3PassthroughIsEnabled), ref _ac3PassthroughIsEnabled, value);
+                SetProperty(ref _ac3PassthroughIsEnabled, value);
                 UpdateSettings();
             }
         }
@@ -84,23 +79,22 @@ namespace KDSVideo.ViewModels
             {
                 if (disposing)
                 {
-                    UnregisterMessages();
+                    IsActive = false;
                 }
 
                 _disposedValue = true;
             }
         }
 
-        private void RegisterMessages()
+        protected override void OnActivated()
         {
-            _messenger.Register<LoginMessage>(this, LoginMessageReceived);
-            _messenger.Register<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.Register<LoginMessage>(this, (recipient, loginMessage) => LoginMessageReceived(loginMessage));
+            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
         }
 
-        private void UnregisterMessages()
+        protected override void OnDeactivated()
         {
-            _messenger.Unregister<LoginMessage>(this, LoginMessageReceived);
-            _messenger.Unregister<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.UnregisterAll(this);
         }
 
         private void LoginMessageReceived(LoginMessage loginMessage)
@@ -109,7 +103,7 @@ namespace KDSVideo.ViewModels
             Account = loginMessage.Account;
         }
 
-        private void LogoutMessageReceived(LogoutMessage logoffMessage)
+        private void LogoutMessageReceived()
         {
             Host = string.Empty;
             Account = string.Empty;
@@ -139,7 +133,7 @@ namespace KDSVideo.ViewModels
 
             Ac3PassthroughIsEnabled = videoSettings.Ac3PassThrough;
         }
-        
+
         private void UpdateSettings()
         {
             VideoStation.VideoTranscoding videoTranscoding;
@@ -159,9 +153,9 @@ namespace KDSVideo.ViewModels
                     break;
                 default:
                     videoTranscoding = VideoStation.VideoTranscoding.Raw;
-                        break;
+                    break;
             }
-            
+
             _videoSettingsDataHandler.SetOrUpdate(videoTranscoding, Ac3PassthroughIsEnabled);
         }
     }

@@ -1,19 +1,19 @@
-﻿using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
-using KDSVideo.Infrastructure;
-using KDSVideo.Messages;
-using SynologyRestDAL.Vs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
-using Windows.UI.Xaml.Controls;
+using KDSVideo.Infrastructure;
+using KDSVideo.Messages;
 using KDSVideo.UIHelpers;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using SynologyRestDAL.Vs;
+using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo.ViewModels
 {
-    public class MainViewModel : ViewModelBase, IDisposable
+    public class MainViewModel : ObservableRecipient, IDisposable
     {
         private readonly INavigationService _navigationService;
         private readonly IMessenger _messenger;
@@ -26,12 +26,13 @@ namespace KDSVideo.ViewModels
         public ICommand NavigateToCommand { get; }
 
         public MainViewModel(INavigationService navigationService, IMessenger messenger)
+            : base(messenger)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
-            _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+            _messenger = messenger;
             NavigateBackCommand = new RelayCommand(() => _navigationService.GoBack(), () => IsNavigationVisible);
             NavigateToCommand = new RelayCommand<NavigationViewItemInvokedEventArgs>(NavigateToInvoked);
-            RegisterMessages();
+            IsActive = true;
         }
 
         ~MainViewModel()
@@ -50,9 +51,9 @@ namespace KDSVideo.ViewModels
             get => _isNavigationVisible;
             private set
             {
-                Set(nameof(IsNavigationVisible), ref _isNavigationVisible, value);
-                RaisePropertyChanged(nameof(PaneDisplayMode));
-                RaisePropertyChanged(nameof(IsBackButtonVisible));
+                SetProperty(ref _isNavigationVisible, value);
+                OnPropertyChanged(nameof(PaneDisplayMode));
+                OnPropertyChanged(nameof(IsBackButtonVisible));
             }
         }
 
@@ -67,7 +68,7 @@ namespace KDSVideo.ViewModels
         public IReadOnlyCollection<NavigationItemBase> Libraries
         {
             get => _libraries;
-            private set => Set(nameof(Libraries), ref _libraries, value);
+            private set => SetProperty(ref _libraries, value);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -76,23 +77,22 @@ namespace KDSVideo.ViewModels
             {
                 if (disposing)
                 {
-                    UnregisterMessages();
+                    IsActive = false;
                 }
 
                 _disposedValue = true;
             }
         }
 
-        private void RegisterMessages()
+        protected override void OnActivated()
         {
-            _messenger.Register<LoginMessage>(this, LoginMessageReceived);
-            _messenger.Register<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.Register<LoginMessage>(this, (recipient, loginMessage) => LoginMessageReceived(loginMessage));
+            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
         }
 
-        private void UnregisterMessages()
+        protected override void OnDeactivated()
         {
-            _messenger.Unregister<LoginMessage>(this, LoginMessageReceived);
-            _messenger.Unregister<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.UnregisterAll(this);
         }
 
         private void LoginMessageReceived(LoginMessage loginMessage)
@@ -114,7 +114,7 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private void LogoutMessageReceived(LogoutMessage logoutMessage)
+        private void LogoutMessageReceived()
         {
             IsNavigationVisible = false;
             Libraries = new List<NavigationItemBase>().AsReadOnly();
@@ -168,7 +168,7 @@ namespace KDSVideo.ViewModels
                 _navigationService.NavigateTo(PageNavigationKey.SettingsPage);
                 return;
             }
-            
+
             if (!(args.InvokedItemContainer?.Tag is Library library))
             {
                 return;

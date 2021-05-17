@@ -1,13 +1,14 @@
-﻿using System;
+using System;
 using System.Diagnostics;
-using CommonServiceLocator;
-using KDSVideo.ViewModels.NavigationViewModels;
-using SynologyAPI;
 using System.Linq;
 using System.Threading;
+using KDSVideo.Extensions;
+using KDSVideo.Infrastructure;
+using KDSVideo.ViewModels.NavigationViewModels;
+using Microsoft.Extensions.DependencyInjection;
+using SynologyAPI;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
-using KDSVideo.Extensions;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -24,7 +25,7 @@ namespace KDSVideo.Views.NavigationViews.TabViews
         public MetaDataItemsAllTabPage()
         {
             this.InitializeComponent();
-            _videoStation = ServiceLocator.Current.GetInstance<IVideoStation>();
+            _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
         }
 
         private void ListViewBase_OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
@@ -63,7 +64,7 @@ namespace KDSVideo.Views.NavigationViews.TabViews
             try
             {
                 mediaMetaDataItem.Poster = await _videoStation.GetPosterSoftwareBitmapAsync(mediaMetaDataItem.MetaDataItem.Id,
-                    mediaMetaDataItem.MetaDataItem.MediaType, (uint) image.Width, (uint) image.Height, cancellationToken: cts.Token);
+                    mediaMetaDataItem.MetaDataItem.MediaType, (uint)image.Width, (uint)image.Height, cancellationToken: cts.Token);
             }
             catch (Exception ex)
             {

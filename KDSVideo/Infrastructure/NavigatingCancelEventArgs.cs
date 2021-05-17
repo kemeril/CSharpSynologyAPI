@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Windows.UI.Xaml.Navigation;
 
 namespace KDSVideo.Infrastructure
@@ -14,7 +14,7 @@ namespace KDSVideo.Infrastructure
             {
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(sourcePageKey));
             }
-            
+
             Cancel = cancel;
             NavigationMode = navigationMode;
             SourcePageKey = sourcePageKey;
@@ -25,8 +25,8 @@ namespace KDSVideo.Infrastructure
         /// Specifies whether a pending navigation should be canceled.
         /// </summary>
         /// <returns>**true** to cancel the pending cancelable navigation; **false** to continue with navigation.</returns>
-        public bool Cancel { get;  set; }
-        
+        public bool Cancel { get; set; }
+
         /// <summary>
         /// Gets the value of the *mode* parameter from the originating Navigate call.
         /// </summary>
@@ -38,7 +38,7 @@ namespace KDSVideo.Infrastructure
         /// </summary>
         /// <returns>The *SourcePageKey* value.</returns>
         public string SourcePageKey { get; }
-        
+
         /// <summary>
         /// Gets the navigation parameter associated with this navigation.
         /// </summary>

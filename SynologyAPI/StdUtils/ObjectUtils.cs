@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,18 +12,18 @@ namespace StdUtils
         {
             var outStrList = new List<string>();
             var keyPrefix = objPrefix ?? new List<string>();
-            
+
             foreach (PropertyDescriptor descriptor in TypeDescriptor.GetProperties(_object))
             {
                 string name = descriptor.Name;
                 object value = descriptor.GetValue(_object);
                 if (value != null)
                 {
-                    var namePrefix = String.Join("", (from obj in keyPrefix select String.Format(objPrefixFormat, obj)).ToArray());
+                    var namePrefix = string.Join("", (from obj in keyPrefix select string.Format(objPrefixFormat, obj)).ToArray());
                     string strValue = ValueToString(name, value, formatString, keyPrefix, objPrefixFormat);
-                    if (strValue != String.Empty)
+                    if (strValue != string.Empty)
                     {
-                        outStrList.Add(String.Format(formatString, name, strValue, namePrefix));
+                        outStrList.Add(string.Format(formatString, name, strValue, namePrefix));
                     }
                 }
             }
@@ -31,18 +31,18 @@ namespace StdUtils
             {
                 objPrefix.RemoveAt(objPrefix.Count - 1);
             }
-            return String.Join("\n", outStrList);
+            return string.Join("\n", outStrList);
         }
 
         public static string ValueToString(string name, object value, string formatString = "{2}[{0}]: {1}", List<string> objPrefix = null, string objPrefixFormat = "\t")
         {
             if (value == null)
             {
-                return "null"; 
+                return "null";
             }
             if (value is string)
             {
-                return string.Format("{0}", value);
+                return (string)value;
             }
             if (value is ValueType)
             {
@@ -55,11 +55,11 @@ namespace StdUtils
                 {
                     result.Add(ValueToString(name, obj, formatString, objPrefix, objPrefixFormat));
                 }
-                return String.Join("\n", result);
+                return string.Join("\n", result);
             }
             var newPrefix = objPrefix ?? new List<string>();
             newPrefix.Add(name);
-            return String.Format("\n{0}", HumanReadable(value, formatString, newPrefix, objPrefixFormat));
+            return $"\n{HumanReadable(value, formatString, newPrefix, objPrefixFormat)}";
         }
     }
 }

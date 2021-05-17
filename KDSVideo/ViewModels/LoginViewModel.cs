@@ -1,11 +1,3 @@
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
-using GalaSoft.MvvmLight.Messaging;
-using KDSVideo.Infrastructure;
-using KDSVideo.Messages;
-using KDSVideo.Views;
-using SynologyAPI;
-using SynologyRestDAL;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,11 +6,19 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using KDSVideo.Infrastructure;
+using KDSVideo.Messages;
+using KDSVideo.Views;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using SynologyAPI;
+using SynologyRestDAL;
 using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo.ViewModels
 {
-    public class LoginViewModel : ViewModelBase, IDisposable, INavigable
+    public class LoginViewModel : ObservableRecipient, IDisposable, INavigable
     {
         private const string AppName = "KDSVideo";
 
@@ -52,6 +52,7 @@ namespace KDSVideo.ViewModels
         private HistoricalLoginData _selectedHistoricalLoginData;
 
         public LoginViewModel(IAuthenticationIdProvider authenticationIdProvider, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler, IHistoricalLoginDataHandler historicalLoginDataHandler, ITrustedLoginDataHandler trustedLoginDataHandler, IVideoStation videoStation, IMessenger messenger)
+            : base(messenger)
         {
             _authenticationIdProvider = authenticationIdProvider ?? throw new ArgumentNullException(nameof(authenticationIdProvider));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
@@ -60,7 +61,7 @@ namespace KDSVideo.ViewModels
             _historicalLoginDataHandler = historicalLoginDataHandler ?? throw new ArgumentNullException(nameof(historicalLoginDataHandler));
             _trustedLoginDataHandler = trustedLoginDataHandler ?? throw new ArgumentNullException(nameof(trustedLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
-            _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+            _messenger = messenger;
 
             _loginCommand = new RelayCommand(Login, CanLogin);
             _selectHistoricalLoginDataCommand = new RelayCommand(SelectHistoricalLoginData, CanSelectHistoricalLoginData);
@@ -76,7 +77,7 @@ namespace KDSVideo.ViewModels
 
             ReloadHistoricalLoginData();
 
-            RegisterMessages();
+            IsActive = true;
         }
 
         ~LoginViewModel()
@@ -96,24 +97,24 @@ namespace KDSVideo.ViewModels
             {
                 if (disposing)
                 {
-                    UnregisterMessages();
+                    IsActive = false;
                 }
 
                 _disposedValue = true;
             }
         }
 
-        private void RegisterMessages()
+        protected override void OnActivated()
         {
-            _messenger.Register<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
         }
 
-        private void UnregisterMessages()
+        protected override void OnDeactivated()
         {
-            _messenger.Unregister<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.UnregisterAll(this);
         }
 
-        private async void LogoutMessageReceived(LogoutMessage logoutMessage)
+        private async void LogoutMessageReceived()
         {
             var cts = new CancellationTokenSource(_timeout);
             try
@@ -366,8 +367,8 @@ namespace KDSVideo.ViewModels
             get => _host ?? string.Empty;
             set
             {
-                Set(nameof(Host), ref _host, value ?? string.Empty);
-                _loginCommand.RaiseCanExecuteChanged();
+                SetProperty(ref _host, value ?? string.Empty);
+                _loginCommand.NotifyCanExecuteChanged();
             }
         }
 
@@ -376,8 +377,8 @@ namespace KDSVideo.ViewModels
             get => _account ?? string.Empty;
             set
             {
-                Set(nameof(Account), ref _account, value ?? string.Empty);
-                _loginCommand.RaiseCanExecuteChanged();
+                SetProperty(ref _account, value);
+                _loginCommand.NotifyCanExecuteChanged();
             }
         }
 
@@ -386,51 +387,51 @@ namespace KDSVideo.ViewModels
             get => _password ?? string.Empty;
             set
             {
-                Set(nameof(Password), ref _password, value ?? string.Empty);
-                _loginCommand.RaiseCanExecuteChanged();
+                SetProperty(ref _password, value);
+                _loginCommand.NotifyCanExecuteChanged();
             }
         }
 
         public string OtpCode
         {
             get => _otpCode;
-            set => Set(nameof(OtpCode), ref _otpCode, value ?? string.Empty);
+            set => SetProperty(ref _otpCode, value ?? string.Empty);
         }
 
         public bool RememberMe
         {
             get => _rememberMe;
-            set => Set(nameof(RememberMe), ref _rememberMe, value);
+            set => SetProperty(ref _rememberMe, value);
         }
 
         public bool TrustThisDevice
         {
             get => _trustThisDevice;
-            set => Set(nameof(TrustThisDevice), ref _trustThisDevice, value);
+            set => SetProperty(ref _trustThisDevice, value);
         }
 
         public bool ShowProgressIndicator
         {
             get => _showProgressIndicator;
-            set => Set(nameof(ShowProgressIndicator), ref _showProgressIndicator, value);
+            set => SetProperty(ref _showProgressIndicator, value);
         }
 
         public bool IsEnabledCredentialsInput
         {
             get => _isEnabledCredentialsInput;
-            private set => Set(nameof(IsEnabledCredentialsInput), ref _isEnabledCredentialsInput, value);
+            private set => SetProperty(ref _isEnabledCredentialsInput, value);
         }
 
         public IReadOnlyCollection<HistoricalLoginData> HistoricalLoginData
         {
             get => _historicalLoginData;
-            private set => Set(nameof(HistoricalLoginData), ref _historicalLoginData, value);
+            private set => SetProperty(ref _historicalLoginData, value);
         }
 
         public HistoricalLoginData SelectedHistoricalLoginData
         {
             get => _selectedHistoricalLoginData;
-            set => Set(nameof(SelectedHistoricalLoginData), ref _selectedHistoricalLoginData, value);
+            set => SetProperty(ref _selectedHistoricalLoginData, value);
         }
 
         public void Navigated(in object sender, in NavigationEventArgs args)

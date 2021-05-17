@@ -1,4 +1,4 @@
-﻿using SynologyRestDAL.Vs;
+using SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels
 {
@@ -9,7 +9,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels
         {
             TvShow = tvShow;
         }
-        
+
         public TvShow TvShow { get; set; }
     }
 }

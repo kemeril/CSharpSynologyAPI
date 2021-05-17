@@ -1,4 +1,4 @@
-﻿using SynologyAPI.Exception;
+using SynologyAPI.Exception;
 using SynologyRestDAL;
 using SynologyRestDAL.Vs;
 using System;
@@ -44,7 +44,7 @@ namespace SynologyAPI
 
 
         #region Boilerplate
-      
+
         protected override string GetSessionName()
         {
             return "VideoStation";
@@ -290,7 +290,7 @@ namespace SynologyAPI
         /// <exception cref="SynoRequestException"> is thrown on error</exception>
         public async Task<LibrariesInfo> LibraryListAsync(int offset = 0, int limit = -1, CancellationToken cancellationToken = default(CancellationToken))
         {
-            var librariesResult =  await CallMethodAsync<LibrariesResult>(ApiSynoVideoStationLibrary, MethodList, new ReqParams().Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
+            var librariesResult = await CallMethodAsync<LibrariesResult>(ApiSynoVideoStationLibrary, MethodList, new ReqParams().Offset(offset).Limit(limit), cancellationToken).ConfigureAwait(false);
 
             if (!librariesResult.Success)
                 throw new SynoRequestException(ApiSynoVideoStationLibrary, MethodList, librariesResult.Error.Code);
@@ -430,7 +430,7 @@ namespace SynologyAPI
         {
             if (format == null) throw new ArgumentNullException(nameof(format));
             if (string.IsNullOrEmpty(format)) throw new ArgumentException("format cannot be empty!", nameof(format));
-            if (!new[] {"raw", "hls_remux", "hls"}.Contains(format))
+            if (!new[] { "raw", "hls_remux", "hls" }.Contains(format))
             {
                 throw new ArgumentOutOfRangeException(nameof(format), format, "Invalid format value. Allowed values are: \"raw\", \"hls_remux\", \"hls\"");
             }

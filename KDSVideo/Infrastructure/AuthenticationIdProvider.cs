@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace KDSVideo.Infrastructure
 {
@@ -10,7 +10,7 @@ namespace KDSVideo.Infrastructure
         /// </summary>
         /// <returns>The authentication Id.</returns>
         public string GetNewAuthenticationId() =>
-            "i_"+(Guid.NewGuid().ToString().Replace("-", string.Empty)
+            "i_" + (Guid.NewGuid().ToString().Replace("-", string.Empty)
                 + Guid.NewGuid().ToString().Replace("-", string.Empty)
                 + Guid.NewGuid().ToString().Replace("-", string.Empty))
             .Substring(0, 83).Insert(9, "-");

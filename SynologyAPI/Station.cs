@@ -308,6 +308,7 @@ namespace SynologyAPI
                     MethodLogin, param,
                     cancellationToken)
                 .ConfigureAwait(false);
+
             if (loginResult.Success)
             {
                 Sid = loginResult.Data.Sid;

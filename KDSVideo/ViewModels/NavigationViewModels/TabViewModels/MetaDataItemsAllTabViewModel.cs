@@ -1,41 +1,38 @@
-﻿using CommonServiceLocator;
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Messaging;
-using KDSVideo.Messages;
-using KDSVideo.Views;
-using SynologyAPI;
-using SynologyRestDAL.Vs;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
+using KDSVideo.Infrastructure;
+using KDSVideo.Messages;
+using KDSVideo.Views;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using SynologyAPI;
+using SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
 {
-    public class MetaDataItemsAllTabViewModel : ViewModelBase, IDisposable
+    public class MetaDataItemsAllTabViewModel : ObservableRecipient, IDisposable
     {
         private readonly IMessenger _messenger;
         private readonly IVideoStation _videoStation;
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        
+
         private bool _disposedValue;
-        
+
         private bool _showProgressIndicator;
         private Library _library;
         private ObservableCollection<MediaMetaDataItem> _mediaMetaDataItems;
 
         public MetaDataItemsAllTabViewModel()
         {
-            if (!IsInDesignModeStatic)
-            {
-                _messenger = ServiceLocator.Current.GetInstance<IMessenger>();
-                _videoStation = ServiceLocator.Current.GetInstance<IVideoStation>();
+            _messenger = ServiceLocator.Services.GetService<IMessenger>();
+            _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
 
-                RegisterMessages();
-            }
+            IsActive = true;
         }
 
         ~MetaDataItemsAllTabViewModel()
@@ -52,13 +49,13 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
         public bool ShowProgressIndicator
         {
             get => _showProgressIndicator;
-            set => Set(nameof(ShowProgressIndicator), ref _showProgressIndicator, value);
+            set => SetProperty(ref _showProgressIndicator, value);
         }
 
         public ObservableCollection<MediaMetaDataItem> MediaMetaDataItems
         {
             get => _mediaMetaDataItems;
-            private set => Set(nameof(MediaMetaDataItems), ref _mediaMetaDataItems, value);
+            private set => SetProperty(ref _mediaMetaDataItems, value);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -67,28 +64,28 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
             {
                 if (disposing)
                 {
-                    UnregisterMessages();
+                    IsActive = false;
                 }
 
                 _disposedValue = true;
             }
         }
 
-        private void RegisterMessages()
+        protected override void OnActivated()
         {
-            _messenger.Register<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
         }
 
-        private void UnregisterMessages()
+        protected override void OnDeactivated()
         {
-            _messenger?.Unregister<LogoutMessage>(this, LogoutMessageReceived);
+            _messenger.UnregisterAll(this);
         }
 
-        private void LogoutMessageReceived(LogoutMessage logoutMessage)
+        private void LogoutMessageReceived()
         {
             CleanUp();
         }
-        
+
         private void CleanUp()
         {
             _library = null;
@@ -99,7 +96,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
         {
             RefreshData(_library, true);
         }
-        
+
         public async void RefreshData(Library library, bool forceUpdate)
         {
             if (_videoStation == null)
@@ -118,7 +115,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
             {
                 return;
             }
-            
+
             var cts = new CancellationTokenSource(_timeout);
 
             ShowProgressIndicator = true;
@@ -127,12 +124,12 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
                 switch (library.LibraryType)
                 {
                     case LibraryType.Movie:
-                    {
-                        var moviesInfo = await _videoStation.MovieListAsync(library.Id, cancellationToken: cts.Token);
-                        MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>(moviesInfo.Movies
-                            .Select(item => new MovieMetaDataItem(item)));
-                        break;
-                    }
+                        {
+                            var moviesInfo = await _videoStation.MovieListAsync(library.Id, cancellationToken: cts.Token);
+                            MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>(moviesInfo.Movies
+                                .Select(item => new MovieMetaDataItem(item)));
+                            break;
+                        }
                     case LibraryType.TvShow:
                         var tvShowsInfo = await _videoStation.TvShowListAsync(library.Id, cancellationToken: cts.Token);
                         MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>(tvShowsInfo.TvShows
