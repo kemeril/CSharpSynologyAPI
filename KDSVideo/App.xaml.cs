@@ -14,8 +14,6 @@ namespace KDSVideo
     /// </summary>
     public sealed partial class App : Application
     {
-        internal static IServiceProvider Services;
-
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -23,7 +21,7 @@ namespace KDSVideo
         public App()
         {
             InitializeComponent();
-            Services = ServiceProviderBuilder.ConfigureServices();
+            ServiceLocator.Services = ServiceProviderBuilder.ConfigureServices();
             Suspending += OnSuspending;
         }
 
@@ -35,7 +33,7 @@ namespace KDSVideo
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
             Windows.UI.Core.SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
-            var navigationService = Services.GetService<INavigationService>();
+            var navigationService = ServiceLocator.Services.GetService<INavigationService>();
 
             var mainPage = Window.Current.Content as MainPage;
             if (navigationService != null && mainPage == null)
@@ -91,7 +89,7 @@ namespace KDSVideo
         {
             try
             {
-                var navigationService = Services.GetService<INavigationService>();
+                var navigationService = ServiceLocator.Services.GetService<INavigationService>();
                 if (navigationService != null && navigationService.CanGoBack)
                 {
                     navigationService.GoBack();

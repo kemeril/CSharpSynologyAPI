@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using KDSVideo.Extensions;
+using KDSVideo.Infrastructure;
 using KDSVideo.ViewModels.NavigationViewModels;
 using Microsoft.Extensions.DependencyInjection;
 using SynologyAPI;
@@ -24,7 +25,7 @@ namespace KDSVideo.Views.NavigationViews.TabViews
         public MetaDataItemsAllTabPage()
         {
             this.InitializeComponent();
-            _videoStation = App.Services.GetService<IVideoStation>();
+            _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
         }
 
         private void ListViewBase_OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)

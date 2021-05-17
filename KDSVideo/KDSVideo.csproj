@@ -137,6 +137,7 @@
     <Compile Include="Infrastructure\NavigationEventArgs.cs" />
     <Compile Include="Infrastructure\PageNavigationKey.cs" />
     <Compile Include="Infrastructure\QuickConnectLoginNotSupportedException.cs" />
+    <Compile Include="Infrastructure\ServiceLocator.cs" />
     <Compile Include="Infrastructure\ServiceProviderBuilder.cs" />
     <Compile Include="Infrastructure\NavigationService.cs" />
     <Compile Include="Infrastructure\HistoricalLoginData.cs" />

@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using KDSVideo.Views;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,8 +29,8 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
 
         public MetaDataItemsAllTabViewModel()
         {
-            _messenger = App.Services.GetService<IMessenger>();
-            _videoStation = App.Services.GetService<IVideoStation>();
+            _messenger = ServiceLocator.Services.GetService<IMessenger>();
+            _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
 
             IsActive = true;
         }

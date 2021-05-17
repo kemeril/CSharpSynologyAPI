@@ -1,3 +1,4 @@
+using KDSVideo.Infrastructure;
 using KDSVideo.ViewModels.NavigationViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,17 +12,17 @@ namespace KDSVideo.ViewModels
         private static SettingsViewModel _settingsViewModel;
         private static MovieViewModel _movieViewModel;
 
-        public static LoginViewModel LoginViewModel => _loginViewModel ?? (_loginViewModel = App.Services.GetService<LoginViewModel>());
-        public static LogoffViewModel LogoffViewModel => _logoffViewModel ?? (_logoffViewModel = App.Services.GetService<LogoffViewModel>());
-        public static SettingsViewModel SettingsViewModel => _settingsViewModel ?? (_settingsViewModel = App.Services.GetService<SettingsViewModel>());
-        public static MainViewModel MainViewModel => _mainViewModel ?? (_mainViewModel = App.Services.GetService<MainViewModel>());
-        public static MovieViewModel MovieViewModel => _movieViewModel ?? (_movieViewModel = App.Services.GetService<MovieViewModel>());
+        public static LoginViewModel LoginViewModel => _loginViewModel ?? (_loginViewModel = ServiceLocator.Services.GetService<LoginViewModel>());
+        public static LogoffViewModel LogoffViewModel => _logoffViewModel ?? (_logoffViewModel = ServiceLocator.Services.GetService<LogoffViewModel>());
+        public static SettingsViewModel SettingsViewModel => _settingsViewModel ?? (_settingsViewModel = ServiceLocator.Services.GetService<SettingsViewModel>());
+        public static MainViewModel MainViewModel => _mainViewModel ?? (_mainViewModel = ServiceLocator.Services.GetService<MainViewModel>());
+        public static MovieViewModel MovieViewModel => _movieViewModel ?? (_movieViewModel = ServiceLocator.Services.GetService<MovieViewModel>());
 
         public static void Init()
         {
             if (_settingsViewModel == null)
             {
-                _settingsViewModel = App.Services.GetService<SettingsViewModel>();
+                _settingsViewModel = ServiceLocator.Services.GetService<SettingsViewModel>();
             }
         }
     }

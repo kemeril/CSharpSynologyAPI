@@ -1,11 +1,3 @@
-using KDSVideo.Infrastructure;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.Messaging;
-using KDSVideo.Messages;
-using KDSVideo.Views;
-using SynologyAPI;
-using SynologyRestDAL;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,6 +6,14 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using KDSVideo.Infrastructure;
+using KDSVideo.Messages;
+using KDSVideo.Views;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.Toolkit.Mvvm.Input;
+using Microsoft.Toolkit.Mvvm.Messaging;
+using SynologyAPI;
+using SynologyRestDAL;
 using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo.ViewModels
