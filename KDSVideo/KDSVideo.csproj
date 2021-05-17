@@ -126,7 +126,6 @@
     <Compile Include="Infrastructure\AuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\AutoLoginData.cs" />
     <Compile Include="Infrastructure\AutoLoginDataHandler.cs" />
-    <Compile Include="Infrastructure\DesignerLibrary.cs" />
     <Compile Include="Infrastructure\IApplicationInfoService.cs" />
     <Compile Include="Infrastructure\IAuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\INavigable.cs" />

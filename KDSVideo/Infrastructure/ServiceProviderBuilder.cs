@@ -6,6 +6,7 @@ using KDSVideo.Views.NavigationViews;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using SynologyAPI;
+using Windows.ApplicationModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 
@@ -65,7 +66,7 @@ namespace KDSVideo.Infrastructure
             services.AddSingleton<IVideoSettingsDataHandler, VideoSettingsDataHandler>();
             services.AddSingleton<INavigationService>(navigationService);
 
-            if (DesignerLibrary.IsInDesignMode)
+            if (DesignMode.DesignModeEnabled)
             {
                 services.AddSingleton<IApplicationInfoService, Mock.ApplicationInfoService>();
             }
