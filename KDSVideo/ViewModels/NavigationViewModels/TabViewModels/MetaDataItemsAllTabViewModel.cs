@@ -29,10 +29,13 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
 
         public MetaDataItemsAllTabViewModel()
         {
-            _messenger = ServiceLocator.Services.GetService<IMessenger>();
-            _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
+            if (ServiceLocator.Services != null)
+            {
+                _messenger = ServiceLocator.Services.GetService<IMessenger>();
+                _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
 
-            IsActive = true;
+                IsActive = true;
+            }
         }
 
         ~MetaDataItemsAllTabViewModel()
