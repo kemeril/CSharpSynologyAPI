@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 
 namespace KDSVideo.Infrastructure
 {
@@ -14,7 +14,7 @@ namespace KDSVideo.Infrastructure
         [DataMember(Name = "password")]
         public string Password { get; set; }
 
-        [DataMember(Name = "did")]
+        [DataMember(Name = "device_id")]
         public string DeviceId { get; set; }
     }
 }

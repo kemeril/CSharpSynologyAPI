@@ -22,7 +22,6 @@ namespace KDSVideo.ViewModels
     {
         private const string AppName = "KDSVideo";
 
-        private readonly IAuthenticationIdProvider _authenticationIdProvider;
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
         private readonly IAutoLoginDataHandler _autoLoginDataHandler;
@@ -54,10 +53,9 @@ namespace KDSVideo.ViewModels
         private IReadOnlyCollection<HistoricalLoginData> _historicalLoginData = new List<HistoricalLoginData>().AsReadOnly();
         private HistoricalLoginData _selectedHistoricalLoginData;
 
-        public LoginViewModel(IAuthenticationIdProvider authenticationIdProvider, IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler, IHistoricalLoginDataHandler historicalLoginDataHandler, ITrustedLoginDataHandler trustedLoginDataHandler, IVideoStation videoStation, IMessenger messenger)
+        public LoginViewModel(IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler, IHistoricalLoginDataHandler historicalLoginDataHandler, ITrustedLoginDataHandler trustedLoginDataHandler, IVideoStation videoStation, IMessenger messenger)
             : base(messenger)
         {
-            _authenticationIdProvider = authenticationIdProvider ?? throw new ArgumentNullException(nameof(authenticationIdProvider));
             _deviceIdProvider = deviceIdProvider ?? throw new ArgumentNullException(nameof(deviceIdProvider));
             _networkService = networkService ?? throw new ArgumentNullException(nameof(networkService));
             _autoLoginDataHandler = autoLoginDataHandler ?? throw new ArgumentNullException(nameof(autoLoginDataHandler));
@@ -130,11 +128,11 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private async Task<EncryptionInfoResult> GetEncryptionInfoAsync(IWebProxy proxy, Uri baseUri, string authenticationId, string deviceId, CancellationToken cancellationToken = default)
+        private async Task<EncryptionInfoResult> GetEncryptionInfoAsync(IWebProxy proxy, Uri baseUri, CancellationToken cancellationToken = default)
         {
             try
             {
-                var encryptionInfoInfo = await _videoStation.GetEncryptionInfoAsync(baseUri, authenticationId, deviceId, proxy, cancellationToken);
+                var encryptionInfoInfo = await _videoStation.GetEncryptionInfoAsync(baseUri, proxy, cancellationToken);
                 return new EncryptionInfoResult(encryptionInfoInfo);
             }
             catch (Exception ex)
@@ -236,10 +234,9 @@ namespace KDSVideo.ViewModels
             var deviceName = GetDeviceName();
             var webProxy = _networkService.GetProxy();
             var baseUri = _networkService.GetHostUri(Host);
-            var authenticationId = _authenticationIdProvider.GetNewAuthenticationId();
 
             _videoStation.ClearCookies();
-            var encryptionInfoResult = await GetEncryptionInfoAsync(webProxy, baseUri, authenticationId, deviceId, cts.Token);
+            var encryptionInfoResult = await GetEncryptionInfoAsync(webProxy, baseUri, cts.Token);
             if (!encryptionInfoResult.Success)
             {
                 ShowProgressIndicator = false;

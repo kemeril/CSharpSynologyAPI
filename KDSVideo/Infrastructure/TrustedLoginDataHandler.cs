@@ -44,8 +44,6 @@ namespace KDSVideo.Infrastructure
             // Get data
             var all = GetAll();
 
-            //return all.FirstOrDefault(trustedLoginData => IsTheSame(host, account, password, trustedLoginData))?.DeviceId;
-
             return all.FirstOrDefault(trustedLoginData =>
                 host.Equals(trustedLoginData.Host, StringComparison.CurrentCultureIgnoreCase)
                 && account.Equals(trustedLoginData.Account, StringComparison.CurrentCultureIgnoreCase)

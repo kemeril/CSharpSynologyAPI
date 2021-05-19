@@ -12,14 +12,11 @@ namespace SynologyAPI
         /// Gets Encryption information. This information can used by <see cref="LoginAsync"/> method cipherText param.
         /// </summary>
         /// <param name="baseUri">The VideoStation base uri. Required. Does not store <paramref name="baseUri"/> for further operations.</param>
-        /// <param name="id">Authentication Id. Sample value: i_pI9DZgwA-PXYIvIkqrbWRbP6A5QTUKGCNA2xAvR347RigtO9QsMUQO5u0crwrW2lWGaW2406BhQTIi5H7nfI</param>
-        /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.
-        /// Sample value: 51JDCuT81kbudcKWxgP4MFko142njD8sQ2x7ey1dO04ZwG3cRtHtvBZT0EyoAv6YiFzPcfQvLWN7tnOEfKwdXxbLsluoiR9XnYafddNAOLTkMfAbnLDr4uiiqLQ6yfD</param>
         /// <param name="proxy">Optional.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        Task<EncryptionInfo> GetEncryptionInfoAsync(Uri baseUri, string id, string deviceId, IWebProxy proxy = null, CancellationToken cancellationToken = default);
+        Task<EncryptionInfo> GetEncryptionInfoAsync(Uri baseUri, IWebProxy proxy = null, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Logins to the Synology NAS.

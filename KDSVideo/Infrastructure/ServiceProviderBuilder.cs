@@ -56,7 +56,6 @@ namespace KDSVideo.Infrastructure
 
             //Register your services used here
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
-            services.AddSingleton<IAuthenticationIdProvider, AuthenticationIdProvider>();
             services.AddSingleton<IDeviceIdProvider, DeviceIdProvider>();
             services.AddSingleton<IAutoLoginDataHandler, AutoLoginDataHandler>();
             services.AddSingleton<IHistoricalLoginDataHandler, HistoricalLoginDataHandler>();

@@ -5,18 +5,18 @@ namespace KDSVideo.Infrastructure
 {
     public class DeviceIdProvider : IDeviceIdProvider
     {
-        private const string DEVICE_ID = nameof(DEVICE_ID);
+        private const string DEVICE_ID_KEY = nameof(DEVICE_ID_KEY);
 
         public string GetDeviceId()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            if (settingValues.TryGetValue(DEVICE_ID, out var deviceIdObject))
+            if (settingValues.TryGetValue(DEVICE_ID_KEY, out var deviceIdObject))
             {
                 return (string)deviceIdObject;
             }
 
             var deviceId = CreateDeviceId();
-            settingValues[DEVICE_ID] = deviceId;
+            settingValues[DEVICE_ID_KEY] = deviceId;
             return deviceId;
         }
 

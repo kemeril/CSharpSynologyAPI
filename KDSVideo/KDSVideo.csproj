@@ -123,11 +123,9 @@
     <Compile Include="Extensions\SoftwareBitmapExtensions.cs" />
     <Compile Include="Extensions\VideoStationExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationInfoService.cs" />
-    <Compile Include="Infrastructure\AuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\AutoLoginData.cs" />
     <Compile Include="Infrastructure\AutoLoginDataHandler.cs" />
     <Compile Include="Infrastructure\IApplicationInfoService.cs" />
-    <Compile Include="Infrastructure\IAuthenticationIdProvider.cs" />
     <Compile Include="Infrastructure\INavigable.cs" />
     <Compile Include="Infrastructure\INavigationService.cs" />
     <Compile Include="Infrastructure\IVideoSettingsDataHandler.cs" />
