@@ -33,8 +33,11 @@ namespace KDSVideo.ViewModels
 
         private bool _disposedValue;
 
+#if DEBUG
+        private readonly TimeSpan _timeout = TimeSpan.FromHours(1);
+#else
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-
+#endif
         private readonly RelayCommand _loginCommand;
         private readonly RelayCommand _selectHistoricalLoginDataCommand;
 
@@ -141,11 +144,11 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private async Task<LoginResult> LoginAsync(IWebProxy proxy, Uri baseUri, string username, string password, string otpCode = null, string authenticationId = null, string deviceId = null, string deviceName = null, string cipherText = null, CancellationToken cancellationToken = default)
+        private async Task<LoginResult> LoginAsync(IWebProxy proxy, Uri baseUri, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, CancellationToken cancellationToken = default)
         {
             try
             {
-                var loginInfo = await _videoStation.LoginAsync(baseUri, username, password, otpCode, authenticationId, deviceId, deviceName, cipherText, proxy, cancellationToken);
+                var loginInfo = await _videoStation.LoginAsync(baseUri, username, password, otpCode, deviceId, deviceName, cipherText, proxy, cancellationToken);
                 var librariesInfo = await _videoStation.LibraryListAsync(cancellationToken: cancellationToken);
                 var libraries = librariesInfo.Libraries.ToList().AsReadOnly();
                 if (libraries.Any())
@@ -248,7 +251,7 @@ namespace KDSVideo.ViewModels
             }
 
             var cipherText = encryptionInfoResult.EncryptionInfo.PublicKey;
-            var loginResult = await LoginAsync(webProxy, baseUri, Account, Password, null, authenticationId, deviceId, deviceName, cipherText, cts.Token);
+            var loginResult = await LoginAsync(webProxy, baseUri, Account, Password, null, deviceId, deviceName, cipherText, cts.Token);
 
             if (loginResult.Success)
             {
@@ -280,14 +283,20 @@ namespace KDSVideo.ViewModels
                         {
                             ShowProgressIndicator = true;
                             cts = new CancellationTokenSource(_timeout);
+
+                            // Remark: newDeviceId is a request param. Can be a const value as well in this login invocation.
                             var newDeviceId = _deviceIdProvider.GetDeviceId();
-                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, authenticationId, newDeviceId, deviceName, cipherText, cts.Token);
+
+                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, newDeviceId, deviceName, cipherText, cts.Token);
 
                             if (loginResult.Success)
                             {
                                 SaveAutoLogin();
                                 SaveHistoricalLoginData();
+
+                                // Remark: loginResult.LoginInfo.DeviceId is a trusted DeviceId which can use at next login if available.
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
+
                                 ReloadHistoricalLoginData();
                                 ShowProgressIndicator = false;
                                 _messenger.Send(new LoginMessage(Host, Account, loginResult.Libraries));

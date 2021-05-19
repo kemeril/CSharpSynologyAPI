@@ -78,16 +78,6 @@ namespace SynologyAPI
             if (request is HttpWebRequest httpWebRequest)
             {
                 httpWebRequest.CookieContainer = _cookieContainer;
-                if (requestBuilder.Params.TryGetValue(RequestBuilder.DID, out var did))
-                {
-                    var existingCookies = _cookieContainer.GetCookies(baseUri);
-                    if (existingCookies[RequestBuilder.DID] == null)
-                    {
-                        var domain = baseUri.Host;
-                        var didCookie = new Cookie(RequestBuilder.DID, did, "/", domain);
-                        _cookieContainer.Add(didCookie);
-                    }
-                }
             }
 
             if (Proxy != null)
@@ -98,7 +88,6 @@ namespace SynologyAPI
             return request;
         }
 
-        // ReSharper disable once UnusedMember.Global
         public RequestBuilder CreateRequest(KeyValuePair<string, ApiSpec> apiSpec) =>
             new RequestBuilder().
                 Api(apiSpec.Key).
@@ -149,7 +138,6 @@ namespace SynologyAPI
                 : _createWebRequest(BaseUrl, CreateRequest(requestBuilder, stationApi));
         }
 
-        // ReSharper disable once UnusedMember.Global
         public async Task<WebRequest> GetWebRequestAsync(string apiName, string method, CancellationToken cancellationToken = default) =>
             await GetWebRequestAsync(apiName, new RequestBuilder(Sid).Session(Sid).Method(method), cancellationToken).ConfigureAwait(false);
 
@@ -237,7 +225,7 @@ namespace SynologyAPI
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
-        public async Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string id = null, string deviceId = null, string deviceName = null, string cipherText = null,
+        public async Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null,
              IWebProxy proxy = null, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(otpCode) && otpCode.Length != 6)
@@ -271,22 +259,11 @@ namespace SynologyAPI
             if (!string.IsNullOrWhiteSpace(otpCode))
             {
                 param.Add("otp_code", otpCode);
-            }
-
-            if (!string.IsNullOrWhiteSpace(id))
-            {
-                param.Add("id", id);
-            }
-
-            if (!string.IsNullOrWhiteSpace(deviceId))
-            {
-                //param.Add("device_id", deviceId);
-                param.Add("did", deviceId);
-            }
-
-            if (!string.IsNullOrWhiteSpace(otpCode) || !string.IsNullOrWhiteSpace(deviceId))
-            {
                 param.Add("enable_device_token", "yes");
+            }
+            else if (!string.IsNullOrWhiteSpace(deviceId))
+            {
+                param.Add("device_id", deviceId);
             }
 
             if (!string.IsNullOrWhiteSpace(deviceName))
