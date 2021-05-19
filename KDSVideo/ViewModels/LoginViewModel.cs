@@ -254,7 +254,6 @@ namespace KDSVideo.ViewModels
             {
                 SaveAutoLogin();
                 SaveHistoricalLoginData();
-                SaveTrustedLoginData(deviceId);
                 ReloadHistoricalLoginData();
                 ShowProgressIndicator = false;
                 _messenger.Send(new LoginMessage(Host, Account, loginResult.Libraries));
@@ -281,17 +280,13 @@ namespace KDSVideo.ViewModels
                             ShowProgressIndicator = true;
                             cts = new CancellationTokenSource(_timeout);
 
-                            // Remark: newDeviceId is a request param. Can be a const value as well in this login invocation.
-                            var newDeviceId = _deviceIdProvider.GetDeviceId();
-
-                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, newDeviceId, deviceName, cipherText, cts.Token);
+                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, null, deviceName, cipherText, cts.Token);
 
                             if (loginResult.Success)
                             {
                                 SaveAutoLogin();
                                 SaveHistoricalLoginData();
 
-                                // Remark: loginResult.LoginInfo.DeviceId is a trusted DeviceId which can use at next login if available.
                                 SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
 
                                 ReloadHistoricalLoginData();
