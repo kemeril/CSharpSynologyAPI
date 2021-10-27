@@ -1,12 +1,12 @@
 using SynologyAPI.Exception;
-using SynologyRestDAL;
-using SynologyRestDAL.Vs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using SynologyAPI.SynologyRestDAL;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 //https://github.com/kwent/syno/wiki/Video-Station-API
 

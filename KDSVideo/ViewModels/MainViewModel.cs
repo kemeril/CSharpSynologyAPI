@@ -8,8 +8,8 @@ using KDSVideo.UIHelpers;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Input;
 using Microsoft.Toolkit.Mvvm.Messaging;
-using SynologyRestDAL.Vs;
 using Windows.UI.Xaml.Controls;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels
 {

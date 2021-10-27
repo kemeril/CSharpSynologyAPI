@@ -1,9 +1,10 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using SynologyRestDAL.Vs;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using SynologyAPI.SynologyRestDAL.Vs;
+
 //using Windows.UI.Xaml.Markup;
 
 namespace KDSVideo.UIHelpers

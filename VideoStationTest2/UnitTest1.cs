@@ -4,8 +4,8 @@ using System.Net;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SynologyAPI;
 using SynologyAPI.Exception;
-using SynologyRestDAL;
-using SynologyRestDAL.Vs;
+using SynologyAPI.SynologyRestDAL;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace VideoStationTest2
 {
@@ -29,7 +29,7 @@ namespace VideoStationTest2
             try
             {
                 var loginInfo = VideoStation.LoginAsync(VideoStationFactory.VideoStationBaseUri, username, password,
-                    null, null, DeviceId, DeviceName, null, proxy).GetAwaiter().GetResult();
+                    null, null, DeviceId, DeviceName, proxy).GetAwaiter().GetResult();
                 Sid = loginInfo.Sid;
             }
             catch (SynoRequestException e)

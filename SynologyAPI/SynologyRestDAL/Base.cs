@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using StdUtils;
 
-namespace SynologyRestDAL
+namespace SynologyAPI.SynologyRestDAL
 {
     // ReSharper disable UnusedMember.Global
     // ReSharper disable InconsistentNaming
@@ -136,7 +136,7 @@ namespace SynologyRestDAL
     public class ErrorCode
     {
         [DataMember(Name = "code")]
-        public int Code;
+        public int Code { get; set; }
     }
 
     [DataContract]

@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using SynologyAPI.Exception;
-using SynologyRestDAL.Vs;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace SynologyAPI
 {

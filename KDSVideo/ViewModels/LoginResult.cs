@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SynologyAPI.Exception;
-using SynologyRestDAL;
-using SynologyRestDAL.Vs;
+using SynologyAPI.SynologyRestDAL;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels
 {

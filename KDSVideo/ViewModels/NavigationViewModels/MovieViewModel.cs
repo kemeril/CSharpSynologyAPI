@@ -2,9 +2,9 @@ using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
-using SynologyRestDAL.Vs;
 using System;
 using Windows.UI.Xaml.Navigation;
+using SynologyAPI.SynologyRestDAL.Vs;
 using NavigationEventArgs = KDSVideo.Infrastructure.NavigationEventArgs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels

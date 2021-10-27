@@ -1,11 +1,12 @@
-﻿using SynologyAPI.Exception;
+using SynologyAPI.Exception;
 using System;
+using SynologyAPI.SynologyRestDAL;
 
 namespace KDSVideo.ViewModels
 {
     public class EncryptionInfoResult
     {
-        public EncryptionInfoResult(SynologyRestDAL.EncryptionInfo encryptionInfo)
+        public EncryptionInfoResult(EncryptionInfo encryptionInfo)
         {
             EncryptionInfo = encryptionInfo;
             Exception = null;
@@ -17,7 +18,7 @@ namespace KDSVideo.ViewModels
             Exception = exception;
         }
 
-        public SynologyRestDAL.EncryptionInfo EncryptionInfo { get; }
+        public EncryptionInfo EncryptionInfo { get; }
         public Exception Exception { get; }
         public bool Success => EncryptionInfo != null && Exception == null;
 

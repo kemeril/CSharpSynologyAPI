@@ -1,4 +1,4 @@
-using SynologyRestDAL.Vs;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels
 {

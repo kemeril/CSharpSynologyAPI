@@ -11,7 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.Toolkit.Mvvm.Messaging;
 using SynologyAPI;
-using SynologyRestDAL.Vs;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
 {

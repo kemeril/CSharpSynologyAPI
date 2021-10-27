@@ -1,5 +1,5 @@
-using SynologyRestDAL.Vs;
 using Windows.Graphics.Imaging;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels
 {

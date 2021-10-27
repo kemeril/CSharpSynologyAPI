@@ -1,11 +1,11 @@
-﻿using SynologyAPI;
-using SynologyRestDAL.Vs;
+using SynologyAPI;
 using System;
 using System.IO;
 using System.ServiceModel;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
+using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.Extensions
 {

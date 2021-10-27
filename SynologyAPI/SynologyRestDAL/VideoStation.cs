@@ -1,12 +1,12 @@
-using StdUtils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
+using StdUtils;
 
-namespace SynologyRestDAL
+namespace SynologyAPI.SynologyRestDAL
 {
     namespace Vs
     {
@@ -51,16 +51,6 @@ namespace SynologyRestDAL
         }
 
         [DataContract]
-        public class Info
-        {
-            [DataMember(Name = "total")]
-            public int Total { get; set; }
-
-            [DataMember(Name = "offset")]
-            public int Offset { get; set; }
-        }
-
-        [DataContract]
         public class VideoStreamResult : TResult<VideoStreamInfo>
         {
         }
@@ -68,6 +58,16 @@ namespace SynologyRestDAL
         [DataContract]
         public class WatchStatusResult : TResult<WatchStatusInfo>
         {
+        }
+
+        [DataContract]
+        public class Info
+        {
+            [DataMember(Name = "total")]
+            public int Total { get; set; }
+
+            [DataMember(Name = "offset")]
+            public int Offset { get; set; }
         }
 
         [DataContract]
@@ -616,7 +616,7 @@ namespace SynologyRestDAL
                         var result = DateTime.ParseExact(PosterMTimeSetter, formats, CultureInfo.InvariantCulture, DateTimeStyles.None);
                         return result;
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
                         Trace.TraceWarning($"Invalid date format received from the NAS server: {PosterMTimeSetter}. Exception: {ex}.");
                         return null;
@@ -871,7 +871,17 @@ namespace SynologyRestDAL
         public class WatchStatus
         {
             [DataMember(Name = "last_update")]
-            private long? LastUpdateSetter { get; set; }
+            private long? LastUpdateSetter
+            {
+                get =>
+                    LastUpdate == null
+                        ? (long?)null
+                        : DateTimeConverter.ToUnixTime(LastUpdate.Value);
+                set =>
+                    LastUpdate = value.HasValue
+                        ? DateTimeConverter.FromUnixTime(value.Value)
+                        : (DateTime?)null;
+            }
 
             /// <summary>
             /// When was last updated the position. Null if this information is not available.
@@ -879,15 +889,7 @@ namespace SynologyRestDAL
             /// 1554724904
             /// and it means: Mon Apr 08 2019 13:01:44 GMT+0200 (CEST)
             /// </summary>
-            public DateTime? LastUpdate
-            {
-                get => LastUpdateSetter.HasValue
-                    ? DateTimeConverter.FromUnixTime(LastUpdateSetter.Value)
-                    : (DateTime?)null;
-                set => LastUpdateSetter = value.HasValue
-                    ? DateTimeConverter.ToUnixTime(value.Value)
-                    : (long?)null;
-            }
+            public DateTime? LastUpdate { get; private set; }
 
             /// <summary>
             /// The last position.
@@ -895,22 +897,17 @@ namespace SynologyRestDAL
             /// "13"
             /// </summary>
             [DataMember(Name = "position")]
-            private string PositionSetter { get; set; }
-
-            public long? Position
+            private string PositionSetter
             {
-                get => long.TryParse(PositionSetter, out long position)
-                    ? position
-                    : (long?)null;
-                set => PositionSetter = value.HasValue
-                    ? value.Value.ToString()
-                    : null;
+                get => Position?.ToString();
+                set => Position = long.TryParse(value, out var position) ? (long?)position : null;
             }
+
+            public long? Position { get; private set; }
 
             public override string ToString()
             {
-                return
-                    $"LastUpdate: {(LastUpdate.HasValue ? LastUpdate.ToString() : "Unknown")}, Position: {(Position.HasValue ? Position.ToString() : "Unknown")}";
+                return $"LastUpdate: {(LastUpdate.HasValue ? LastUpdate.ToString() : "Unknown")}, Position: {(Position.HasValue ? Position.ToString() : "Unknown")}";
             }
         }
     }

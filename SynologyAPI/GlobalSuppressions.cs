@@ -5,4 +5,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Property is used for serialization.", Scope = "member", Target = "~P:SynologyRestDAL.Vs.TvEpisode.TvShowOriginalAvailableSetter")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Property is used for serialization.", Scope = "member", Target = "~P:SynologyAPI.SynologyRestDAL.Vs.TvEpisode.TvShowOriginalAvailableSetter")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Property is used for serialization.", Scope = "member", Target = "~P:SynologyAPI.SynologyRestDAL.Vs.WatchStatus.PositionSetter")]
+[assembly: SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Property is used for serialization.", Scope = "member", Target = "~P:SynologyAPI.SynologyRestDAL.Vs.WatchStatus.LastUpdateSetter")]

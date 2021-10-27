@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using SynologyRestDAL;
-using SynologyRestDAL.Ds;
+using SynologyAPI.SynologyRestDAL;
+using SynologyAPI.SynologyRestDAL.Ds;
 
 namespace SynologyAPI
 {
