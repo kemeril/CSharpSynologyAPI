@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="KDSVideo.Views.NavigationViews.MoviePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -15,11 +15,11 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="Movies" FontSize="16" Margin="10,0"/>
-        <NavigationView Grid.Row="1" x:Name="NavigationViewControl" PaneDisplayMode="Top"
+        <NavigationView x:Name="NavigationViewControl" Grid.Row="1" PaneDisplayMode="Top"
             IsBackButtonVisible="Collapsed"
             IsBackEnabled="False"
             IsSettingsVisible="False"
-            ItemInvoked="NavigationViewControl_OnItemInvoked">
+            ItemInvoked="NavigationViewControl_OnItemInvoked" Loaded="NavigationViewControl_Loaded">
             <NavigationView.MenuItems>
                 <NavigationViewItem Content="All" Tag="ALL" />
                 <NavigationViewItem Content="By Folder" Tag="BY_FOLDER" />

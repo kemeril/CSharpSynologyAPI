@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using Windows.UI.Xaml.Controls;
 using KDSVideo.ViewModels.NavigationViewModels;
 using KDSVideo.ViewModels.NavigationViewModels.TabViewModels;
 using KDSVideo.Views.NavigationViews.TabViews;
+using Windows.UI.Xaml;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -46,6 +48,14 @@ namespace KDSVideo.Views.NavigationViews
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void NavigationViewControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (NavigationViewControl.SelectedItem == null && NavigationViewControl.MenuItems.FirstOrDefault(menu => (menu as Framework​Element)?.Tag?.ToString() == "ALL") is NavigationViewItem ALL)
+            {
+                ALL.IsSelected = true;
             }
         }
     }
