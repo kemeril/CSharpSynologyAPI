@@ -194,28 +194,53 @@ namespace SynologyAPI
         /// <summary>
         /// Logins to the Synology NAS.
         /// Support 2-way authentication.
-        /// Login with param combinations:
-        /// 1.) username, password; If the error code is 403 the OTP_CODE is asked. the user has to login with the 2nd way. DeviceId is anything can identify the device such as an GUID without hyphen characters. 
-        /// 2.) username, password, otpCode, deviceId; If the error code is 403 then the OTP_CODE is failed a new one asked again.
-        /// 3.) deviceId; the did value returned by the 2nd login method. No username or other params required.
         /// </summary>
-        /// <param name="baseUri">The VideoStation base uri. Required. Stores <paramref name="baseUri"/> for further operations.</param>
-        /// <param name="username">The username. Optional.</param>
-        /// <param name="password">The password. Optional.</param>
-        /// <param name="otpCode">6-digit otp code. Optional. Available DSM 3 and onward.
+        /// <param name="baseUri">The VideoStation base url. Required. Stores <paramref name="baseUri"/> for further operations.</param>
+        /// <param name="username">
+        /// The login account username. Required.
+        /// Available DSM 3 and onward.
+        /// </param>
+        /// <param name="password">
+        /// The login account password. Required.
+        /// Available DSM 3 and onward.
+        /// </param>
+        /// <param name="otpCode">
+        /// 6-digit otp code. Optional. Available DSM 3 and onward.
         /// First try to login with optCode left null or empty string.
         /// If login has failed with error code 403 ask user for 6-digit optCode and try to login again but pass the optCode as well.
         /// 
         /// OptCode is used when 2-way authentication shall be used and the code can be obtained by Google 2-Step Authentication service.
+        /// Optional - 2-factor authentication option with an OTP code. If it’s enabled, the user requires a verification code to log into DSM sessions.
+        /// Available DSM 3 and onward.
         /// </param>
-        /// <param name="deviceId">Device id (max: 255). Optional. Available DSM 6 and onward.
-        /// Sample value: 51JDCuT81kbudcKWxgP4MFko142njD8sQ2x7ey1dO04ZwG3cRtHtvBZT0EyoAv6YiFzPcfQvLWN7tnOEfKwdXxbLsluoiR9XnYafddNAOLTkMfAbnLDr4uiiqLQ6yfD</param>
-        /// <param name="deviceName">Optional.</param>
-        /// <param name="cipherText">>Optional.</param>
+        /// <param name="deviceId">
+        /// Device id.
+        /// Optional - If 2-factor authentication (OTP) has omitted the same enabled device id, pass this value to skip it.
+        /// Available DSM 6 and onward.
+        /// </param>
+        /// <param name="deviceName">
+        /// Device name.
+        /// Optional - To identify which device can be omitted from 2-factor authentication (OTP), pass this value will skip it.
+        /// Available DSM 6 and onward.
+        /// </param>
+        /// <param name="cipherText">Optional.</param>
         /// <param name="proxy">Optional.</param>
         /// <param name="cancellationToken">A <see cref="CancellationToken" /> to observe while waiting for the task to complete.</param>
         /// <returns></returns>
+        /// <exception cref="System.ArgumentNullException">
+        /// username
+        /// or
+        /// password
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// username cannot be empty! - username
+        /// or
+        /// password cannot be empty! - password
+        /// </exception>
         /// <exception cref="SynologyAPI.Exception.SynoRequestException">Synology NAS returns an error.</exception>
+        /// <remarks>
+        /// Login Api:  https://global.download.synology.com/download/Document/Software/DeveloperGuide/Os/DSM/All/enu/DSM_Login_Web_API_Guide_enu.pdf
+        /// </remarks>
         public async Task<LoginInfo> LoginAsync(Uri baseUri, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null,
              IWebProxy proxy = null, CancellationToken cancellationToken = default)
         {
@@ -233,8 +258,23 @@ namespace SynologyAPI
 
             var param = new ReqParams
             {
+                // Session.
+                // Optional - Login session name for DSM
+                // Applications.
+                // Available DSM 3 and onward.
                 {"session",  GetSessionName()},
-                {"format", "sid"}
+
+                // Format.
+                // Optional - Returned format of session ID.
+                // Following are the two possible options and the
+                // default value is cookie.
+                // cookie: The login session ID will be set to "id" key
+                // in cookie of HTTP / HTTPS header of response.
+                // sid: The login sid will only be returned as
+                // response JSON data and "id" key will not be set in
+                // cookie.
+                // Available DSM 3 and onward.
+                { "format", "sid"}
             };
 
             if (!string.IsNullOrWhiteSpace(username))
@@ -250,6 +290,11 @@ namespace SynologyAPI
             if (!string.IsNullOrWhiteSpace(otpCode))
             {
                 param.Add("otp_code", otpCode);
+
+                // enable_device_token.
+                // Optional - Omit 2-factor authentication (OTP) with
+                // a device id for the next login request.
+                // Available DSM 6 and onward.
                 param.Add("enable_device_token", "yes");
             }
             else if (!string.IsNullOrWhiteSpace(deviceId))
