@@ -5,10 +5,10 @@ using System.Windows.Input;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using KDSVideo.UIHelpers;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.Messaging;
 using Windows.UI.Xaml.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels

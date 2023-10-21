@@ -33,7 +33,7 @@ namespace KDSVideo.Infrastructure
                 var isQuickConnectId = IsQuickConnectId(host);
                 if (isQuickConnectId)
                 {
-                    host = ConvertQuickConnectIdToHost(host);
+                    _ = ConvertQuickConnectIdToHost(host);
                     throw new QuickConnectLoginNotSupportedException();
                 }
 
@@ -66,8 +66,8 @@ namespace KDSVideo.Infrastructure
         /// <returns><c>true</c> if the host is a QuickConnect Id; otherwise <c>false</c>.</returns>
         private bool IsQuickConnectId(string host)
         {
-            const string pattern = @"^[a-zA-Z][a-zA-Z0-9\-]*$";
-            var regex = new Regex(pattern);
+            const string PATTERN = @"^[a-zA-Z][a-zA-Z0-9\-]*$";
+            var regex = new Regex(PATTERN);
             return regex.IsMatch(host ?? string.Empty);
         }
 
@@ -100,14 +100,14 @@ namespace KDSVideo.Infrastructure
                 case UriHostNameType.Dns:
                 case UriHostNameType.IPv4:
                     {
-                        const string pattern = @":\d";
-                        var regex = new Regex(pattern);
+                        const string PATTERN = @":\d";
+                        var regex = new Regex(PATTERN);
                         return regex.IsMatch(host ?? string.Empty);
                     }
                 case UriHostNameType.IPv6:
                     {
-                        const string pattern = @"]:\d";
-                        var regex = new Regex(pattern);
+                        const string PATTERN = @"]:\d";
+                        var regex = new Regex(PATTERN);
                         return regex.IsMatch(host ?? string.Empty);
                     }
                 default:

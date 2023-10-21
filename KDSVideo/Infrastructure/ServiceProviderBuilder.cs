@@ -4,11 +4,11 @@ using KDSVideo.ViewModels.NavigationViewModels;
 using KDSVideo.Views;
 using KDSVideo.Views.NavigationViews;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Toolkit.Mvvm.Messaging;
 using SynologyAPI;
 using Windows.ApplicationModel;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace KDSVideo.Infrastructure
 {

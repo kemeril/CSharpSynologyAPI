@@ -9,18 +9,18 @@ using System.Windows.Input;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using KDSVideo.Views;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Input;
-using Microsoft.Toolkit.Mvvm.Messaging;
 using SynologyAPI;
 using Windows.UI.Xaml.Controls;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using SynologyAPI.SynologyRestDAL;
 
 namespace KDSVideo.ViewModels
 {
     public class LoginViewModel : ObservableRecipient, IDisposable, INavigable
     {
-        private const string AppName = "KDSVideo";
+        private const string APP_NAME = "KDSVideo";
 
         private readonly IDeviceIdProvider _deviceIdProvider;
         private readonly INetworkService _networkService;
@@ -160,21 +160,19 @@ namespace KDSVideo.ViewModels
             {
                 Trace.TraceInformation(ex.ToString());
 
-                switch (ex)
+                return ex switch
                 {
-                    case NotSupportedException _:
-                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.InvalidHost));
-                    case QuickConnectLoginNotSupportedException _:
-                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.QuickConnectIsNotSupported));
-                    case LoginException _:
-                        return new LoginResult(ex);
-                    case OperationCanceledException _:
-                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.OperationTimeOut));
-                    case WebException webException when webException.Response == null:
-                        return new LoginResult(new LoginException(ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished));
-                    default:
-                        return new LoginResult(ex);
-                }
+                    NotSupportedException _ => new LoginResult(
+                        new LoginException(ApplicationLevelErrorCodes.InvalidHost)),
+                    QuickConnectLoginNotSupportedException _ => new LoginResult(
+                        new LoginException(ApplicationLevelErrorCodes.QuickConnectIsNotSupported)),
+                    LoginException _ => new LoginResult(ex),
+                    OperationCanceledException _ => new LoginResult(
+                        new LoginException(ApplicationLevelErrorCodes.OperationTimeOut)),
+                    WebException webException when webException.Response == null => new LoginResult(
+                        new LoginException(ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished)),
+                    _ => new LoginResult(ex)
+                };
             }
         }
 
@@ -218,7 +216,7 @@ namespace KDSVideo.ViewModels
                 computerName = "UWP";
             }
 
-            return $"{computerName}-{AppName}";
+            return $"{computerName}-{APP_NAME}";
         }
 
         private async void Login()

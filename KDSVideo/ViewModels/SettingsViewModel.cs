@@ -1,6 +1,6 @@
 using System;
-using Microsoft.Toolkit.Mvvm.ComponentModel;
-using Microsoft.Toolkit.Mvvm.Messaging;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using SynologyAPI;
@@ -88,8 +88,8 @@ namespace KDSVideo.ViewModels
 
         protected override void OnActivated()
         {
-            _messenger.Register<LoginMessage>(this, (recipient, loginMessage) => LoginMessageReceived(loginMessage));
-            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
+            _messenger.Register<LoginMessage>(this, (_, loginMessage) => LoginMessageReceived(loginMessage));
+            _messenger.Register<LogoutMessage>(this, (_, _) => LogoutMessageReceived());
         }
 
         protected override void OnDeactivated()
@@ -112,49 +112,28 @@ namespace KDSVideo.ViewModels
         private void InitVideoSettings()
         {
             var videoSettings = _videoSettingsDataHandler.Get();
-            switch (videoSettings.VideoTranscoding)
+            PlaybackQuality = videoSettings.VideoTranscoding switch
             {
-                case VideoStation.VideoTranscoding.Raw:
-                    PlaybackQuality = 0;
-                    break;
-                case VideoStation.VideoTranscoding.HighQuality:
-                    PlaybackQuality = 1;
-                    break;
-                case VideoStation.VideoTranscoding.MediumQuality:
-                    PlaybackQuality = 2;
-                    break;
-                case VideoStation.VideoTranscoding.LowQuality:
-                    PlaybackQuality = 3;
-                    break;
-                default:
-                    PlaybackQuality = 4;
-                    break;
-            }
+                VideoStation.VideoTranscoding.Raw => 0,
+                VideoStation.VideoTranscoding.HighQuality => 1,
+                VideoStation.VideoTranscoding.MediumQuality => 2,
+                VideoStation.VideoTranscoding.LowQuality => 3,
+                _ => 4
+            };
 
             Ac3PassthroughIsEnabled = videoSettings.Ac3PassThrough;
         }
 
         private void UpdateSettings()
         {
-            VideoStation.VideoTranscoding videoTranscoding;
-            switch (PlaybackQuality)
+            VideoStation.VideoTranscoding videoTranscoding = PlaybackQuality switch
             {
-                case 0:
-                    videoTranscoding = VideoStation.VideoTranscoding.Raw;
-                    break;
-                case 1:
-                    videoTranscoding = VideoStation.VideoTranscoding.HighQuality;
-                    break;
-                case 2:
-                    videoTranscoding = VideoStation.VideoTranscoding.MediumQuality;
-                    break;
-                case 3:
-                    videoTranscoding = VideoStation.VideoTranscoding.LowQuality;
-                    break;
-                default:
-                    videoTranscoding = VideoStation.VideoTranscoding.Raw;
-                    break;
-            }
+                0 => VideoStation.VideoTranscoding.Raw,
+                1 => VideoStation.VideoTranscoding.HighQuality,
+                2 => VideoStation.VideoTranscoding.MediumQuality,
+                3 => VideoStation.VideoTranscoding.LowQuality,
+                _ => VideoStation.VideoTranscoding.Raw
+            };
 
             _videoSettingsDataHandler.SetOrUpdate(videoTranscoding, Ac3PassthroughIsEnabled);
         }
