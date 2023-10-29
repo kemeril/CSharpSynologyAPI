@@ -5,8 +5,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using SynologyAPI.SynologyRestDAL.Vs;
 
-//using Windows.UI.Xaml.Markup;
-
 namespace KDSVideo.UIHelpers
 {
     public abstract class NavigationItemBase { }
@@ -77,21 +75,15 @@ namespace KDSVideo.UIHelpers
                 return BuiltInTvShowTemplate;
             }
 
-            switch (navigationCategory.Library.LibraryType)
+            return navigationCategory.Library.LibraryType switch
             {
-                case LibraryType.Movie:
-                    return MovieTemplate;
-                case LibraryType.TvShow:
-                    return TvShowTemplate;
-                case LibraryType.HomeVideo:
-                    return HomeVideoTemplate;
-                case LibraryType.TvRecord:
-                    return TvRecordingTemplate;
-                case LibraryType.Unknown:
-                    return ItemTemplate;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(navigationCategory.Library.LibraryType), navigationCategory.Library.LibraryType, null);
-            }
+                LibraryType.Movie => MovieTemplate,
+                LibraryType.TvShow => TvShowTemplate,
+                LibraryType.HomeVideo => HomeVideoTemplate,
+                LibraryType.TvRecord => TvRecordingTemplate,
+                LibraryType.Unknown => ItemTemplate,
+                _ => throw new ArgumentOutOfRangeException(nameof(navigationCategory.Library.LibraryType), navigationCategory.Library.LibraryType, null)
+            };
         }
     }
 }

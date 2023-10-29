@@ -341,3 +341,5 @@ healthchecksdb
 
 #  nodejs distribution folder
 dist/
+/VideoStationTest2/UnitTest1.cs
+/VideoStationTest2/VideoStationFactory.cs

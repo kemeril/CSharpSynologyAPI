@@ -32,59 +32,45 @@ namespace KDSVideo.ViewModels
         {
             get
             {
-                if (Exception is SynoRequestException synoRequestException)
+                return Exception switch
                 {
-                    return synoRequestException.ErrorCode;
-                }
-
-                if (Exception is LoginException loginException)
-                {
-                    return loginException.ErrorCode;
-                }
-
-                return Success ? 0 : int.MinValue;
+                    SynoRequestException synoRequestException => synoRequestException.ErrorCode,
+                    LoginException loginException => loginException.ErrorCode,
+                    _ => Success ? 0 : int.MinValue
+                };
             }
         }
 
         public string ErrorMessage
         {
-            get
+            get => ErrorCode switch
             {
-                switch (ErrorCode)
-                {
-                    // Application level error codes
-                    case ApplicationLevelErrorCodes.InvalidHost:
-                    case ApplicationLevelErrorCodes.QuickConnectIsNotSupported:
-                    case ApplicationLevelErrorCodes.OperationTimeOut:
-                    case ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished:
-                    case ApplicationLevelErrorCodes.NoVideoLibraries:
-                        return ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode);
+                // Application level error codes
+                ApplicationLevelErrorCodes.InvalidHost => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.QuickConnectIsNotSupported => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.OperationTimeOut => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.NoVideoLibraries => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
 
-                    // Synology error codes
-                    case ErrorCodes.TheAccountParameterIsNotSpecified: return "The account is not specified.";
-                    case ErrorCodes.InsufficientUserPrivilege: return "Insufficient user privilege.";
-                    case ErrorCodes.ConnectionTimeOut: return "Connection time out.";
-                    case ErrorCodes.MultipleLoginDetected: return "Multiple login detected.";
-
-                    case ErrorCodes.InvalidPassword: return "Invalid password.";
-                    case ErrorCodes.GuestOrDisabledAccount: return "Guest or disabled account.";
-                    case ErrorCodes.PermissionDenied: return "Permission denied.";
-
-                    case ErrorCodes.OneTimePasswordNotSpecified: return "One time password not specified, 2-way authentication required.";
-                    case ErrorCodes.OneTimePasswordAuthenticateFailed: return "One time password authenticate failed while 2-way authentication process.";
-
-                    case ErrorCodes.AppPortalIncorrect: return "Application portal is incorrect.";
-                    case ErrorCodes.OTPCodeEnforced: return "One time password (OTP) code enforced.";
-
-                    case ErrorCodes.MaxTries: return "Maximum login attempt tries ha been reached.";
-                    case ErrorCodes.PasswordExpiredCanNotChange: return "Password is expired can not changed.";
-                    case ErrorCodes.PasswordExpired: return "Password is expired.";
-                    case ErrorCodes.PasswordMustChange: return "Password must change.";
-                    case ErrorCodes.AccountLocked: return "Account is locked.";
-
-                    default: return string.Empty;
-                }
-            }
+                // Synology error codes
+                ErrorCodes.TheAccountParameterIsNotSpecified => "The account is not specified.",
+                ErrorCodes.InsufficientUserPrivilege => "Insufficient user privilege.",
+                ErrorCodes.ConnectionTimeOut => "Connection time out.",
+                ErrorCodes.MultipleLoginDetected => "Multiple login detected.",
+                ErrorCodes.InvalidPassword => "Invalid password.",
+                ErrorCodes.GuestOrDisabledAccount => "Guest or disabled account.",
+                ErrorCodes.PermissionDenied => "Permission denied.",
+                ErrorCodes.OneTimePasswordNotSpecified => "One time password not specified, 2-way authentication required.",
+                ErrorCodes.OneTimePasswordAuthenticateFailed => "One time password authenticate failed while 2-way authentication process.",
+                ErrorCodes.AppPortalIncorrect => "Application portal is incorrect.",
+                ErrorCodes.OTPCodeEnforced => "One time password (OTP) code enforced.",
+                ErrorCodes.MaxTries => "Maximum login attempt tries ha been reached.",
+                ErrorCodes.PasswordExpiredCanNotChange => "Password is expired can not changed.",
+                ErrorCodes.PasswordExpired => "Password is expired.",
+                ErrorCodes.PasswordMustChange => "Password must change.",
+                ErrorCodes.AccountLocked => "Account is locked.",
+                _ => string.Empty
+            };
         }
     }
 }

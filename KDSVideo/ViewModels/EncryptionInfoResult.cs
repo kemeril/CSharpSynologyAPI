@@ -24,20 +24,12 @@ namespace KDSVideo.ViewModels
 
         public int ErrorCode
         {
-            get
+            get => Exception switch
             {
-                if (Exception is SynoRequestException synoRequestException)
-                {
-                    return synoRequestException.ErrorCode;
-                }
-
-                if (Exception is LoginException loginException)
-                {
-                    return loginException.ErrorCode;
-                }
-
-                return Success ? 0 : int.MinValue;
-            }
+                SynoRequestException synoRequestException => synoRequestException.ErrorCode,
+                LoginException loginException => loginException.ErrorCode,
+                _ => Success ? 0 : int.MinValue
+            };
         }
 
         public string ErrorMessage => ApplicationLevelErrorMessages.GetErrorMessage(ApplicationLevelErrorCodes.UnknownError);

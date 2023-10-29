@@ -60,7 +60,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels
 
         protected override void OnActivated()
         {
-            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
+            _messenger.Register<LogoutMessage>(this, (_, _) => LogoutMessageReceived());
         }
 
         protected override void OnDeactivated()

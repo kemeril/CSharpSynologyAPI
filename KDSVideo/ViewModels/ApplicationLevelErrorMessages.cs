@@ -1,21 +1,18 @@
-﻿namespace KDSVideo.ViewModels
+namespace KDSVideo.ViewModels
 {
     public static class ApplicationLevelErrorMessages
     {
-        public static string GetErrorMessage(int errorCode)
-        {
-            switch (errorCode)
+        public static string GetErrorMessage(int errorCode) =>
+            errorCode switch
             {
                 // Application level error codes
-                case ApplicationLevelErrorCodes.InvalidHost: return "Invalid host.";
-                case ApplicationLevelErrorCodes.QuickConnectIsNotSupported: return "QuickConnect connection type is not supported.";
-                case ApplicationLevelErrorCodes.OperationTimeOut: return "Operation time out.";
-                case ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished: return "Connection with the server could not be established.";
-                case ApplicationLevelErrorCodes.NoVideoLibraries: return "There is no video libraries is available for the user logged in.";
-                case ApplicationLevelErrorCodes.UnknownError: return "Unknown error.";
-                default:
-                    return string.Empty;
-            }
-        }
+                ApplicationLevelErrorCodes.InvalidHost => "Invalid host.",
+                ApplicationLevelErrorCodes.QuickConnectIsNotSupported => "QuickConnect connection type is not supported.",
+                ApplicationLevelErrorCodes.OperationTimeOut => "Operation time out.",
+                ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished => "Connection with the server could not be established.",
+                ApplicationLevelErrorCodes.NoVideoLibraries => "There is no video libraries is available for the user logged in.",
+                ApplicationLevelErrorCodes.UnknownError => "Unknown error.",
+                _ => string.Empty
+            };
     }
 }

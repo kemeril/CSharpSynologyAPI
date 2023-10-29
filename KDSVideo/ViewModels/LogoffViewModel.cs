@@ -6,26 +6,23 @@ using KDSVideo.Messages;
 
 namespace KDSVideo.ViewModels
 {
-    public class LogoffViewModel
+    public partial class LogoffViewModel
     {
-        public RelayCommand LogoffCommand { get; }
+        private readonly INavigationService _navigationService;
+
+        private readonly IMessenger _messenger;
+
+        [RelayCommand]
+        private void _LogOff()
+        {
+            _messenger.Send(new LogoutMessage());
+            _navigationService.NavigateTo(PageNavigationKey.LoginPage);
+        }
 
         public LogoffViewModel(INavigationService navigationService, IMessenger messenger)
         {
-            if (navigationService == null)
-            {
-                throw new ArgumentNullException(nameof(navigationService));
-            }
-            if (messenger == null)
-            {
-                throw new ArgumentNullException(nameof(messenger));
-            }
-
-            LogoffCommand = new RelayCommand(() =>
-            {
-                messenger.Send(new LogoutMessage());
-                navigationService.NavigateTo(PageNavigationKey.LoginPage);
-            });
+            _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
+            _messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         }
     }
 }
