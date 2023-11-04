@@ -15,35 +15,39 @@ namespace KDSVideo.Infrastructure
         /// for example when it is directly triggered in the code behind, and the
         /// NavigationService was not configured for this page type.
         /// </summary>
-        public const string UnknownPageKey = "-- UNKNOWN --";
+        public const string UNKNOWN_PAGE_KEY = "-- UNKNOWN --";
 
-        private readonly Dictionary<string, Type> _pagesByKey = new Dictionary<string, Type>();
-        private readonly Dictionary<string, string> _backNavigationTransitions = new Dictionary<string, string>();
+        private readonly Dictionary<string, Type> _pagesByKey = new();
+        private readonly Dictionary<string, string> _backNavigationTransitions = new();
 
-        private Frame _currentFrame;
+        private Frame? _currentFrame;
 
         ///// <summary>
         ///// Occurs when the content that is being navigated to has been found and is available from the Content property, although it may not have completed loading.
         ///// </summary>
         //public event NavigatedEventHandler Navigated;
 
+#pragma warning disable IDE1006 // Naming Styles
+        // ReSharper disable InconsistentNaming
         /// <summary>
         /// Occurs when a new navigation is requested.
         /// </summary>
-        public EventHandler<NavigatingCancelEventArgs> Navigating;
+        public EventHandler<NavigatingCancelEventArgs>? Navigating;
 
         /// <summary>
         /// Occurs when the content that is being navigated to has been found and is available from the Content property, although it may not have completed loading.
         /// </summary>
-        public EventHandler<NavigationEventArgs> Navigated;
+        public EventHandler<NavigationEventArgs>? Navigated;
+        // ReSharper restore InconsistentNaming
+#pragma warning restore IDE1006 // Naming Styles
 
         /// <summary>
         /// Gets or sets the Frame that should be use for the navigation.
         /// If this is not set explicitly, then (Frame)Window.Current.Content is used.
         /// </summary>
-        public Frame CurrentFrame
+        public Frame? CurrentFrame
         {
-            get => _currentFrame ?? (_currentFrame = Window.Current.Content as Frame);
+            get => _currentFrame ??= Window.Current.Content as Frame;
             set => _currentFrame = value;
         }
 
@@ -84,7 +88,7 @@ namespace KDSVideo.Infrastructure
             lock (_pagesByKey)
             {
                 var previousPageKey = GetPreviousPageKey();
-                if (previousPageKey != null && _pagesByKey.ContainsKey(previousPageKey))
+                if (previousPageKey != null && _pagesByKey.TryGetValue(previousPageKey, out var toPageKey))
                 {
                     var navigatingCancelEventArgs = new NavigatingCancelEventArgs(false, NavigationMode.Back, previousPageKey, null);
                     Navigating?.Invoke(this, navigatingCancelEventArgs);
@@ -95,7 +99,7 @@ namespace KDSVideo.Infrastructure
 
                     lock (_pagesByKey)
                     {
-                        CurrentFrame.Navigate(_pagesByKey[previousPageKey], null);
+                        CurrentFrame?.Navigate(toPageKey, null);
                         Navigated?.Invoke(this, new NavigationEventArgs(NavigationMode.Back, previousPageKey, null));
                     }
                 }
@@ -129,7 +133,7 @@ namespace KDSVideo.Infrastructure
         /// to the new page.</param>
         /// <exception cref="ArgumentException">When this method is called for 
         /// a key that has not been configured earlier.</exception>
-        public virtual void NavigateTo(string pageKey, object parameter)
+        public virtual void NavigateTo(string pageKey, object? parameter)
         {
             lock (_pagesByKey)
             {
@@ -149,7 +153,7 @@ namespace KDSVideo.Infrastructure
                     return;
                 }
 
-                CurrentFrame.Navigate(_pagesByKey[pageKey], parameter);
+                CurrentFrame?.Navigate(_pagesByKey[pageKey], parameter);
                 Navigated?.Invoke(this, new NavigationEventArgs(navigationMode, pageKey, parameter));
             }
         }
@@ -259,14 +263,14 @@ namespace KDSVideo.Infrastructure
         {
             if (CurrentFrame?.Content == null)
             {
-                return UnknownPageKey;
+                return UNKNOWN_PAGE_KEY;
             }
 
             var currentType = CurrentFrame.Content.GetType();
 
             if (_pagesByKey.All(p => p.Value != currentType))
             {
-                return UnknownPageKey;
+                return UNKNOWN_PAGE_KEY;
             }
 
             var item = _pagesByKey
@@ -275,7 +279,7 @@ namespace KDSVideo.Infrastructure
             return item.Key;
         }
 
-        private string GetPreviousPageKey()
+        private string? GetPreviousPageKey()
         {
             var currentPageKey = GetCurrentPageKey();
             if (!string.IsNullOrEmpty(currentPageKey))

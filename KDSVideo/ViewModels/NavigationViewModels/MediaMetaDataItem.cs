@@ -12,6 +12,6 @@ namespace KDSVideo.ViewModels.NavigationViewModels
 
         public MetaDataItem MetaDataItem { get; }
 
-        public SoftwareBitmap Poster { get; set; }
+        public SoftwareBitmap? Poster { get; set; }
     }
 }

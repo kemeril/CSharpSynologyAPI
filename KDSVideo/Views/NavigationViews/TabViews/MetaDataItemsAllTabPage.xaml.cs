@@ -20,11 +20,11 @@ namespace KDSVideo.Views.NavigationViews.TabViews
     public sealed partial class MetaDataItemsAllTabPage : Page
     {
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        private readonly IVideoStation _videoStation;
+        private readonly IVideoStation? _videoStation;
 
         public MetaDataItemsAllTabPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
             _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
         }
 
@@ -48,14 +48,14 @@ namespace KDSVideo.Views.NavigationViews.TabViews
                 throw new Exception("We should be in phase 1, but we are not.");
             }
 
-            if (!(args.Item is MediaMetaDataItem mediaMetaDataItem) || mediaMetaDataItem.Poster != null)
+            if (args.Item is not MediaMetaDataItem { Poster: null } mediaMetaDataItem)
             {
                 return;
             }
 
             var templateRoot = args.ItemContainer.ContentTemplateRoot as Grid;
             var image = templateRoot?.Children.OfType<Image>().FirstOrDefault();
-            if (image == null || image.Source != null)
+            if (image is not { Source: null })
             {
                 return;
             }

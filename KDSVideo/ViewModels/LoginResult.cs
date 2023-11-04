@@ -19,14 +19,14 @@ namespace KDSVideo.ViewModels
         public LoginResult(Exception exception)
         {
             LoginInfo = null;
-            Libraries = null;
+            Libraries = new List<Library>().AsReadOnly();
             Exception = exception;
         }
 
-        public LoginInfo LoginInfo { get; }
+        public LoginInfo? LoginInfo { get; }
         public IReadOnlyCollection<Library> Libraries { get; }
-        public Exception Exception { get; }
-        public bool Success => LoginInfo != null && Exception == null && Libraries != null && Libraries.Any();
+        public Exception? Exception { get; }
+        public bool Success => LoginInfo != null && Exception == null && Libraries.Any();
 
         public int ErrorCode
         {

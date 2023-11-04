@@ -1,4 +1,4 @@
-﻿using StdUtils;
+using StdUtils;
 using SynologyAPI;
 using Windows.Storage;
 
@@ -6,12 +6,12 @@ namespace KDSVideo.Infrastructure
 {
     public class VideoSettingsDataHandler : IVideoSettingsDataHandler
     {
-        private const string VideoSettingsDataKey = nameof(VideoSettingsDataKey);
+        private const string VIDEO_SETTINGS_DATA_KEY = nameof(VIDEO_SETTINGS_DATA_KEY);
 
         public VideoSettings Get()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            if (!settingValues.TryGetValue(VideoSettingsDataKey, out var valueObject))
+            if (!settingValues.TryGetValue(VIDEO_SETTINGS_DATA_KEY, out var valueObject))
             {
                 return VideoSettings.Default;
             }
@@ -29,13 +29,13 @@ namespace KDSVideo.Infrastructure
                 Ac3PassThrough = ac3PassThrough
             });
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            settingValues[VideoSettingsDataKey] = json;
+            settingValues[VIDEO_SETTINGS_DATA_KEY] = json;
         }
 
         public void Clear()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            settingValues[VideoSettingsDataKey] = string.Empty;
+            settingValues[VIDEO_SETTINGS_DATA_KEY] = string.Empty;
         }
     }
 }

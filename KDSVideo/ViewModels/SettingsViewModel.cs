@@ -13,7 +13,7 @@ namespace KDSVideo.ViewModels
         private readonly IVideoSettingsDataHandler _videoSettingsDataHandler;
 
         [ObservableProperty]
-        private string _applicationVersion;
+        private string _applicationVersion = string.Empty;
 
         [ObservableProperty]
         private string _account = string.Empty;

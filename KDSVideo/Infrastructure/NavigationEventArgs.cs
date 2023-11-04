@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Windows.UI.Xaml.Navigation;
 
 namespace KDSVideo.Infrastructure
@@ -6,7 +6,7 @@ namespace KDSVideo.Infrastructure
     /// <summary>Provides data for navigation methods and event handlers that cannot cancel the navigation request.</summary>
     public sealed class NavigationEventArgs
     {
-        public NavigationEventArgs(NavigationMode navigationMode, string sourcePageKey, object parameter)
+        public NavigationEventArgs(NavigationMode navigationMode, string sourcePageKey, object? parameter)
         {
             if (string.IsNullOrWhiteSpace(sourcePageKey))
             {
@@ -34,6 +34,6 @@ namespace KDSVideo.Infrastructure
         /// Gets any "Parameter" object passed to the target page for the navigation.
         /// </summary>
         /// <returns>An object that potentially passes parameters to the navigation target. May be null.</returns>
-        public object Parameter { get; }
+        public object? Parameter { get; }
     }
 }

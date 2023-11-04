@@ -8,7 +8,7 @@ namespace KDSVideo.Infrastructure
     /// </summary>
     public sealed class NavigatingCancelEventArgs
     {
-        public NavigatingCancelEventArgs(bool cancel, NavigationMode navigationMode, string sourcePageKey, object parameter)
+        public NavigatingCancelEventArgs(bool cancel, NavigationMode navigationMode, string sourcePageKey, object? parameter)
         {
             if (string.IsNullOrWhiteSpace(sourcePageKey))
             {
@@ -43,6 +43,6 @@ namespace KDSVideo.Infrastructure
         /// Gets the navigation parameter associated with this navigation.
         /// </summary>
         /// <returns>The navigation parameter.</returns>
-        public object Parameter { get; }
+        public object? Parameter { get; }
     }
 }

@@ -1,8 +1,8 @@
-﻿namespace KDSVideo.Infrastructure
+namespace KDSVideo.Infrastructure
 {
     public interface IAutoLoginDataHandler
     {
-        AutoLoginData Get();
+        AutoLoginData? Get();
         void SetOrUpdate(string host, string account, string password);
         void Clear();
     }

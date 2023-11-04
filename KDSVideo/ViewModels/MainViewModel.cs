@@ -153,7 +153,7 @@ namespace KDSVideo.ViewModels
             return result;
         }
 
-        private void NavigateToInvoked(NavigationViewItemInvokedEventArgs args)
+        private void NavigateToInvoked(NavigationViewItemInvokedEventArgs? args)
         {
             // could also use a converter on the command parameter if you don't like
             // the idea of passing in a NavigationViewItemInvokedEventArgs
@@ -169,7 +169,7 @@ namespace KDSVideo.ViewModels
                 return;
             }
 
-            if (!(args.InvokedItemContainer?.Tag is Library library))
+            if (args.InvokedItemContainer?.Tag is not Library library)
             {
                 return;
             }

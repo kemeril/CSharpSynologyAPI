@@ -25,7 +25,7 @@ namespace KDSVideo.Infrastructure
                 : new List<TrustedLoginData>();
         }
 
-        public string GetDeviceId(string host, string account, string password)
+        public string? GetDeviceId(string host, string account, string password)
         {
             // Check for mandatory parameters
             if (string.IsNullOrWhiteSpace(host))

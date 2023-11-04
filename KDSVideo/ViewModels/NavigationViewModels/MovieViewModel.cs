@@ -43,7 +43,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels
             Library = args.Parameter as Library;
         }
 
-        public Library Library { get; private set; }
+        public Library? Library { get; private set; }
 
         protected virtual void Dispose(bool disposing)
         {

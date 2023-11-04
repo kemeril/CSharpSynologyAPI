@@ -18,8 +18,8 @@ namespace KDSVideo.ViewModels
             Exception = exception;
         }
 
-        public EncryptionInfo EncryptionInfo { get; }
-        public Exception Exception { get; }
+        public EncryptionInfo? EncryptionInfo { get; }
+        public Exception? Exception { get; }
         public bool Success => EncryptionInfo != null && Exception == null;
 
         public int ErrorCode

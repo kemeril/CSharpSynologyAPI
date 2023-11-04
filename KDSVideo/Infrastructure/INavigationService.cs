@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Windows.UI.Xaml.Controls;
 
 namespace KDSVideo.Infrastructure
@@ -51,13 +51,13 @@ namespace KDSVideo.Infrastructure
         /// that should be displayed.</param>
         /// <param name="parameter">The parameter that should be passed
         /// to the new page.</param>
-        void NavigateTo(string pageKey, object parameter);
+        void NavigateTo(string pageKey, object? parameter);
 
         /// <summary>
         /// Gets or sets the Frame that should be use for the navigation.
         /// If this is not set explicitly, then (Frame)Window.Current.Content is used.
         /// </summary>
-        Frame CurrentFrame { get; set; }
+        Frame? CurrentFrame { get; set; }
 
         /// <summary>
         /// Gets a flag indicating if the CurrentFrame can navigate backwards.

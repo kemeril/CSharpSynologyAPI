@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using StdUtils;
 
+#pragma warning disable IDE1006 // Naming Styles
+
 namespace SynologyAPI.SynologyRestDAL
 {
     // ReSharper disable UnusedMember.Global
@@ -241,3 +243,4 @@ namespace SynologyAPI.SynologyRestDAL
     {
     }
 }
+#pragma warning restore IDE1006 // Naming Styles

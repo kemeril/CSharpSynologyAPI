@@ -18,7 +18,7 @@ using SynologyAPI.SynologyRestDAL;
 
 namespace KDSVideo.ViewModels
 {
-    public class LoginViewModel : ObservableRecipient, IDisposable, INavigable
+    public partial class LoginViewModel : ObservableRecipient, INavigable
     {
         private const string APP_NAME = "KDSVideo";
 
@@ -30,8 +30,6 @@ namespace KDSVideo.ViewModels
         private readonly IVideoStation _videoStation;
         private readonly IMessenger _messenger;
 
-        private bool _disposedValue;
-
 #if DEBUG
         private readonly TimeSpan _timeout = TimeSpan.FromHours(1);
 #else
@@ -40,18 +38,35 @@ namespace KDSVideo.ViewModels
         private readonly RelayCommand _loginCommand;
         private readonly RelayCommand _selectHistoricalLoginDataCommand;
 
+        [ObservableProperty]
         private string _host = string.Empty;
+
+        [ObservableProperty]
         private string _account = string.Empty;
+
+        [ObservableProperty]
         private string _password = string.Empty;
+
+        [ObservableProperty]
         private string _otpCode = string.Empty;
 
+        [ObservableProperty]
         private bool _rememberMe;
+
+        [ObservableProperty]
         private bool _trustThisDevice;
+
+        [ObservableProperty]
         private bool _showProgressIndicator;
+
+        [ObservableProperty]
         private bool _isEnabledCredentialsInput = true;
 
-        private IReadOnlyCollection<HistoricalLoginData> _historicalLoginData = new List<HistoricalLoginData>().AsReadOnly();
-        private HistoricalLoginData _selectedHistoricalLoginData;
+        [ObservableProperty]
+        private List<HistoricalLoginData> _historicalLoginData = new();
+
+        [ObservableProperty]
+        private HistoricalLoginData? _selectedHistoricalLoginData;
 
         public LoginViewModel(IDeviceIdProvider deviceIdProvider, INetworkService networkService, IAutoLoginDataHandler autoLoginDataHandler, IHistoricalLoginDataHandler historicalLoginDataHandler, ITrustedLoginDataHandler trustedLoginDataHandler, IVideoStation videoStation, IMessenger messenger)
             : base(messenger)
@@ -70,9 +85,9 @@ namespace KDSVideo.ViewModels
             var autoLoginData = _autoLoginDataHandler.Get();
             if (autoLoginData != null)
             {
-                Host = autoLoginData.Host ?? string.Empty;
-                Account = autoLoginData.Account ?? string.Empty;
-                Password = autoLoginData.Password ?? string.Empty;
+                Host = autoLoginData.Host;
+                Account = autoLoginData.Account;
+                Password = autoLoginData.Password;
                 RememberMe = !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(Account) && !string.IsNullOrWhiteSpace(Password);
             }
 
@@ -81,38 +96,9 @@ namespace KDSVideo.ViewModels
             IsActive = true;
         }
 
-        ~LoginViewModel()
-        {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    IsActive = false;
-                }
-
-                _disposedValue = true;
-            }
-        }
-
         protected override void OnActivated()
         {
-            _messenger.Register<LogoutMessage>(this, (recipient, logoutMessage) => LogoutMessageReceived());
-        }
-
-        protected override void OnDeactivated()
-        {
-            _messenger.UnregisterAll(this);
+            _messenger.Register<LogoutMessage>(this, (_, _) => LogoutMessageReceived());
         }
 
         private async void LogoutMessageReceived()
@@ -142,7 +128,7 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private async Task<LoginResult> LoginAsync(IWebProxy proxy, Uri baseUri, string username, string password, string otpCode = null, string deviceId = null, string deviceName = null, string cipherText = null, CancellationToken cancellationToken = default)
+        private async Task<LoginResult> LoginAsync(IWebProxy proxy, Uri baseUri, string username, string password, string otpCode = "", string deviceId = "", string deviceName = "", string cipherText = "", CancellationToken cancellationToken = default)
         {
             try
             {
@@ -196,7 +182,7 @@ namespace KDSVideo.ViewModels
             _historicalLoginDataHandler.AddOrUpdate(Host, Account, Password);
         }
 
-        private void ReloadHistoricalLoginData() => HistoricalLoginData = _historicalLoginDataHandler.GetAll().ToList().AsReadOnly();
+        private void ReloadHistoricalLoginData() => HistoricalLoginData = _historicalLoginDataHandler.GetAll().ToList();
 
         private void SaveTrustedLoginData(string deviceId)
         {
@@ -246,7 +232,7 @@ namespace KDSVideo.ViewModels
             }
 
             var cipherText = encryptionInfoResult.EncryptionInfo.PublicKey;
-            var loginResult = await LoginAsync(webProxy, baseUri, Account, Password, null, deviceId, deviceName, cipherText, cts.Token);
+            var loginResult = await LoginAsync(webProxy, baseUri, Account, Password, "", deviceId, deviceName, cipherText, cts.Token);
 
             if (loginResult.Success)
             {
@@ -278,7 +264,7 @@ namespace KDSVideo.ViewModels
                             ShowProgressIndicator = true;
                             cts = new CancellationTokenSource(_timeout);
 
-                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, null, deviceName, cipherText, cts.Token);
+                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, "", deviceName, cipherText, cts.Token);
 
                             if (loginResult.Success)
                             {
@@ -333,14 +319,14 @@ namespace KDSVideo.ViewModels
 
         private bool HostIsValid()
         {
-            var host = (Host ?? string.Empty).Trim();
+            var host = Host.Trim();
             return host.Length <= 255 && !string.IsNullOrWhiteSpace(host)
                 && !host.Any(char.IsWhiteSpace) && host.All(c => c != ' ');
         }
 
         private bool AccountIsValid()
         {
-            var account = (Account ?? string.Empty).Trim();
+            var account = Account.Trim();
             return account.Length <= 64 && !string.IsNullOrWhiteSpace(account)
                 && !account.Any(char.IsWhiteSpace) && account.All(c => c != ' ');
         }
@@ -348,7 +334,7 @@ namespace KDSVideo.ViewModels
         private bool PasswordIsValid()
         {
             // Remark: Space character is allowed in the password!
-            var password = Password ?? string.Empty;
+            var password = Password;
             return password.Length <= 127 && !string.IsNullOrWhiteSpace(password)
                 && !password.Any(char.IsWhiteSpace);
         }
@@ -357,81 +343,18 @@ namespace KDSVideo.ViewModels
 
         public ICommand LoginCommand => _loginCommand;
 
-        private bool CanSelectHistoricalLoginData() => HistoricalLoginData != null && HistoricalLoginData.Any();
+        private bool CanSelectHistoricalLoginData() => HistoricalLoginData.Any();
 
         public ICommand SelectHistoricalLoginDataCommand => _selectHistoricalLoginDataCommand;
 
-        public string Host
-        {
-            get => _host ?? string.Empty;
-            set
-            {
-                SetProperty(ref _host, value ?? string.Empty);
-                _loginCommand.NotifyCanExecuteChanged();
-            }
-        }
+        // ReSharper disable once UnusedParameterInPartialMethod
+        partial void OnHostChanged(string value) => _loginCommand.NotifyCanExecuteChanged();
 
-        public string Account
-        {
-            get => _account ?? string.Empty;
-            set
-            {
-                SetProperty(ref _account, value);
-                _loginCommand.NotifyCanExecuteChanged();
-            }
-        }
+        // ReSharper disable once UnusedParameterInPartialMethod
+        partial void OnAccountChanged(string value) => _loginCommand.NotifyCanExecuteChanged();
 
-        public string Password
-        {
-            get => _password ?? string.Empty;
-            set
-            {
-                SetProperty(ref _password, value);
-                _loginCommand.NotifyCanExecuteChanged();
-            }
-        }
-
-        public string OtpCode
-        {
-            get => _otpCode;
-            set => SetProperty(ref _otpCode, value ?? string.Empty);
-        }
-
-        public bool RememberMe
-        {
-            get => _rememberMe;
-            set => SetProperty(ref _rememberMe, value);
-        }
-
-        public bool TrustThisDevice
-        {
-            get => _trustThisDevice;
-            set => SetProperty(ref _trustThisDevice, value);
-        }
-
-        public bool ShowProgressIndicator
-        {
-            get => _showProgressIndicator;
-            set => SetProperty(ref _showProgressIndicator, value);
-        }
-
-        public bool IsEnabledCredentialsInput
-        {
-            get => _isEnabledCredentialsInput;
-            private set => SetProperty(ref _isEnabledCredentialsInput, value);
-        }
-
-        public IReadOnlyCollection<HistoricalLoginData> HistoricalLoginData
-        {
-            get => _historicalLoginData;
-            private set => SetProperty(ref _historicalLoginData, value);
-        }
-
-        public HistoricalLoginData SelectedHistoricalLoginData
-        {
-            get => _selectedHistoricalLoginData;
-            set => SetProperty(ref _selectedHistoricalLoginData, value);
-        }
+        // ReSharper disable once UnusedParameterInPartialMethod
+        partial void OnPasswordChanged(string value) => _loginCommand.NotifyCanExecuteChanged();
 
         public void Navigated(in object sender, in NavigationEventArgs args)
         {

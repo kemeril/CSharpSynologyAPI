@@ -9,7 +9,7 @@ namespace KDSVideo.Infrastructure
         /// <param name="account">Account.</param>
         /// <param name="password">Password.</param>
         /// <returns></returns>
-        string GetDeviceId(string host, string account, string password);
+        string? GetDeviceId(string host, string account, string password);
         void AddOrUpdate(string host, string account, string password, string deviceId);
         void RemoveIfExist(string host, string account);
     }

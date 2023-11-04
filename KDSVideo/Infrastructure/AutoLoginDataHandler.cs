@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Windows.Storage;
 using StdUtils;
 
@@ -6,13 +6,13 @@ namespace KDSVideo.Infrastructure
 {
     public class AutoLoginDataHandler : IAutoLoginDataHandler
     {
-        private const string AutoLoginDataHandlerKey = nameof(AutoLoginDataHandlerKey);
+        private const string AUTO_LOGIN_DATA_HANDLER_KEY = nameof(AUTO_LOGIN_DATA_HANDLER_KEY);
 
-        public AutoLoginData Get()
+        public AutoLoginData? Get()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
 
-            if (!settingValues.TryGetValue(AutoLoginDataHandlerKey, out var valueObject))
+            if (!settingValues.TryGetValue(AUTO_LOGIN_DATA_HANDLER_KEY, out var valueObject))
             {
                 return null;
             }
@@ -46,13 +46,13 @@ namespace KDSVideo.Infrastructure
                 Password = password
             });
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            settingValues[AutoLoginDataHandlerKey] = json;
+            settingValues[AUTO_LOGIN_DATA_HANDLER_KEY] = json;
         }
 
         public void Clear()
         {
             var settingValues = ApplicationData.Current.LocalSettings.Values;
-            settingValues[AutoLoginDataHandlerKey] = string.Empty;
+            settingValues[AUTO_LOGIN_DATA_HANDLER_KEY] = string.Empty;
         }
     }
 }

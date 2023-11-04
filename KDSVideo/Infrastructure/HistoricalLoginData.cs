@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
 
 namespace KDSVideo.Infrastructure
 {
@@ -6,12 +6,12 @@ namespace KDSVideo.Infrastructure
     public class HistoricalLoginData
     {
         [DataMember(Name = "host")]
-        public string Host { get; set; }
+        public string Host { get; set; } = string.Empty;
 
         [DataMember(Name = "account")]
-        public string Account { get; set; }
+        public string Account { get; set; } = string.Empty;
 
         [DataMember(Name = "password")]
-        public string Password { get; set; }
+        public string Password { get; set; } = string.Empty;
     }
 }

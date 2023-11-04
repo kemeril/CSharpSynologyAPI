@@ -16,7 +16,7 @@ namespace KDSVideo.Infrastructure
 {
     public static class ServiceProviderBuilder
     {
-        private static volatile IServiceProvider Services;
+        private static volatile IServiceProvider? Services;
 
         public static IServiceProvider ConfigureServices()
         {
@@ -32,30 +32,18 @@ namespace KDSVideo.Infrastructure
                 .Configure(PageNavigationKey.MoviePage, typeof(MoviePage))
                 .Configure(PageNavigationKey.TvShowPage, typeof(TVShowPage))
                 .Configure(PageNavigationKey.SettingsPage, typeof(SettingsPage))
-                .ConfigureBackNavigationTransition(NavigationService.UnknownPageKey, PageNavigationKey.LoginPage)
+                .ConfigureBackNavigationTransition(NavigationService.UNKNOWN_PAGE_KEY, PageNavigationKey.LoginPage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.MoviePage, PageNavigationKey.LoginPage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.CurrentMoviePage, PageNavigationKey.MoviePage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.TvShowPage, PageNavigationKey.LoginPage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.CurrentTvShowPage, PageNavigationKey.TvShowPage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.SettingsPage, PageNavigationKey.LoginPage);
 
-            navigationService.Navigating += async (_, args) =>
-            {
-                if (!args.Cancel && args.NavigationMode == NavigationMode.Back
-                    && PageNavigationKey.LoginPage.Equals(args.SourcePageKey, StringComparison.Ordinal))
-                {
-                    args.Cancel = true;
-                    var logoffDialog = new LogoffDialog();
-                    if (await logoffDialog.ShowAsync() == ContentDialogResult.Primary)
-                    {
-                        WeakReferenceMessenger.Default.Send<LogoutMessage>();
-                    }
-                }
-            };
+            navigationService.Navigating += OnNavigationServiceNavigating;
 
             navigationService.Navigated += (_, args) =>
             {
-                ((navigationService.CurrentFrame.Content as FrameworkElement)?.DataContext as INavigable)?.Navigated(navigationService, args);
+                ((navigationService.CurrentFrame?.Content as FrameworkElement)?.DataContext as INavigable)?.Navigated(navigationService, args);
             };
 
             //Register your services used here
@@ -87,6 +75,19 @@ namespace KDSVideo.Infrastructure
             Services = services.BuildServiceProvider();
 
             return Services;
+        }
+
+        private static async void OnNavigationServiceNavigating(object _, NavigatingCancelEventArgs args)
+        {
+            if (args is { Cancel: false, NavigationMode: NavigationMode.Back } && PageNavigationKey.LoginPage.Equals(args.SourcePageKey, StringComparison.Ordinal))
+            {
+                args.Cancel = true;
+                var logoffDialog = new LogoffDialog();
+                if (await logoffDialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    WeakReferenceMessenger.Default.Send<LogoutMessage>();
+                }
+            }
         }
     }
 }
