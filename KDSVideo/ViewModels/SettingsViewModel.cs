@@ -7,19 +7,25 @@ using SynologyAPI;
 
 namespace KDSVideo.ViewModels
 {
-    public partial class SettingsViewModel : ObservableRecipient, IDisposable
+    public partial class SettingsViewModel : ObservableRecipient
     {
         private readonly IMessenger _messenger;
         private readonly IVideoSettingsDataHandler _videoSettingsDataHandler;
-        private bool _disposedValue;
-        private int _playbackQuality;
-        private bool _ac3PassthroughIsEnabled;
+
+        [ObservableProperty]
+        private string _applicationVersion;
 
         [ObservableProperty]
         private string _account = string.Empty;
 
         [ObservableProperty]
         private string _host = string.Empty;
+
+        [ObservableProperty]
+        private int _playbackQuality;
+
+        [ObservableProperty]
+        private bool _ac3PassthroughIsEnabled;
 
         public SettingsViewModel(IMessenger messenger, IApplicationInfoService applicationInfoService, IVideoSettingsDataHandler videoSettingsDataHandler)
             : base(messenger)
@@ -32,51 +38,11 @@ namespace KDSVideo.ViewModels
             IsActive = true;
         }
 
-        ~SettingsViewModel()
-        {
-            Dispose(disposing: false);
-        }
+        // ReSharper disable once UnusedParameterInPartialMethod
+        partial void OnPlaybackQualityChanged(int value) => UpdateSettings();
 
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        public string ApplicationVersion { get; }
-
-        public int PlaybackQuality
-        {
-            get => _playbackQuality;
-            set
-            {
-                SetProperty(ref _playbackQuality, value);
-                UpdateSettings();
-            }
-        }
-
-        public bool Ac3PassthroughIsEnabled
-        {
-            get => _ac3PassthroughIsEnabled;
-            set
-            {
-                SetProperty(ref _ac3PassthroughIsEnabled, value);
-                UpdateSettings();
-            }
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!_disposedValue)
-            {
-                if (disposing)
-                {
-                    IsActive = false;
-                }
-
-                _disposedValue = true;
-            }
-        }
+        // ReSharper disable once UnusedParameterInPartialMethod
+        partial void OnAc3PassthroughIsEnabledChanged(bool value) => UpdateSettings();
 
         protected override void OnActivated()
         {
@@ -93,38 +59,31 @@ namespace KDSVideo.ViewModels
             });
         }
 
-        protected override void OnDeactivated()
-        {
-            _messenger.UnregisterAll(this);
-        }
-
         private void InitVideoSettings()
         {
             var videoSettings = _videoSettingsDataHandler.Get();
-            PlaybackQuality =
-                videoSettings.VideoTranscoding switch
-                {
-                    VideoStation.VideoTranscoding.Raw => 0,
-                    VideoStation.VideoTranscoding.HighQuality => 1,
-                    VideoStation.VideoTranscoding.MediumQuality => 2,
-                    VideoStation.VideoTranscoding.LowQuality => 3,
-                    _ => 4
-                };
+            PlaybackQuality = videoSettings.VideoTranscoding switch
+            {
+                VideoStation.VideoTranscoding.Raw => 0,
+                VideoStation.VideoTranscoding.HighQuality => 1,
+                VideoStation.VideoTranscoding.MediumQuality => 2,
+                VideoStation.VideoTranscoding.LowQuality => 3,
+                _ => 4
+            };
 
             Ac3PassthroughIsEnabled = videoSettings.Ac3PassThrough;
         }
 
         private void UpdateSettings()
         {
-            var videoTranscoding = 
-                PlaybackQuality switch
-                {
-                    0 => VideoStation.VideoTranscoding.Raw,
-                    1 => VideoStation.VideoTranscoding.HighQuality,
-                    2 => VideoStation.VideoTranscoding.MediumQuality,
-                    3 => VideoStation.VideoTranscoding.LowQuality,
-                    _ => VideoStation.VideoTranscoding.Raw
-                };
+            var videoTranscoding = PlaybackQuality switch
+            {
+                0 => VideoStation.VideoTranscoding.Raw,
+                1 => VideoStation.VideoTranscoding.HighQuality,
+                2 => VideoStation.VideoTranscoding.MediumQuality,
+                3 => VideoStation.VideoTranscoding.LowQuality,
+                _ => VideoStation.VideoTranscoding.Raw
+            };
 
             _videoSettingsDataHandler.SetOrUpdate(videoTranscoding, Ac3PassthroughIsEnabled);
         }
