@@ -7,8 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using SynologyAPI;
 using Windows.ApplicationModel;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using CommunityToolkit.Mvvm.Messaging;
+using KDSVideo.Messages;
 
 namespace KDSVideo.Infrastructure
 {
@@ -23,7 +25,6 @@ namespace KDSVideo.Infrastructure
                 return Services;
             }
 
-            //ServiceLocator.SetLocatorProvider(() => SimpleIoc.Default);
             var services = new ServiceCollection();
 
             var navigationService = new NavigationService()
@@ -38,18 +39,21 @@ namespace KDSVideo.Infrastructure
                 .ConfigureBackNavigationTransition(PageNavigationKey.CurrentTvShowPage, PageNavigationKey.TvShowPage)
                 .ConfigureBackNavigationTransition(PageNavigationKey.SettingsPage, PageNavigationKey.LoginPage);
 
-            navigationService.Navigating += async (sender, args) =>
+            navigationService.Navigating += async (_, args) =>
             {
                 if (!args.Cancel && args.NavigationMode == NavigationMode.Back
                     && PageNavigationKey.LoginPage.Equals(args.SourcePageKey, StringComparison.Ordinal))
                 {
                     args.Cancel = true;
                     var logoffDialog = new LogoffDialog();
-                    await logoffDialog.ShowAsync();
+                    if (await logoffDialog.ShowAsync() == ContentDialogResult.Primary)
+                    {
+                        WeakReferenceMessenger.Default.Send<LogoutMessage>();
+                    }
                 }
             };
 
-            navigationService.Navigated += (sender, args) =>
+            navigationService.Navigated += (_, args) =>
             {
                 ((navigationService.CurrentFrame.Content as FrameworkElement)?.DataContext as INavigable)?.Navigated(navigationService, args);
             };

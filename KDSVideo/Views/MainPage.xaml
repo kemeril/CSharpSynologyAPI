@@ -1,4 +1,4 @@
-﻿<Page
+<Page
     x:Class="KDSVideo.Views.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -67,16 +67,16 @@
     </Page.Resources>
 
     <NavigationView x:Name="NavigationViewControl"
-                        IsBackButtonVisible="{Binding IsBackButtonVisible}"
-                        PaneDisplayMode="{Binding PaneDisplayMode}"
-                        IsBackEnabled="{Binding IsNavigationVisible}"
-                        IsPaneVisible="{Binding IsNavigationVisible}"
-                        IsPaneOpen="{Binding IsNavigationVisible}"
-                        IsPaneToggleButtonVisible="{Binding IsNavigationVisible}"
-                        IsSettingsVisible="True"
-                        KeyboardAcceleratorPlacementMode="Hidden"
-                        MenuItemTemplateSelector="{StaticResource NavigationViewItemTemplateSelector}"
-                        MenuItemsSource="{Binding Libraries}" ProcessKeyboardAccelerators="NavigationViewControl_ProcessKeyboardAccelerators">
+        IsBackButtonVisible="{Binding IsBackButtonVisible}"
+        PaneDisplayMode="{Binding PaneDisplayMode}"
+        IsBackEnabled="{Binding IsNavigationVisible}"
+        IsPaneVisible="{Binding IsNavigationVisible}"
+        IsPaneOpen="{Binding IsNavigationVisible}"
+        IsPaneToggleButtonVisible="{Binding IsNavigationVisible}"
+        IsSettingsVisible="True"
+        KeyboardAcceleratorPlacementMode="Hidden"
+        MenuItemTemplateSelector="{StaticResource NavigationViewItemTemplateSelector}"
+        MenuItemsSource="{Binding Libraries}" ProcessKeyboardAccelerators="NavigationViewControl_ProcessKeyboardAccelerators">
         <i:Interaction.Behaviors>
             <core:EventTriggerBehavior EventName="BackRequested">
                 <core:InvokeCommandAction Command="{Binding NavigateBackCommand}"/>
