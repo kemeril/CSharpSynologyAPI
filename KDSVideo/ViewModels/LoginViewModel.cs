@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using KDSVideo.Views;
@@ -35,8 +34,6 @@ namespace KDSVideo.ViewModels
 #else
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
 #endif
-        private readonly RelayCommand _loginCommand;
-        private readonly RelayCommand _selectHistoricalLoginDataCommand;
 
         [ObservableProperty]
         private string _host = string.Empty;
@@ -78,9 +75,6 @@ namespace KDSVideo.ViewModels
             _trustedLoginDataHandler = trustedLoginDataHandler ?? throw new ArgumentNullException(nameof(trustedLoginDataHandler));
             _videoStation = videoStation ?? throw new ArgumentNullException(nameof(videoStation));
             _messenger = messenger;
-
-            _loginCommand = new RelayCommand(Login, CanLogin);
-            _selectHistoricalLoginDataCommand = new RelayCommand(SelectHistoricalLoginData, CanSelectHistoricalLoginData);
 
             var autoLoginData = _autoLoginDataHandler.Get();
             if (autoLoginData != null)
@@ -148,15 +142,11 @@ namespace KDSVideo.ViewModels
 
                 return ex switch
                 {
-                    NotSupportedException _ => new LoginResult(
-                        new LoginException(ApplicationLevelErrorCodes.InvalidHost)),
-                    QuickConnectLoginNotSupportedException _ => new LoginResult(
-                        new LoginException(ApplicationLevelErrorCodes.QuickConnectIsNotSupported)),
+                    NotSupportedException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.InvalidHost)),
+                    QuickConnectLoginNotSupportedException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.QuickConnectIsNotSupported)),
                     LoginException _ => new LoginResult(ex),
-                    OperationCanceledException _ => new LoginResult(
-                        new LoginException(ApplicationLevelErrorCodes.OperationTimeOut)),
-                    WebException webException when webException.Response == null => new LoginResult(
-                        new LoginException(ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished)),
+                    OperationCanceledException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.OperationTimeOut)),
+                    WebException { Response: null } => new LoginResult(new LoginException(ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished)),
                     _ => new LoginResult(ex)
                 };
             }
@@ -205,7 +195,8 @@ namespace KDSVideo.ViewModels
             return $"{computerName}-{APP_NAME}";
         }
 
-        private async void Login()
+        [RelayCommand(CanExecute = nameof(CanLogin))]
+        private async Task Login()
         {
             ShowProgressIndicator = true;
             var deviceId = _trustedLoginDataHandler.GetDeviceId(Host, Account, Password);
@@ -231,8 +222,8 @@ namespace KDSVideo.ViewModels
                 return;
             }
 
-            var cipherText = encryptionInfoResult.EncryptionInfo.PublicKey;
-            var loginResult = await LoginAsync(webProxy, baseUri, Account, Password, "", deviceId, deviceName, cipherText, cts.Token);
+            var cipherText = encryptionInfoResult.EncryptionInfo?.PublicKey;
+            var loginResult = await LoginAsync(webProxy, baseUri, Account, Password, "", deviceId!, deviceName, cipherText!, cts.Token);
 
             if (loginResult.Success)
             {
@@ -264,14 +255,14 @@ namespace KDSVideo.ViewModels
                             ShowProgressIndicator = true;
                             cts = new CancellationTokenSource(_timeout);
 
-                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, "", deviceName, cipherText, cts.Token);
+                            loginResult = await LoginAsync(webProxy, baseUri, Account, Password, OtpCode, "", deviceName, cipherText!, cts.Token);
 
                             if (loginResult.Success)
                             {
                                 SaveAutoLogin();
                                 SaveHistoricalLoginData();
 
-                                SaveTrustedLoginData(loginResult.LoginInfo.DeviceId);
+                                SaveTrustedLoginData(loginResult.LoginInfo!.DeviceId);
 
                                 ReloadHistoricalLoginData();
                                 ShowProgressIndicator = false;
@@ -305,7 +296,8 @@ namespace KDSVideo.ViewModels
             }
         }
 
-        private async void SelectHistoricalLoginData()
+        [RelayCommand(CanExecute = nameof(CanSelectHistoricalLoginData))]
+        private async Task SelectHistoricalLoginData()
         {
             SelectedHistoricalLoginData = null;
             var loginDialogHistoricalData = new LoginDialogHistoricalData();
@@ -341,20 +333,16 @@ namespace KDSVideo.ViewModels
 
         private bool CanLogin() => HostIsValid() && AccountIsValid() && PasswordIsValid();
 
-        public ICommand LoginCommand => _loginCommand;
-
         private bool CanSelectHistoricalLoginData() => HistoricalLoginData.Any();
 
-        public ICommand SelectHistoricalLoginDataCommand => _selectHistoricalLoginDataCommand;
+        // ReSharper disable once UnusedParameterInPartialMethod
+        partial void OnHostChanged(string value) => LoginCommand.NotifyCanExecuteChanged();
 
         // ReSharper disable once UnusedParameterInPartialMethod
-        partial void OnHostChanged(string value) => _loginCommand.NotifyCanExecuteChanged();
+        partial void OnAccountChanged(string value) => LoginCommand.NotifyCanExecuteChanged();
 
         // ReSharper disable once UnusedParameterInPartialMethod
-        partial void OnAccountChanged(string value) => _loginCommand.NotifyCanExecuteChanged();
-
-        // ReSharper disable once UnusedParameterInPartialMethod
-        partial void OnPasswordChanged(string value) => _loginCommand.NotifyCanExecuteChanged();
+        partial void OnPasswordChanged(string value) => LoginCommand.NotifyCanExecuteChanged();
 
         public void Navigated(in object sender, in NavigationEventArgs args)
         {
