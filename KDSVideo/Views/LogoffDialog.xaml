@@ -1,4 +1,4 @@
-﻿<ContentDialog
+<ContentDialog
     x:Class="KDSVideo.Views.LogoffDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,6 +12,6 @@
     PrimaryButtonText="Yes"
     CloseButtonText="Cancel"
     DataContext="{Binding LogoffViewModel, Source={StaticResource Locator}}"
-    PrimaryButtonCommand="{Binding LogoffCommand}">
+    PrimaryButtonCommand="{Binding LogOffCommand}">
     <TextBlock Text="Do you really want to log off?" HorizontalAlignment="Center"/>
 </ContentDialog>

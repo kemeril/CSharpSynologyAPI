@@ -165,7 +165,7 @@ namespace KDSVideo.ViewModels
 
             if (args.IsSettingsInvoked)
             {
-                _navigationService.NavigateTo(PageNavigationKey.SettingsPage);
+                _navigationService.NavigateTo(PageNavigationKey.SETTINGS_PAGE);
                 return;
             }
 
@@ -183,11 +183,11 @@ namespace KDSVideo.ViewModels
             {
                 case LibraryType.Movie:
                     SelectLibraryOnUI(library);
-                    _navigationService.NavigateTo(PageNavigationKey.MoviePage, library);
+                    _navigationService.NavigateTo(PageNavigationKey.MOVIE_PAGE, library);
                     break;
                 case LibraryType.TvShow:
                     SelectLibraryOnUI(library);
-                    _navigationService.NavigateTo(PageNavigationKey.TvShowPage, library);
+                    _navigationService.NavigateTo(PageNavigationKey.TV_SHOW_PAGE, library);
                     break;
                 case LibraryType.HomeVideo:
                 case LibraryType.TvRecord:

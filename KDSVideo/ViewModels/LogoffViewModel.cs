@@ -13,10 +13,10 @@ namespace KDSVideo.ViewModels
         private readonly IMessenger _messenger;
 
         [RelayCommand]
-        private void _LogOff()
+        private void LogOff()
         {
             _messenger.Send(new LogoutMessage());
-            _navigationService.NavigateTo(PageNavigationKey.LoginPage);
+            _navigationService.NavigateTo(PageNavigationKey.LOGIN_PAGE);
         }
 
         public LogoffViewModel(INavigationService navigationService, IMessenger messenger)

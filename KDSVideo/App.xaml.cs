@@ -58,7 +58,7 @@ namespace KDSVideo
                     ViewModelLocator.Init();
 
                     // Set initial navigation page
-                    navigationService.NavigateTo(PageNavigationKey.LoginPage);
+                    navigationService.NavigateTo(PageNavigationKey.LOGIN_PAGE);
                 }
 
                 // Ensure the current window is active
