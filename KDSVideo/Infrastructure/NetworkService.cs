@@ -7,9 +7,9 @@ namespace KDSVideo.Infrastructure
 {
     public class NetworkService : INetworkService
     {
-        private const string QUICKCONNECT_TO = "QuickConnect.to";
+        private const string QUICK_CONNECT_TO = "QuickConnect.to";
 
-        public string GetComputerName()
+        public string? GetComputerName()
         {
             try
             {
@@ -21,7 +21,7 @@ namespace KDSVideo.Infrastructure
             }
         }
 
-        public Uri GetHostUri(string host)
+        public Uri? GetHostUri(string host)
         {
             if (string.IsNullOrWhiteSpace(host))
             {
@@ -64,16 +64,16 @@ namespace KDSVideo.Infrastructure
         /// </summary>
         /// <param name="host"></param>
         /// <returns><c>true</c> if the host is a QuickConnect Id; otherwise <c>false</c>.</returns>
-        private bool IsQuickConnectId(string host)
+        private static bool IsQuickConnectId(string host)
         {
             const string PATTERN = @"^[a-zA-Z][a-zA-Z0-9\-]*$";
             var regex = new Regex(PATTERN);
-            return regex.IsMatch(host ?? string.Empty);
+            return regex.IsMatch(host);
         }
 
-        private string ConvertQuickConnectIdToHost(string quickConnectId) => $"http://{QUICKCONNECT_TO}/{quickConnectId}/";
+        private static string ConvertQuickConnectIdToHost(string quickConnectId) => $"http://{QUICK_CONNECT_TO}/{quickConnectId}/";
 
-        private string CheckHostScheme(string host)
+        private static string CheckHostScheme(string host)
         {
             if (!host.StartsWith("http://", StringComparison.InvariantCultureIgnoreCase)
                 && !host.StartsWith("https://", StringComparison.InvariantCultureIgnoreCase))
@@ -90,7 +90,7 @@ namespace KDSVideo.Infrastructure
         /// <param name="host"></param>
         /// <param name="uriHostNameType"></param>
         /// <returns><c>true</c> if the host already contains port number; otherwise <c>false</c>.</returns>
-        private bool DoesHostContainsPortNumber(string host, UriHostNameType uriHostNameType)
+        private static bool DoesHostContainsPortNumber(string host, UriHostNameType uriHostNameType)
         {
             switch (uriHostNameType)
             {
@@ -102,25 +102,22 @@ namespace KDSVideo.Infrastructure
                     {
                         const string PATTERN = @":\d";
                         var regex = new Regex(PATTERN);
-                        return regex.IsMatch(host ?? string.Empty);
+                        return regex.IsMatch(host);
                     }
                 case UriHostNameType.IPv6:
                     {
                         const string PATTERN = @"]:\d";
                         var regex = new Regex(PATTERN);
-                        return regex.IsMatch(host ?? string.Empty);
+                        return regex.IsMatch(host);
                     }
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        public IWebProxy GetProxy()
-        {
-            return GetSystemWebProxy() ?? CreateUserProxy(null, null, null);
-        }
+        public IWebProxy GetProxy() => GetSystemWebProxy();
 
-        public IWebProxy CreateUserProxy(string proxyUrl, string userName, string password)
+        public IWebProxy? CreateUserProxy(string proxyUrl, string userName, string password)
         {
             var proxy = string.IsNullOrWhiteSpace(proxyUrl) ? null : new WebProxy(new Uri(proxyUrl));
 
