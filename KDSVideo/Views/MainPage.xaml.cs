@@ -1,4 +1,4 @@
-﻿using KDSVideo.ViewModels;
+using KDSVideo.ViewModels;
 using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -12,12 +12,12 @@ namespace KDSVideo.Views
 
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         private void NavigationViewControl_ProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
         {
-            if (args.Modifiers == VirtualKeyModifiers.Menu && args.Key == VirtualKey.Left)
+            if (args is { Modifiers: VirtualKeyModifiers.Menu, Key: VirtualKey.Left })
             {
                 (DataContext as MainViewModel)?.NavigateBackCommand.Execute(null);
             }

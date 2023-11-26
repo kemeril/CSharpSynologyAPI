@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows.Input;
 using KDSVideo.Infrastructure;
 using KDSVideo.Messages;
 using KDSVideo.UIHelpers;
@@ -13,48 +12,17 @@ using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels
 {
-    public class MainViewModel : ObservableRecipient, IDisposable
+    public partial class MainViewModel : ObservableRecipient
     {
         private readonly INavigationService _navigationService;
         private readonly IMessenger _messenger;
-
-        private bool _disposedValue;
-        private bool _isNavigationVisible;
-        private IReadOnlyCollection<NavigationItemBase> _libraries = new List<NavigationItemBase>().AsReadOnly();
-
-        public ICommand NavigateBackCommand { get; }
-        public ICommand NavigateToCommand { get; }
 
         public MainViewModel(INavigationService navigationService, IMessenger messenger)
             : base(messenger)
         {
             _navigationService = navigationService ?? throw new ArgumentNullException(nameof(navigationService));
             _messenger = messenger;
-            NavigateBackCommand = new RelayCommand(() => _navigationService.GoBack(), () => IsNavigationVisible);
-            NavigateToCommand = new RelayCommand<NavigationViewItemInvokedEventArgs>(NavigateToInvoked);
             IsActive = true;
-        }
-
-        ~MainViewModel()
-        {
-            Dispose(disposing: false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
-        public bool IsNavigationVisible
-        {
-            get => _isNavigationVisible;
-            private set
-            {
-                SetProperty(ref _isNavigationVisible, value);
-                OnPropertyChanged(nameof(PaneDisplayMode));
-                OnPropertyChanged(nameof(IsBackButtonVisible));
-            }
         }
 
         public NavigationViewPaneDisplayMode PaneDisplayMode => IsNavigationVisible
@@ -65,34 +33,47 @@ namespace KDSVideo.ViewModels
             ? NavigationViewBackButtonVisible.Auto
             : NavigationViewBackButtonVisible.Collapsed;
 
-        public IReadOnlyCollection<NavigationItemBase> Libraries
-        {
-            get => _libraries;
-            private set => SetProperty(ref _libraries, value);
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(PaneDisplayMode))]
+        [NotifyPropertyChangedFor(nameof(IsBackButtonVisible))]
+        [NotifyCanExecuteChangedFor(nameof(NavigateBackCommand))]
+        private bool _isNavigationVisible;
 
-        protected virtual void Dispose(bool disposing)
+        [ObservableProperty]
+        private List<NavigationItemBase> _libraries = new();
+
+        [RelayCommand(CanExecute = nameof(IsNavigationVisible))]
+        private void NavigateBack() => _navigationService.GoBack();
+
+        [RelayCommand]
+        private void NavigateTo(NavigationViewItemInvokedEventArgs? args)
         {
-            if (!_disposedValue)
+            // could also use a converter on the command parameter if you don't like
+            // the idea of passing in a NavigationViewItemInvokedEventArgs
+
+            if (args == null)
             {
-                if (disposing)
-                {
-                    IsActive = false;
-                }
-
-                _disposedValue = true;
+                return;
             }
+
+            if (args.IsSettingsInvoked)
+            {
+                _navigationService.NavigateTo(PageNavigationKey.SETTINGS_PAGE);
+                return;
+            }
+
+            if (args.InvokedItemContainer?.Tag is not Library library)
+            {
+                return;
+            }
+
+            NavigateToLibrary(library);
         }
 
         protected override void OnActivated()
         {
             _messenger.Register<LoginMessage>(this, (_, loginMessage) => LoginMessageReceived(loginMessage));
             _messenger.Register<LogoutMessage>(this, (_, _) => LogoutMessageReceived());
-        }
-
-        protected override void OnDeactivated()
-        {
-            _messenger.UnregisterAll(this);
         }
 
         private void LoginMessageReceived(LoginMessage loginMessage)
@@ -117,10 +98,10 @@ namespace KDSVideo.ViewModels
         private void LogoutMessageReceived()
         {
             IsNavigationVisible = false;
-            Libraries = new List<NavigationItemBase>().AsReadOnly();
+            Libraries = new List<NavigationItemBase>();
         }
 
-        private IReadOnlyCollection<NavigationItemBase> ConvertLibraries(IEnumerable<Library> libraries)
+        private static List<NavigationItemBase> ConvertLibraries(IEnumerable<Library> libraries)
         {
             var tmpLibraries = libraries as Library[] ?? libraries.ToArray();
             var builtInLibraries = tmpLibraries
@@ -153,30 +134,6 @@ namespace KDSVideo.ViewModels
             return result;
         }
 
-        private void NavigateToInvoked(NavigationViewItemInvokedEventArgs? args)
-        {
-            // could also use a converter on the command parameter if you don't like
-            // the idea of passing in a NavigationViewItemInvokedEventArgs
-
-            if (args == null)
-            {
-                return;
-            }
-
-            if (args.IsSettingsInvoked)
-            {
-                _navigationService.NavigateTo(PageNavigationKey.SETTINGS_PAGE);
-                return;
-            }
-
-            if (args.InvokedItemContainer?.Tag is not Library library)
-            {
-                return;
-            }
-
-            NavigateToLibrary(library);
-        }
-
         private void NavigateToLibrary(Library library)
         {
             switch (library.LibraryType)
@@ -200,10 +157,9 @@ namespace KDSVideo.ViewModels
 
         private void SelectLibraryOnUI(Library library)
         {
-            foreach (var navigationItemBase in _libraries)
+            foreach (var navigationItemBase in Libraries)
             {
-                if (navigationItemBase is NavigationCategory navigationCategory &&
-                    navigationCategory.Library == library)
+                if (navigationItemBase is NavigationCategory navigationCategory && navigationCategory.Library == library)
                 {
                     if (!navigationCategory.IsSelected)
                     {
