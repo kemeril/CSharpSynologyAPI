@@ -115,10 +115,7 @@ namespace KDSVideo.Infrastructure
         /// that should be displayed.</param>
         /// <exception cref="ArgumentException">When this method is called for 
         /// a key that has not been configured earlier.</exception>
-        public void NavigateTo(string pageKey)
-        {
-            NavigateTo(pageKey, null);
-        }
+        public void NavigateTo(string pageKey) => NavigateTo(pageKey, null);
 
         /// <summary>
         /// Displays a new page corresponding to the given key,
@@ -211,7 +208,7 @@ namespace KDSVideo.Infrastructure
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(toPageKey));
             }
 
-            if (fromPageKey.Equals(toPageKey, StringComparison.Ordinal))
+            if (fromPageKey == toPageKey)
             {
                 throw new ArgumentException("Values must not be equal.", $"{nameof(fromPageKey)}; {nameof(toPageKey)}");
             }
@@ -261,22 +258,10 @@ namespace KDSVideo.Infrastructure
 
         private string GetCurrentPageKey()
         {
-            if (CurrentFrame?.Content == null)
-            {
-                return UNKNOWN_PAGE_KEY;
-            }
-
-            var currentType = CurrentFrame.Content.GetType();
-
-            if (_pagesByKey.All(p => p.Value != currentType))
-            {
-                return UNKNOWN_PAGE_KEY;
-            }
-
-            var item = _pagesByKey
-                .FirstOrDefault(i => i.Value == currentType);
-
-            return item.Key;
+            var currentType = CurrentFrame?.Content?.GetType();
+            return currentType != null && _pagesByKey.ContainsValue(currentType)
+                ? _pagesByKey.First(i => i.Value == currentType).Key
+                : UNKNOWN_PAGE_KEY;
         }
 
         private string? GetPreviousPageKey()
