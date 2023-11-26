@@ -1,4 +1,3 @@
-using System;
 using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.UIHelpers
@@ -7,11 +6,6 @@ namespace KDSVideo.UIHelpers
     {
         public static string GetLibraryName(Library library)
         {
-            if (library == null)
-            {
-                return string.Empty;
-            }
-
             if (library.Id == 0)
             {
                 switch (library.LibraryType)
@@ -24,10 +18,6 @@ namespace KDSVideo.UIHelpers
                         return "Home Videos";
                     case LibraryType.TvRecord:
                         return "TV Recordings";
-                    case LibraryType.Unknown:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(library.LibraryType));
                 }
             }
 

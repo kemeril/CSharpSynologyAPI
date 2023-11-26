@@ -101,24 +101,25 @@ namespace KDSVideo.ViewModels
             Libraries = new List<NavigationItemBase>();
         }
 
-        private static List<NavigationItemBase> ConvertLibraries(IEnumerable<Library> libraries)
+        private static List<NavigationItemBase> ConvertLibraries(IReadOnlyCollection<Library> libraries)
         {
-            var tmpLibraries = libraries as Library[] ?? libraries.ToArray();
+            var tmpLibraries = libraries.ToArray();
             var builtInLibraries = tmpLibraries
-                .Where(library => library.Id == 0 && library.Visible && library.LibraryType == LibraryType.Movie || library.LibraryType == LibraryType.TvShow)
+                .Where(library => library.Id == 0 && library.Visible && (library.LibraryType == LibraryType.Movie || library.LibraryType == LibraryType.TvShow))
                 .Select(library => new NavigationCategory
-                {
-                    Name = LibraryNameConverter.GetLibraryName(library),
-                    Library = library
-                })
+                (
+                    LibraryNameConverter.GetLibraryName(library),
+                    library
+                ))
                 .ToArray();
+
             var customLibraries = tmpLibraries
                 .Where(library => library.Id != 0 && library.Visible)
                 .Select(library => new NavigationCategory
-                {
-                    Name = LibraryNameConverter.GetLibraryName(library),
-                    Library = library
-                })
+                (
+                    LibraryNameConverter.GetLibraryName(library),
+                    library
+                ))
                 .ToArray();
 
             var result = new List<NavigationItemBase>(builtInLibraries);
@@ -159,7 +160,7 @@ namespace KDSVideo.ViewModels
         {
             foreach (var navigationItemBase in Libraries)
             {
-                if (navigationItemBase is NavigationCategory navigationCategory && navigationCategory.Library == library)
+                if (navigationItemBase is NavigationCategory navigationCategory && navigationCategory.Library.Id == library.Id)
                 {
                     if (!navigationCategory.IsSelected)
                     {

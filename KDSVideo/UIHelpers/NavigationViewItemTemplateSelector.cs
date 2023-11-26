@@ -1,89 +1,70 @@
-using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using SynologyAPI.SynologyRestDAL.Vs;
+using CommunityToolkit.Mvvm.ComponentModel;
+// ReSharper disable RedundantTypeDeclarationBody
+// ReSharper disable ConvertToPrimaryConstructor
 
 namespace KDSVideo.UIHelpers
 {
     public abstract class NavigationItemBase { }
 
-    public sealed class NavigationCategory : NavigationItemBase, INotifyPropertyChanged
+    [ObservableObject]
+    public partial class NavigationCategory : NavigationItemBase
     {
+        public NavigationCategory(string name, Library library)
+        {
+            Name = name;
+            Library = library;
+        }
+
+        [ObservableProperty]
         private bool _isSelected;
-        public string Name { get; set; }
-        public Library Library { get; set; }
 
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set
-            {
-                _isSelected = value;
-                OnPropertyChanged();
-            }
-        }
+        public string Name { get; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
+        public Library Library { get; }
     }
 
     public sealed class NavigationMenuSeparator : NavigationItemBase { }
 
     public sealed class NavigationMenuHeader : NavigationItemBase
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
     }
 
     public sealed class NavigationViewItemTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate HeaderTemplate { get; set; }
-        public DataTemplate SeparatorTemplate { get; set; }
-        public DataTemplate ItemTemplate { get; set; }
-        public DataTemplate BuiltInMovieTemplate { get; set; }
-        public DataTemplate BuiltInTvShowTemplate { get; set; }
-        public DataTemplate MovieTemplate { get; set; }
-        public DataTemplate TvShowTemplate { get; set; }
-        public DataTemplate TvRecordingTemplate { get; set; }
-        public DataTemplate HomeVideoTemplate { get; set; }
+        public DataTemplate? HeaderTemplate { get; set; }
+        public DataTemplate? SeparatorTemplate { get; set; }
+        public DataTemplate? ItemTemplate { get; set; }
+        public DataTemplate? BuiltInMovieTemplate { get; set; }
+        public DataTemplate? BuiltInTvShowTemplate { get; set; }
+        public DataTemplate? MovieTemplate { get; set; }
+        public DataTemplate? TvShowTemplate { get; set; }
+        public DataTemplate? TvRecordingTemplate { get; set; }
+        public DataTemplate? HomeVideoTemplate { get; set; }
 
-        protected override DataTemplate SelectTemplateCore(object item)
-        {
-            return item is NavigationMenuSeparator
-                ? SeparatorTemplate
-                : item is NavigationMenuHeader
-                    ? HeaderTemplate
-                    : item is NavigationCategory navigationCategory
-                        ? SelectTemplate(navigationCategory)
-                        : null;
-        }
-
-        private DataTemplate SelectTemplate(NavigationCategory navigationCategory)
-        {
-            if (navigationCategory.Library.Id == 0 && navigationCategory.Library.LibraryType == LibraryType.Movie)
+        protected override DataTemplate? SelectTemplateCore(object item) =>
+            item switch
             {
-                return BuiltInMovieTemplate;
-            }
-
-            if (navigationCategory.Library.Id == 0 && navigationCategory.Library.LibraryType == LibraryType.TvShow)
-            {
-                return BuiltInTvShowTemplate;
-            }
-
-            return navigationCategory.Library.LibraryType switch
-            {
-                LibraryType.Movie => MovieTemplate,
-                LibraryType.TvShow => TvShowTemplate,
-                LibraryType.HomeVideo => HomeVideoTemplate,
-                LibraryType.TvRecord => TvRecordingTemplate,
-                LibraryType.Unknown => ItemTemplate,
-                _ => throw new ArgumentOutOfRangeException(nameof(navigationCategory.Library.LibraryType), navigationCategory.Library.LibraryType, null)
+                NavigationMenuSeparator => SeparatorTemplate,
+                NavigationMenuHeader => HeaderTemplate,
+                NavigationCategory navigationCategory => navigationCategory.Library switch
+                {
+                    { Id: 0, LibraryType: LibraryType.Movie } => BuiltInMovieTemplate,
+                    { Id: 0, LibraryType: LibraryType.TvShow } => BuiltInTvShowTemplate,
+                    _ => navigationCategory.Library.LibraryType switch
+                    {
+                        LibraryType.Movie => MovieTemplate,
+                        LibraryType.TvShow => TvShowTemplate,
+                        LibraryType.HomeVideo => HomeVideoTemplate,
+                        LibraryType.TvRecord => TvRecordingTemplate,
+                        LibraryType.Unknown => ItemTemplate,
+                        _ => null
+                    }
+                },
+                _ => null
             };
-        }
     }
 }

@@ -19,7 +19,7 @@ namespace KDSVideo.Messages
                 throw new ArgumentException("Value cannot be null or whitespace.", nameof(account));
             }
 
-            if (libraries == null || !libraries.Any())
+            if (!libraries.Any())
             {
                 throw new ArgumentException("Value cannot be null or empty.", nameof(libraries));
             }
