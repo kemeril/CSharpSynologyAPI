@@ -32,6 +32,6 @@ namespace KDSVideo.ViewModels
             };
         }
 
-        public string ErrorMessage => ApplicationLevelErrorMessages.GetErrorMessage(ApplicationLevelErrorCodes.UnknownError);
+        public string ErrorMessage => ApplicationLevelErrorMessages.GetErrorMessage(ApplicationLevelErrorCodes.UNKNOWN_ERROR);
     }
 }

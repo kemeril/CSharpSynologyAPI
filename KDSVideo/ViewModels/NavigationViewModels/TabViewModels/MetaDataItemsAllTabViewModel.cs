@@ -148,14 +148,14 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
             }
             catch (Exception ex)
             {
-                var errorCode = ApplicationLevelErrorCodes.UnknownError;
+                var errorCode = ApplicationLevelErrorCodes.UNKNOWN_ERROR;
                 switch (ex)
                 {
                     case OperationCanceledException _:
-                        errorCode = ApplicationLevelErrorCodes.OperationTimeOut;
+                        errorCode = ApplicationLevelErrorCodes.OPERATION_TIME_OUT;
                         break;
                     case WebException { Response: null }:
-                        errorCode = ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished;
+                        errorCode = ApplicationLevelErrorCodes.CONNECTION_WITH_THE_SERVER_COULD_NOT_BE_ESTABLISHED;
                         break;
                 }
 

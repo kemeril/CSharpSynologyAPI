@@ -21,11 +21,11 @@ namespace KDSVideo.Infrastructure
             }
         }
 
-        public Uri? GetHostUri(string host)
+        public Uri GetHostUri(string host)
         {
             if (string.IsNullOrWhiteSpace(host))
             {
-                return null;
+                throw new ArgumentException("Value cannot be null or whitespace.", nameof(host));
             }
 
             try
