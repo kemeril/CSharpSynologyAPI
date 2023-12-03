@@ -15,6 +15,8 @@ namespace KDSVideo.Views.NavigationViews
     /// </summary>
     public sealed partial class MoviePage : Page
     {
+        private bool _forceUpdate = true;
+
         public MoviePage()
         {
             InitializeComponent();
@@ -22,40 +24,54 @@ namespace KDSVideo.Views.NavigationViews
 
         private void NavigationViewControl_OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
+            Refresh(args.InvokedItemContainer.Tag.ToString() ?? string.Empty);
+        }
+
+        private void NavigationViewControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            _forceUpdate = true;
+            if (NavigationViewControl.SelectedItem == null && NavigationViewControl.MenuItems.FirstOrDefault(menu => (menu as Framework​Element)?.Tag?.ToString() == "ALL") is NavigationViewItem ALL)
+            {
+                ALL.IsSelected = true;
+            }
+            else
+            {
+                var tag = (NavigationViewControl.MenuItems.FirstOrDefault(item => item is Framework​Element) as FrameworkElement)?.Tag?.ToString() ?? string.Empty;
+                Refresh(tag);
+            }
+        }
+
+        private void Refresh(string tag)
+        {
             var library = (DataContext as MovieViewModel)?.Library;
             if (library == null)
             {
                 return;
             }
 
-            var tag = args.InvokedItemContainer.Tag?.ToString();
             switch (tag)
             {
                 case "ALL":
                     if (ContentFrame.Navigate(typeof(MetaDataItemsAllTabPage), library))
                     {
                         var page = ContentFrame.Content as MetaDataItemsAllTabPage;
-                        (page?.DataContext as MetaDataItemsAllTabViewModel)?.RefreshData(library, false);
+                        (page?.DataContext as MetaDataItemsAllTabViewModel)?.RefreshData(library, _forceUpdate);
+                        _forceUpdate = false;
                     }
                     break;
                 case "BY_FOLDER":
                     break;
                 case "JUST_ADDED":
+                    // TODO: ORDER BY CreateTime DESC
                     break;
                 case "JUST_WATCHED":
+                    // TODO: LAST_WATCHED > 0
                     break;
                 case "JUST_RELEASED":
+                    // TODO: ORDER BY OriginalAvailable DESC
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private void NavigationViewControl_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (NavigationViewControl.SelectedItem == null && NavigationViewControl.MenuItems.FirstOrDefault(menu => (menu as Framework​Element)?.Tag?.ToString() == "ALL") is NavigationViewItem ALL)
-            {
-                ALL.IsSelected = true;
             }
         }
     }
