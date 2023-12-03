@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using KDSVideo.Infrastructure;
@@ -15,27 +16,30 @@ using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
 {
-    public class MetaDataItemsAllTabViewModel : ObservableRecipient, IDisposable
+    public partial class MetaDataItemsAllTabViewModel : ObservableRecipient, IDisposable
     {
         private readonly IMessenger _messenger;
         private readonly IVideoStation _videoStation;
+
+#if DEBUG
+        private readonly TimeSpan _timeout = TimeSpan.FromHours(1);
+#else
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
+#endif
 
         private bool _disposedValue;
 
+        private Library? _library;
+
+        [ObservableProperty]
         private bool _showProgressIndicator;
-        private Library _library;
-        private ObservableCollection<MediaMetaDataItem> _mediaMetaDataItems;
 
         public MetaDataItemsAllTabViewModel()
         {
-            if (ServiceLocator.Services != null)
-            {
-                _messenger = ServiceLocator.Services.GetService<IMessenger>();
-                _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
+            _messenger = ServiceLocator.Services.GetRequiredService<IMessenger>();
+            _videoStation = ServiceLocator.Services.GetRequiredService<IVideoStation>();
 
-                IsActive = true;
-            }
+            IsActive = true;
         }
 
         ~MetaDataItemsAllTabViewModel()
@@ -49,17 +53,7 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
             GC.SuppressFinalize(this);
         }
 
-        public bool ShowProgressIndicator
-        {
-            get => _showProgressIndicator;
-            set => SetProperty(ref _showProgressIndicator, value);
-        }
-
-        public ObservableCollection<MediaMetaDataItem> MediaMetaDataItems
-        {
-            get => _mediaMetaDataItems;
-            private set => SetProperty(ref _mediaMetaDataItems, value);
-        }
+        public RangeObservableCollection<MediaMetaDataItem> MediaMetaDataItems { get; } = new();
 
         protected virtual void Dispose(bool disposing)
         {
@@ -74,103 +68,81 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
             }
         }
 
-        protected override void OnActivated()
-        {
-            _messenger.Register<LogoutMessage>(this, (_, _) => LogoutMessageReceived());
-        }
+        protected override void OnActivated() => _messenger.Register<LogoutMessage>(this, (_, _) => CleanUp());
 
-        protected override void OnDeactivated()
-        {
-            _messenger.UnregisterAll(this);
-        }
-
-        private void LogoutMessageReceived()
-        {
-            CleanUp();
-        }
+        protected override void OnDeactivated() => _messenger.UnregisterAll(this);
 
         private void CleanUp()
         {
             _library = null;
-            MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>();
+            MediaMetaDataItems.Clear();
         }
 
-        public void RefreshData()
+        public async Task RefreshData(Library library, bool forceUpdate)
         {
-            RefreshData(_library, true);
-        }
-
-        public async void RefreshData(Library library, bool forceUpdate)
-        {
-            if (_videoStation == null)
-            {
-                return;
-            }
-
             if (!forceUpdate && _library == library)
             {
                 return;
             }
 
-            CleanUp();
-            _library = library;
-            if (_library == null)
-            {
-                return;
-            }
-
-            var cts = new CancellationTokenSource(_timeout);
-
-            ShowProgressIndicator = true;
+            ShowProgressIndicator = false;
             try
             {
-                switch (library.LibraryType)
-                {
-                    case LibraryType.Movie:
-                        {
-                            var moviesInfo = await _videoStation.MovieListAsync(library.Id, cancellationToken: cts.Token);
-                            MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>(moviesInfo.Movies
-                                .Select(item => new MovieMetaDataItem(item)));
-                            break;
-                        }
-                    case LibraryType.TvShow:
-                        var tvShowsInfo = await _videoStation.TvShowListAsync(library.Id, cancellationToken: cts.Token);
-                        MediaMetaDataItems = new ObservableCollection<MediaMetaDataItem>(tvShowsInfo.TvShows
-                            .Select(item => new TvShowMetaDataItem(item)));
-                        break;
-                    case LibraryType.HomeVideo:
-                    case LibraryType.TvRecord:
-                    case LibraryType.Unknown:
-                        throw new NotSupportedException();
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-            catch (Exception ex)
-            {
-                var errorCode = ApplicationLevelErrorCodes.UNKNOWN_ERROR;
-                switch (ex)
-                {
-                    case OperationCanceledException _:
-                        errorCode = ApplicationLevelErrorCodes.OPERATION_TIME_OUT;
-                        break;
-                    case WebException { Response: null }:
-                        errorCode = ApplicationLevelErrorCodes.CONNECTION_WITH_THE_SERVER_COULD_NOT_BE_ESTABLISHED;
-                        break;
-                }
-
-                var errorMessage = ApplicationLevelErrorMessages.GetErrorMessage(errorCode);
-                Trace.TraceWarning($"{errorMessage}. Exception: {ex}");
                 CleanUp();
+                _library = library;
 
-                if (!string.IsNullOrWhiteSpace(errorMessage))
+                var cts = new CancellationTokenSource(_timeout);
+
+                try
                 {
-                    await new ErrorDialog(errorMessage).ShowAsync();
+                    switch (library.LibraryType)
+                    {
+                        case LibraryType.Movie:
+                            {
+                                var moviesInfo = await _videoStation.MovieListAsync(library.Id, cancellationToken: cts.Token);
+                                var mediaMetaDataItems = moviesInfo.Movies
+                                    .Select(item => new MovieMetaDataItem(item));
+                                MediaMetaDataItems.AddRange(mediaMetaDataItems);
+                                break;
+                            }
+                        case LibraryType.TvShow:
+                            {
+                                var tvShowsInfo = await _videoStation.TvShowListAsync(library.Id, cancellationToken: cts.Token);
+                                var mediaMetaDataItems = tvShowsInfo.TvShows
+                                    .Select(item => new TvShowMetaDataItem(item));
+                                MediaMetaDataItems.AddRange(mediaMetaDataItems);
+                                break;
+                            }
+                        case LibraryType.HomeVideo:
+                        case LibraryType.TvRecord:
+                        case LibraryType.Unknown:
+                            throw new NotSupportedException();
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    var errorCode = ex switch
+                    {
+                        OperationCanceledException _ => ApplicationLevelErrorCodes.OPERATION_TIME_OUT,
+                        WebException { Response: null } => ApplicationLevelErrorCodes.CONNECTION_WITH_THE_SERVER_COULD_NOT_BE_ESTABLISHED,
+                        _ => ApplicationLevelErrorCodes.UNKNOWN_ERROR
+                    };
+
+                    var errorMessage = ApplicationLevelErrorMessages.GetErrorMessage(errorCode);
+                    Trace.TraceWarning($"{errorMessage}. Exception: {ex}");
+                    CleanUp();
+
+                    if (!string.IsNullOrWhiteSpace(errorMessage))
+                    {
+                        await new ErrorDialog(errorMessage).ShowAsync();
+                    }
                 }
             }
             finally
             {
-                ShowProgressIndicator = false;
+                ShowProgressIndicator = true;
             }
         }
     }

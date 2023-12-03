@@ -164,6 +164,7 @@
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Messages\LoginMessage.cs" />
     <Compile Include="Messages\LogoutMessage.cs" />
+    <Compile Include="RangeObservableCollection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UIHelpers\DateConverter.cs" />
     <Compile Include="UIHelpers\LibraryNameConverter.cs" />

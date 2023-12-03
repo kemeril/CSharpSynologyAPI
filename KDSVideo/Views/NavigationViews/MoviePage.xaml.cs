@@ -17,7 +17,7 @@ namespace KDSVideo.Views.NavigationViews
     {
         public MoviePage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
         private void NavigationViewControl_OnItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
