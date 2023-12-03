@@ -100,16 +100,27 @@ namespace KDSVideo.ViewModels.NavigationViewModels.TabViewModels
                         case LibraryType.Movie:
                             {
                                 var moviesInfo = await _videoStation.MovieListAsync(library.Id, cancellationToken: cts.Token);
-                                var mediaMetaDataItems = moviesInfo.Movies
-                                    .Select(item => new MovieMetaDataItem(item));
+                                var mediaMetaDataItems = moviesInfo.Movies.Select(item => new MovieMetaDataItem(item));
+
+                                // TODO: "BY_FOLDER"
+                                // var folders = await _videoStation.FolderListAsync(library.Id, "", LibraryType.Movie, cancellationToken: cts.Token);
+
+                                // TODO: "JUST_ADDED"
+                                // mediaMetaDataItems = mediaMetaDataItems.OrderByDescending(i => i.MetaDataItem.CreateTime);
+
+                                // TODO: "JUST_WATCHED"
+                                // mediaMetaDataItems = mediaMetaDataItems.Where(i => i.MetaDataItem.RecentlyWatched).OrderByDescending(i => i.MetaDataItem.LastWatched);
+
+                                // TODO: "JUST_RELEASED"
+                                // mediaMetaDataItems = mediaMetaDataItems.Where(i => i.MetaDataItem.OriginalAvailable.HasValue).OrderByDescending(i => i.MetaDataItem.OriginalAvailable!.Value);
+
                                 MediaMetaDataItems.AddRange(mediaMetaDataItems);
                                 break;
                             }
                         case LibraryType.TvShow:
                             {
                                 var tvShowsInfo = await _videoStation.TvShowListAsync(library.Id, cancellationToken: cts.Token);
-                                var mediaMetaDataItems = tvShowsInfo.TvShows
-                                    .Select(item => new TvShowMetaDataItem(item));
+                                var mediaMetaDataItems = tvShowsInfo.TvShows.Select(item => new TvShowMetaDataItem(item));
                                 MediaMetaDataItems.AddRange(mediaMetaDataItems);
                                 break;
                             }

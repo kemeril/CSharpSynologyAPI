@@ -64,7 +64,7 @@ namespace SynologyAPI
         /// </summary>
         /// <param name="libraryId">Id of a Library. Library list can be retrieve by <see cref="LibraryListAsync"/> method. The built in libraries has 0 value such as built in Movies, TVShows, HomeVideos, TVRecordings. User added libraries has an own id value.</param>
         /// <param name="libraryType"><see cref="LibraryType"/>, according the type of the <paramref name="libraryId"/></param>
-        /// <param name="id">The id of the folder is requested. See <see cref="Folder.Id"/>. Optional. If not specified the root folder list is requested.</param>
+        /// <param name="id">The id of the folder is requested. See <see cref="FileSystemObject.Id"/>. Optional. If not specified the root folder list is requested.</param>
         /// <param name="sortBy">Add sorting by <see cref="VideoStation.SortBy"/></param>
         /// <param name="sortDirection">Add sorting direction if <paramref name="sortBy"/> is not equals to <see cref="VideoStation.SortBy.None"/></param>
         /// <param name="offset">Skip the given number of elements.  It has take effect if the value is greater than 0.</param>
