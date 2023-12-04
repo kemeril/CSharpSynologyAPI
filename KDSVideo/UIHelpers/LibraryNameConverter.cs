@@ -1,37 +1,22 @@
-using System;
 using SynologyAPI.SynologyRestDAL.Vs;
 
 namespace KDSVideo.UIHelpers
 {
     public static class LibraryNameConverter
     {
-        public static string GetLibraryName(Library library)
-        {
-            if (library == null)
-            {
-                return string.Empty;
-            }
+        public static string GetLibraryName(Library library) =>
+            library.IsSystemDefault || string.IsNullOrWhiteSpace(library.Title)
+                ? GetDefaultLibraryName(library)
+                : library.Title;
 
-            if (library.Id == 0)
+        private static string GetDefaultLibraryName(Library library) =>
+            library.LibraryType switch
             {
-                switch (library.LibraryType)
-                {
-                    case LibraryType.Movie:
-                        return "Movies";
-                    case LibraryType.TvShow:
-                        return "TV Shows";
-                    case LibraryType.HomeVideo:
-                        return "Home Videos";
-                    case LibraryType.TvRecord:
-                        return "TV Recordings";
-                    case LibraryType.Unknown:
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException(nameof(library.LibraryType));
-                }
-            }
-
-            return string.IsNullOrEmpty(library.Title) ? string.Empty : library.Title;
-        }
+                LibraryType.Movie => "Movies",
+                LibraryType.TvShow => "TV Shows",
+                LibraryType.HomeVideo => "Home Videos",
+                LibraryType.TvRecord => "TV Recordings",
+                _ => library.Title ?? string.Empty
+            };
     }
 }

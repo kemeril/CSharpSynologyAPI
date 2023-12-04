@@ -25,28 +25,55 @@ namespace KDSVideo.Infrastructure
                 return Services;
             }
 
-            var services = new ServiceCollection();
+            return Services = new ServiceCollection()
+                .ConfigureNavigation()
+                .RegisterAppServices()
+                .RegisterViewModels()
+                .BuildServiceProvider();
+        }
 
+        private static IServiceCollection ConfigureNavigation(this IServiceCollection services)
+        {
             var navigationService = new NavigationService()
-                .Configure(PageNavigationKey.LoginPage, typeof(LoginPage))
-                .Configure(PageNavigationKey.MoviePage, typeof(MoviePage))
-                .Configure(PageNavigationKey.TvShowPage, typeof(TVShowPage))
-                .Configure(PageNavigationKey.SettingsPage, typeof(SettingsPage))
-                .ConfigureBackNavigationTransition(NavigationService.UNKNOWN_PAGE_KEY, PageNavigationKey.LoginPage)
-                .ConfigureBackNavigationTransition(PageNavigationKey.MoviePage, PageNavigationKey.LoginPage)
-                .ConfigureBackNavigationTransition(PageNavigationKey.CurrentMoviePage, PageNavigationKey.MoviePage)
-                .ConfigureBackNavigationTransition(PageNavigationKey.TvShowPage, PageNavigationKey.LoginPage)
-                .ConfigureBackNavigationTransition(PageNavigationKey.CurrentTvShowPage, PageNavigationKey.TvShowPage)
-                .ConfigureBackNavigationTransition(PageNavigationKey.SettingsPage, PageNavigationKey.LoginPage);
+                .Configure(PageNavigationKey.LOGIN_PAGE, typeof(LoginPage))
+                .Configure(PageNavigationKey.MOVIE_PAGE, typeof(MoviePage))
+                .Configure(PageNavigationKey.TV_SHOW_PAGE, typeof(TVShowPage))
+                .Configure(PageNavigationKey.SETTINGS_PAGE, typeof(SettingsPage))
+                .ConfigureBackNavigationTransition(NavigationService.UNKNOWN_PAGE_KEY, PageNavigationKey.LOGIN_PAGE)
+                .ConfigureBackNavigationTransition(PageNavigationKey.MOVIE_PAGE, PageNavigationKey.LOGIN_PAGE)
+                .ConfigureBackNavigationTransition(PageNavigationKey.CURRENT_MOVIE_PAGE, PageNavigationKey.MOVIE_PAGE)
+                .ConfigureBackNavigationTransition(PageNavigationKey.TV_SHOW_PAGE, PageNavigationKey.LOGIN_PAGE)
+                .ConfigureBackNavigationTransition(PageNavigationKey.CURRENT_TV_SHOW_PAGE, PageNavigationKey.TV_SHOW_PAGE)
+                .ConfigureBackNavigationTransition(PageNavigationKey.SETTINGS_PAGE, PageNavigationKey.LOGIN_PAGE);
 
             navigationService.Navigating += OnNavigationServiceNavigating;
 
             navigationService.Navigated += (_, args) =>
             {
-                ((navigationService.CurrentFrame?.Content as FrameworkElement)?.DataContext as INavigable)?.Navigated(navigationService, args);
+                ((navigationService.CurrentFrame?.Content as FrameworkElement)?.DataContext as INavigable)?
+                    .Navigated(navigationService, args);
             };
 
-            //Register your services used here
+            services.AddSingleton<INavigationService>(navigationService);
+
+            return services;
+        }
+
+        private static async void OnNavigationServiceNavigating(object _, NavigatingCancelEventArgs args)
+        {
+            if (args is { Cancel: false, NavigationMode: NavigationMode.Back } && PageNavigationKey.LOGIN_PAGE.Equals(args.SourcePageKey, StringComparison.Ordinal))
+            {
+                args.Cancel = true;
+                var logoffDialog = new LogoffDialog();
+                if (await logoffDialog.ShowAsync() == ContentDialogResult.Primary)
+                {
+                    WeakReferenceMessenger.Default.Send<LogoutMessage>();
+                }
+            }
+        }
+
+        private static IServiceCollection RegisterAppServices(this IServiceCollection services)
+        {
             services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
             services.AddSingleton<IDeviceIdProvider, DeviceIdProvider>();
             services.AddSingleton<IAutoLoginDataHandler, AutoLoginDataHandler>();
@@ -55,7 +82,7 @@ namespace KDSVideo.Infrastructure
             services.AddSingleton<INetworkService, NetworkService>();
             services.AddSingleton<IVideoStation, VideoStation>();
             services.AddSingleton<IVideoSettingsDataHandler, VideoSettingsDataHandler>();
-            services.AddSingleton<INavigationService>(navigationService);
+
 
             if (DesignMode.DesignModeEnabled)
             {
@@ -66,28 +93,18 @@ namespace KDSVideo.Infrastructure
                 services.AddSingleton<IApplicationInfoService, ApplicationInfoService>();
             }
 
+            return services;
+        }
+
+        private static IServiceCollection RegisterViewModels(this IServiceCollection services)
+        {
             services.AddSingleton<LoginViewModel>();
             services.AddSingleton<LogoffViewModel>();
             services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<MovieViewModel>();
 
-            Services = services.BuildServiceProvider();
-
-            return Services;
-        }
-
-        private static async void OnNavigationServiceNavigating(object _, NavigatingCancelEventArgs args)
-        {
-            if (args is { Cancel: false, NavigationMode: NavigationMode.Back } && PageNavigationKey.LoginPage.Equals(args.SourcePageKey, StringComparison.Ordinal))
-            {
-                args.Cancel = true;
-                var logoffDialog = new LogoffDialog();
-                if (await logoffDialog.ShowAsync() == ContentDialogResult.Primary)
-                {
-                    WeakReferenceMessenger.Default.Send<LogoutMessage>();
-                }
-            }
+            return services;
         }
     }
 }

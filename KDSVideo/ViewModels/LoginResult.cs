@@ -46,11 +46,11 @@ namespace KDSVideo.ViewModels
             get => ErrorCode switch
             {
                 // Application level error codes
-                ApplicationLevelErrorCodes.InvalidHost => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
-                ApplicationLevelErrorCodes.QuickConnectIsNotSupported => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
-                ApplicationLevelErrorCodes.OperationTimeOut => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
-                ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
-                ApplicationLevelErrorCodes.NoVideoLibraries => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.INVALID_HOST => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.QUICK_CONNECT_IS_NOT_SUPPORTED => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.OPERATION_TIME_OUT => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.CONNECTION_WITH_THE_SERVER_COULD_NOT_BE_ESTABLISHED => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
+                ApplicationLevelErrorCodes.NO_VIDEO_LIBRARIES => ApplicationLevelErrorMessages.GetErrorMessage(ErrorCode),
 
                 // Synology error codes
                 ErrorCodes.TheAccountParameterIsNotSpecified => "The account is not specified.",

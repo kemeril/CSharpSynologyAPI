@@ -9,14 +9,14 @@ namespace KDSVideo.Views
 {
     public sealed partial class LoginPage : Page
     {
-        private const string TextControlForegroundFocusedKey = "TextControlForegroundFocused";
+        private const string TEXT_CONTROL_FOREGROUND_FOCUSED_KEY = "TextControlForegroundFocused";
 
         public LoginPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
 
-        private Brush GetTextControlForegroundFocusedBrush() => (Brush)Application.Current.Resources[TextControlForegroundFocusedKey];
+        private static Brush GetTextControlForegroundFocusedBrush() => (Brush)Application.Current.Resources[TEXT_CONTROL_FOREGROUND_FOCUSED_KEY];
 
         private void Host_GotFocus(object sender, RoutedEventArgs _)
         {
@@ -51,7 +51,7 @@ namespace KDSVideo.Views
 
         private void LoginPage_OnProcessKeyboardAccelerators(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
         {
-            if (args.Key == VirtualKey.Enter && args.Modifiers == VirtualKeyModifiers.None)
+            if (args is { Key: VirtualKey.Enter, Modifiers: VirtualKeyModifiers.None })
             {
                 (DataContext as LoginViewModel)?.LoginCommand.Execute(null);
             }

@@ -134,7 +134,7 @@ namespace KDSVideo.ViewModels
                     return new LoginResult(loginInfo, libraries);
                 }
 
-                throw new LoginException(ApplicationLevelErrorCodes.NoVideoLibraries);
+                throw new LoginException(ApplicationLevelErrorCodes.NO_VIDEO_LIBRARIES);
             }
             catch (Exception ex)
             {
@@ -142,11 +142,11 @@ namespace KDSVideo.ViewModels
 
                 return ex switch
                 {
-                    NotSupportedException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.InvalidHost)),
-                    QuickConnectLoginNotSupportedException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.QuickConnectIsNotSupported)),
+                    NotSupportedException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.INVALID_HOST)),
+                    QuickConnectLoginNotSupportedException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.QUICK_CONNECT_IS_NOT_SUPPORTED)),
                     LoginException _ => new LoginResult(ex),
-                    OperationCanceledException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.OperationTimeOut)),
-                    WebException { Response: null } => new LoginResult(new LoginException(ApplicationLevelErrorCodes.ConnectionWithTheServerCouldNotBeEstablished)),
+                    OperationCanceledException _ => new LoginResult(new LoginException(ApplicationLevelErrorCodes.OPERATION_TIME_OUT)),
+                    WebException { Response: null } => new LoginResult(new LoginException(ApplicationLevelErrorCodes.CONNECTION_WITH_THE_SERVER_COULD_NOT_BE_ESTABLISHED)),
                     _ => new LoginResult(ex)
                 };
             }
@@ -208,7 +208,16 @@ namespace KDSVideo.ViewModels
             var cts = new CancellationTokenSource(_timeout);
             var deviceName = GetDeviceName();
             var webProxy = _networkService.GetProxy();
-            var baseUri = _networkService.GetHostUri(Host);
+            Uri baseUri;
+            try
+            {
+                baseUri = _networkService.GetHostUri(Host);
+            }
+            catch
+            {
+                await new ErrorDialog(ApplicationLevelErrorMessages.GetErrorMessage(ApplicationLevelErrorCodes.INVALID_HOST)).ShowAsync();
+                return;
+            }
 
             _videoStation.ClearCookies();
             var encryptionInfoResult = await GetEncryptionInfoAsync(webProxy, baseUri, cts.Token);

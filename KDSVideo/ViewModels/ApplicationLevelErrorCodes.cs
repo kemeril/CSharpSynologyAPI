@@ -1,35 +1,35 @@
-﻿namespace KDSVideo.ViewModels
+namespace KDSVideo.ViewModels
 {
     internal class ApplicationLevelErrorCodes
     {
         /// <summary>
         /// Invalid host.
         /// </summary>
-        public const int InvalidHost = -1;
+        public const int INVALID_HOST = -1;
 
         /// <summary>
         /// QuickConnect connection type is not supported.
         /// </summary>
-        public const int QuickConnectIsNotSupported = -2;
+        public const int QUICK_CONNECT_IS_NOT_SUPPORTED = -2;
 
         /// <summary>
         /// Operation time out.
         /// </summary>
-        public const int OperationTimeOut = -3;
+        public const int OPERATION_TIME_OUT = -3;
 
         /// <summary>
         /// Connection with the server could not be established.
         /// </summary>
-        public const int ConnectionWithTheServerCouldNotBeEstablished = -4;
+        public const int CONNECTION_WITH_THE_SERVER_COULD_NOT_BE_ESTABLISHED = -4;
 
         /// <summary>
         /// There is no video libraries is available for the user logged in.
         /// </summary>
-        public const int NoVideoLibraries = -5;
+        public const int NO_VIDEO_LIBRARIES = -5;
 
         /// <summary>
         /// Unknown error.
         /// </summary>
-        public const int UnknownError = int.MinValue;
+        public const int UNKNOWN_ERROR = int.MinValue;
     }
 }

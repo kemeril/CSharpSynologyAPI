@@ -40,7 +40,7 @@ namespace KDSVideo
             {
                 mainPage = new MainPage();
                 var rootFrame = mainPage.NavigationFrame;
-                rootFrame.NavigationFailed += (sender, args) => throw new Exception("Failed to load Page " + args.SourcePageType.FullName);
+                rootFrame.NavigationFailed += (_, args) => throw new Exception("Failed to load Page " + args.SourcePageType.FullName);
                 navigationService.CurrentFrame = rootFrame;
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
@@ -53,12 +53,12 @@ namespace KDSVideo
 
             if (navigationService != null && e.PrelaunchActivated == false)
             {
-                if (navigationService.CurrentFrame.Content == null)
+                if (navigationService.CurrentFrame?.Content == null)
                 {
                     ViewModelLocator.Init();
 
                     // Set initial navigation page
-                    navigationService.NavigateTo(PageNavigationKey.LoginPage);
+                    navigationService.NavigateTo(PageNavigationKey.LOGIN_PAGE);
                 }
 
                 // Ensure the current window is active

@@ -20,12 +20,12 @@ namespace KDSVideo.Views.NavigationViews.TabViews
     public sealed partial class MetaDataItemsAllTabPage : Page
     {
         private readonly TimeSpan _timeout = TimeSpan.FromSeconds(30);
-        private readonly IVideoStation? _videoStation;
+        private readonly IVideoStation _videoStation;
 
         public MetaDataItemsAllTabPage()
         {
             InitializeComponent();
-            _videoStation = ServiceLocator.Services.GetService<IVideoStation>();
+            _videoStation = ServiceLocator.Services.GetRequiredService<IVideoStation>();
         }
 
         private void ListViewBase_OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)

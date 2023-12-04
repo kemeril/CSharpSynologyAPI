@@ -214,7 +214,18 @@ namespace SynologyAPI.SynologyRestDAL
             public string Tagline { get; set; }
 
             [DataMember(Name = "create_time")]
-            public int CreateTime { get; set; }
+            public long OriginalCreateTime { get; private set; }
+
+            /// <summary>
+            ///  Samples:
+            /// 1554724904
+            /// and it means: Mon Apr 08 2019 13:01:44 GMT+0200 (CEST)
+            /// </summary>
+            public DateTime CreateTime
+            {
+                get => DateTimeConverter.FromUnixTime(OriginalCreateTime);
+                set => OriginalCreateTime = DateTimeConverter.ToUnixTime(value);
+            }
 
             [DataMember(Name = "last_watched")]
             public int LastWatched { get; set; }
@@ -223,6 +234,17 @@ namespace SynologyAPI.SynologyRestDAL
             public Additional Additional { get; private set; }
 
             public virtual MediaType MediaType { get; } = MediaType.Unknown;
+
+            /// <summary>
+            /// Recently or just watched.
+            /// </summary>
+            public bool RecentlyWatched
+            {
+                get
+                {
+                    return LastWatched > 0;
+                }
+            }
 
             public override string ToString()
             {
@@ -676,6 +698,18 @@ namespace SynologyAPI.SynologyRestDAL
                         case "tv_record": return LibraryType.TvRecord;
                         default: return LibraryType.Unknown;
                     }
+                }
+            }
+
+            /// <summary>
+            /// By default, three video folders have been created under the video shared folder for the three default libraries: movie, TV show, and home video.
+            /// However, in addition to these three folders, you can also do the following to add more video folders for the libraries.
+            /// </summary>
+            public bool IsSystemDefault
+            {
+                get
+                {
+                    return Id == 0 && (LibraryType == LibraryType.Movie || LibraryType == LibraryType.TvShow || LibraryType == LibraryType.HomeVideo || LibraryType == LibraryType.TvRecord);
                 }
             }
 
